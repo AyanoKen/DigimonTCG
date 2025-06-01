@@ -102,6 +102,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95ecd7112c9903446881310673b5bb66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardId: 0
+  currentZone: 1
 --- !u!114 &575741044024098785
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,18 +1,90 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 {
-    // Start is called before the first frame update
-    void Start()
+    public int cardId;
+    public Zone currentZone;
+
+    public enum Zone
     {
-        
+        Deck,
+        Hand,
+        BreedingEggSlot,
+        BreedingActiveSlot,
+        BattleArea,
+        Trash,
+        Security
     }
 
-    // Update is called once per frame
-    void Update()
+    private bool isZoomed = false;
+    private Vector3 originalPosition;
+    private Vector3 originalScale;
+    private Vector2 originalSize;
+    private Transform originalParent;
+    private Canvas topCanvas;
+
+    private RectTransform rectTransform;
+
+    private void Awake()
     {
-        
+        rectTransform = GetComponent<RectTransform>();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // Intentionally left empty to avoid conflicts with hold detection
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            ZoomIn();
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            ZoomOut();
+        }
+    }
+
+    private void ZoomIn()
+    {
+        if (isZoomed) return;
+
+        isZoomed = true;
+        originalPosition = transform.position;
+        originalScale = transform.localScale;
+        originalParent = transform.parent;
+        originalSize = rectTransform.sizeDelta;
+
+        topCanvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        transform.SetParent(topCanvas.transform, true);
+        transform.SetAsLastSibling();
+
+        Vector2 centerScreen = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        transform.position = centerScreen;
+
+        // Set fixed zoom size
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 450);
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 660);
+    }
+
+    private void ZoomOut()
+    {
+        if (!isZoomed) return;
+
+        isZoomed = false;
+        transform.SetParent(originalParent, true);
+        transform.localScale = originalScale;
+        transform.position = originalPosition;
+
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, originalSize.x);
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalSize.y);   
     }
 }
