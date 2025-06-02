@@ -122,6 +122,23 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &281925261 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3744043944639491732, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &281925265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281925261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a3cbece5be804f4bb1c9cde2e2c54d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &659146527
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,6 +469,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2445667454730978018, guid: e23452d1fa303e8468582e108d35c302, type: 3}
   m_PrefabInstance: {fileID: 5303302001107597167}
   m_PrefabAsset: {fileID: 0}
+--- !u!224 &1532630491 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9199204144306301403, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1723555254
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,6 +520,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardPrefab: {fileID: 6554642789408046384, guid: 5f56e3253710cbe409c866b80e32d7ff, type: 3}
   handZone: {fileID: 1307490109}
+  breedingZone: {fileID: 1532630491}
 --- !u!1 &2140502910
 GameObject:
   m_ObjectHideFlags: 0
@@ -585,6 +608,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayMat
       objectReference: {fileID: 0}
+    - target: {fileID: 7408108447356779793, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8784869671478016433, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -669,6 +696,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3744043944639491732, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 281925265}
     - targetCorrespondingSourceObject: {fileID: 8658091113287289743, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1139850566}

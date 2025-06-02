@@ -1,17 +1,28 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class EggStack : MonoBehaviour
+public class EggStack : MonoBehaviour, IPointerClickHandler
 {
-    // Start is called before the first frame update
-    void Start()
+    private Image eggImage;
+
+    private void Awake()
     {
-        
+        eggImage = GetComponent<Image>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            bool success = GameManager.Instance.DrawCardFromEggs();
+
+            if (!success)
+            {
+                Color tempColor = eggImage.color;
+                tempColor.a = 0f;
+                eggImage.color = tempColor;
+            }
+        }
     }
 }

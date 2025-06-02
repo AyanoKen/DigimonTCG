@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform handZone;
+    [SerializeField] private Transform breedingZone;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -39,6 +40,8 @@ public class GameManager : MonoBehaviour
 
     private List<int> digieggs = new List<int>();
     private List<int> deck = new List<int>();
+
+    private bool isHatchingSlotOccupied = false;
 
     private void Awake()
     {
@@ -119,17 +122,60 @@ public class GameManager : MonoBehaviour
         card.currentZone = Card.Zone.Hand;
     }
 
+    private void HatchDigiegg(int cardId)
+    {
+        GameObject cardGO = Instantiate(cardPrefab, breedingZone);
+        Image image = cardGO.GetComponent<Image>();
+
+        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        {
+            image.sprite = sprite;
+        }
+
+        Card card = cardGO.GetComponent<Card>();
+        card.cardId = cardId;
+        card.currentZone = Card.Zone.BreedingActiveSlot;
+    }
+
     public void DrawCardFromDeck()
-{
-    if (deck.Count > 0)
     {
-        int cardId = deck[0];
-        deck.RemoveAt(0);
-        SpawnCardToHand(cardId);
+        if (deck.Count > 0)
+        {
+            int cardId = deck[0];
+            deck.RemoveAt(0);
+            SpawnCardToHand(cardId);
+        }
+        else
+        {
+            Debug.Log("Deck is empty.");
+        }
     }
-    else
+
+    public bool DrawCardFromEggs()
     {
-        Debug.Log("Deck is empty.");
+        if (!isHatchingSlotOccupied)
+        {
+            if (digieggs.Count > 0)
+            {
+                int cardId = digieggs[0];
+                digieggs.RemoveAt(0);
+                HatchDigiegg(cardId);
+                isHatchingSlotOccupied = true;
+            }
+            else
+            {
+                Debug.Log("No more eggs to hatch");
+                return false;
+            }
+        }
+        else
+        {
+            Debug.Log("Breeding Active area is not available");
+        }
+
+        return true;
     }
-}
+
+
+
 }
