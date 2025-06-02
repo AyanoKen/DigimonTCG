@@ -39,7 +39,6 @@ public class GameManager : MonoBehaviour
 
     private List<int> digieggs = new List<int>();
     private List<int> deck = new List<int>();
-    private List<int> currentHand = new List<int>();
 
     private void Awake()
     {
@@ -101,7 +100,6 @@ public class GameManager : MonoBehaviour
         {
             int cardId = deck[0];
             deck.RemoveAt(0);
-            currentHand.Add(cardId);
             SpawnCardToHand(cardId);
         }
     }
@@ -120,4 +118,18 @@ public class GameManager : MonoBehaviour
         card.cardId = cardId;
         card.currentZone = Card.Zone.Hand;
     }
+
+    public void DrawCardFromDeck()
+{
+    if (deck.Count > 0)
+    {
+        int cardId = deck[0];
+        deck.RemoveAt(0);
+        SpawnCardToHand(cardId);
+    }
+    else
+    {
+        Debug.Log("Deck is empty.");
+    }
+}
 }
