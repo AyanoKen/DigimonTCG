@@ -16,7 +16,17 @@ public class DropZone : MonoBehaviour, IDropHandler
 
             if (card != null)
             {
+                if (card.currentZone == Card.Zone.BreedingActiveSlot)
+                {
+                    GameManager.Instance.isHatchingSlotOccupied = false;
+                }
+
                 card.currentZone = zoneType;
+
+                if (zoneType == Card.Zone.BattleArea)
+                {
+                    GameManager.Instance.PlayCardToBattleArea(card);
+                }
             }
         }
     }

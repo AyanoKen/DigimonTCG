@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using Newtonsoft.Json;
 
 [System.Serializable]
 public class CardData
@@ -18,6 +19,12 @@ public class CardData
     public int? play_cost;
     public string image_path;
     // TODO: Effect fields
+
+    //Debug function to be able to log card data
+    public override string ToString()
+    {
+        return $"ID: {id}, Name: {name}, Type: {card_type}, Level: {level}, PlayCost: {play_cost}, Color: {color}, Form: {form}, DP: {dp}";
+    }
 }
 
 [System.Serializable]
@@ -33,6 +40,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform handZone;
     [SerializeField] private Transform breedingZone;
+    [SerializeField] private MemoryGaugeManager memoryManager;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -40,12 +48,14 @@ public class GameManager : MonoBehaviour
 
     private List<int> digieggs = new List<int>();
     private List<int> deck = new List<int>();
+    private int currentMemory = 0;
 
-    private bool isHatchingSlotOccupied = false;
+    public bool isHatchingSlotOccupied = false;
 
     private void Awake()
     {
         Instance = this;
+        currentMemory = memoryManager.GetCurrentMemory();
     }
 
     private void Start()
@@ -64,10 +74,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        string json = "{\"cards\":" + jsonFile.text + "}"; // Wrap in object for parsing
-        CardDataList wrapper = JsonUtility.FromJson<CardDataList>(json);
-
-        deckguide = wrapper.cards;
+        deckguide = JsonConvert.DeserializeObject<List<CardData>>(jsonFile.text);
 
         foreach (CardData card in deckguide)
         {
@@ -78,7 +85,7 @@ public class GameManager : MonoBehaviour
             else
                 deck.Add(card.id);
 
-            // Load and cache the image
+            // Load and cache image
             string path = card.image_path.Replace("./", "Cards/Agumon-Deck/").Replace(".jpg", "").Replace(".png", "");
             Sprite sprite = Resources.Load<Sprite>(path);
             if (sprite != null)
@@ -176,6 +183,26 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
+    public void PlayCardToBattleArea(Card card)
+    {
+        if (!idToData.ContainsKey(card.cardId))
+        {
+            Debug.LogError("Card ID Missing in database");
+        }
 
+        CardData data = idToData[card.cardId];
+
+        int cost = 0;
+
+        if (data.play_cost.HasValue)
+        {
+            cost = data.play_cost.Value;
+        }
+
+        currentMemory -= cost;
+        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
+
+        memoryManager.SetMemory(currentMemory);
+    }
 
 }

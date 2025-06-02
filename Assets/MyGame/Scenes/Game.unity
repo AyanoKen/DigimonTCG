@@ -487,6 +487,8 @@ MonoBehaviour:
   cardPrefab: {fileID: 6554642789408046384, guid: 5f56e3253710cbe409c866b80e32d7ff, type: 3}
   handZone: {fileID: 1307490109}
   breedingZone: {fileID: 1532630491}
+  memoryManager: {fileID: 5303302001107597169}
+  isHatchingSlotOccupied: 0
 --- !u!1 &2140502910
 GameObject:
   m_ObjectHideFlags: 0
@@ -573,6 +575,10 @@ PrefabInstance:
     - target: {fileID: 2307098245494133728, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Name
       value: PlayMat
+      objectReference: {fileID: 0}
+    - target: {fileID: 4603350056469414092, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8784869671478016433, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Pivot.x
@@ -664,6 +670,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8784869671478016433, guid: e23452d1fa303e8468582e108d35c302, type: 3}
   m_PrefabInstance: {fileID: 5303302001107597167}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5303302001107597169 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2116322970291390033, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f66540798ba5d5f4bb0827b26350eab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

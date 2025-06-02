@@ -1969,6 +1969,7 @@ GameObject:
   - component: {fileID: 9199204144306301403}
   - component: {fileID: 751995003908200517}
   - component: {fileID: 7408108447356779793}
+  - component: {fileID: 2062727791343950268}
   m_Layer: 5
   m_Name: Hatched
   m_TagString: Untagged
@@ -2033,6 +2034,32 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2062727791343950268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599885428935146010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 0
+    m_Right: 0
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 4
+  m_Spacing: 0
+  m_ChildForceExpandWidth: 0
+  m_ChildForceExpandHeight: 0
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
+  m_ChildScaleWidth: 0
+  m_ChildScaleHeight: 0
+  m_ReverseArrangement: 0
 --- !u!1 &4712127162409539255
 GameObject:
   m_ObjectHideFlags: 0
@@ -2301,6 +2328,7 @@ GameObject:
   - component: {fileID: 7344512881893457694}
   - component: {fileID: 1852895854177719252}
   - component: {fileID: 6376098181423482205}
+  - component: {fileID: 2116322970291390033}
   m_Layer: 5
   m_Name: MemoryGuage
   m_TagString: Untagged
@@ -2387,6 +2415,41 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2116322970291390033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5091391963464609201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f66540798ba5d5f4bb0827b26350eab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positiveMemorySlots:
+  - {fileID: 197454528193528171}
+  - {fileID: 7795979641558913156}
+  - {fileID: 3096002348823828257}
+  - {fileID: 9204034169078635965}
+  - {fileID: 1100157335422406233}
+  - {fileID: 4712127162409539255}
+  - {fileID: 6400542004197667623}
+  - {fileID: 8002056222452555893}
+  - {fileID: 6423676121837576337}
+  - {fileID: 1929993746415592219}
+  negativeMemorySlots:
+  - {fileID: 1918776268851717572}
+  - {fileID: 7431508042366715249}
+  - {fileID: 5564698931911101839}
+  - {fileID: 100408109504987036}
+  - {fileID: 1513346959146582761}
+  - {fileID: 9187528077085115016}
+  - {fileID: 6543865964448653984}
+  - {fileID: 5501134319777058757}
+  - {fileID: 689774246761127100}
+  - {fileID: 5037639195631102029}
+  zeroMemorySlot: {fileID: 9104665514462216802}
 --- !u!1 &5501134319777058757
 GameObject:
   m_ObjectHideFlags: 0
