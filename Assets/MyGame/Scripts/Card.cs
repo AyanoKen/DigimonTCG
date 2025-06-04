@@ -6,6 +6,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 {
     public int cardId;
     public Zone currentZone;
+    public int ownerId;
 
     public enum Zone
     {

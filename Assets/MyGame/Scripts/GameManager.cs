@@ -39,8 +39,10 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform handZone;
+    [SerializeField] private Transform opponentHandZone;
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
+    [SerializeField] private Sprite cardBackSprite;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -48,9 +50,13 @@ public class GameManager : MonoBehaviour
 
     private List<int> digieggs = new List<int>();
     private List<int> deck = new List<int>();
+    private List<int> player2Deck = new List<int>();
+    private List<int> player2Hand = new List<int>();
+    private List<int> player2Eggs = new List<int>();
     private int currentMemory = 0;
 
     public bool isHatchingSlotOccupied = false;
+    public int localPlayerId = 0;
 
     private void Awake()
     {
@@ -61,8 +67,11 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         LoadDeckGuide();
+
         InitializeDeck();
         DrawStartingHand(5);
+
+        InitializeOpponentDeck();
     }
 
     private void LoadDeckGuide()
@@ -104,29 +113,54 @@ public class GameManager : MonoBehaviour
         deck = deck.OrderBy(x => Random.value).ToList();
     }
 
+    private void InitializeOpponentDeck()
+    {
+        player2Deck = new List<int>(deck);
+        player2Eggs = new List<int>(digieggs);
+
+        player2Deck = player2Deck.OrderBy(x => Random.value).ToList();
+
+        for (int i = 0; i < 5 && player2Deck.Count > 0; i++)
+        {
+            int cardId = player2Deck[0];
+            player2Deck.RemoveAt(0);
+            player2Hand.Add(cardId);
+            SpawnCardToHand(cardId, opponentHandZone, 1);
+        }
+    }
+
     private void DrawStartingHand(int count)
     {
         for (int i = 0; i < count && deck.Count > 0; i++)
         {
             int cardId = deck[0];
             deck.RemoveAt(0);
-            SpawnCardToHand(cardId);
+            SpawnCardToHand(cardId, handZone, 0);
         }
     }
 
-    private void SpawnCardToHand(int cardId)
+    private void SpawnCardToHand(int cardId, Transform zone, int ownerId)
     {
-        GameObject cardGO = Instantiate(cardPrefab, handZone);
+        GameObject cardGO = Instantiate(cardPrefab, zone);
         Image image = cardGO.GetComponent<Image>();
 
-        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        if (ownerId == localPlayerId)
         {
-            image.sprite = sprite;
+            if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+            {
+                image.sprite = sprite;
+            }
         }
+        else
+        {
+            image.sprite = cardBackSprite;
+        }
+
 
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
         card.currentZone = Card.Zone.Hand;
+        card.ownerId = ownerId;
     }
 
     private void HatchDigiegg(int cardId)
@@ -150,7 +184,7 @@ public class GameManager : MonoBehaviour
         {
             int cardId = deck[0];
             deck.RemoveAt(0);
-            SpawnCardToHand(cardId);
+            SpawnCardToHand(cardId, handZone, 0);
         }
         else
         {
