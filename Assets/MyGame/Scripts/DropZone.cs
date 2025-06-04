@@ -17,6 +17,20 @@ public class DropZone : MonoBehaviour, IDropHandler
                 return;
             }
 
+            if (card.cardType == "Tamer")
+            {
+                if (zoneType != Card.Zone.TamerArea)
+                {
+                    Debug.Log("Tamer cards can only be played in the Tamer Area.");
+                    return;
+                }
+
+                droppedCard.transform.SetParent(transform);
+                card.currentZone = zoneType;
+                GameManager.Instance.PlayCardToBattleArea(card); 
+                return;
+            }
+
             droppedCard.transform.SetParent(transform);
 
             if (card.currentZone == Card.Zone.BreedingActiveSlot)

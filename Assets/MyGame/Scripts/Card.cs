@@ -1,6 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class DigivolveCostEntry
+{
+    public string color;
+    public int cost;
+}
+
 
 public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 {
@@ -19,6 +28,17 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         Trash,
         Security
     }
+
+    public string cardName;
+    public string cardType;
+    public int? level;
+    public string color;
+    public string form;
+    public string attribute;
+    public int? dp;
+    public int playCost;
+    public Sprite sprite;
+    public List<DigivolveCostEntry> digivolveCost;
 
     private bool isZoomed = false;
     private Vector3 originalPosition;
@@ -87,6 +107,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         transform.position = originalPosition;
 
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, originalSize.x);
-        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalSize.y);   
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalSize.y);
     }
 }

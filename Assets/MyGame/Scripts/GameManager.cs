@@ -17,6 +17,7 @@ public class CardData
     public string attribute;
     public int? dp;
     public int? play_cost;
+    public List<DigivolveCost> digivolve_costs;
     public string image_path;
     // TODO: Effect fields
 
@@ -24,6 +25,13 @@ public class CardData
     public override string ToString()
     {
         return $"ID: {id}, Name: {name}, Type: {card_type}, Level: {level}, PlayCost: {play_cost}, Color: {color}, Form: {form}, DP: {dp}";
+    }
+
+    [System.Serializable]
+    public class DigivolveCost
+    {
+        public string color;
+        public int cost;
     }
 }
 
@@ -41,6 +49,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform handZone;
     [SerializeField] private Transform opponentHandZone;
     [SerializeField] private Transform opponentBattleZone;
+    [SerializeField] private Transform opponentTamerZone;
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
     [SerializeField] private Sprite cardBackSprite;
@@ -152,23 +161,48 @@ public class GameManager : MonoBehaviour
         GameObject cardGO = Instantiate(cardPrefab, zone);
         Image image = cardGO.GetComponent<Image>();
 
+        Card card = cardGO.GetComponent<Card>();
+        card.cardId = cardId;
+        card.currentZone = Card.Zone.Hand;
+        card.ownerId = ownerId;
+
+        if (idToData.TryGetValue(cardId, out CardData data))
+        {
+            card.cardName = data.name;
+            card.cardType = data.card_type;
+            card.level = data.level;
+            card.color = data.color;
+            card.form = data.form;
+            card.attribute = data.attribute;
+            card.dp = data.dp;
+            card.playCost = data.play_cost ?? 0;
+
+            if (data.digivolve_costs != null && data.digivolve_costs.Count > 0)
+            {
+                card.digivolveCost = data.digivolve_costs
+                    .Select(dc => new DigivolveCostEntry { color = dc.color, cost = dc.cost })
+                    .ToList();
+            }
+            else
+            {
+                card.digivolveCost = null;
+            }
+        }
+
+        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        {
+            card.sprite = sprite;
+        }
+
         if (ownerId == localPlayerId)
         {
-            if (idToSprite.TryGetValue(cardId, out Sprite sprite))
-            {
-                image.sprite = sprite;
-            }
+            image.sprite = card.sprite;
         }
         else
         {
             image.sprite = cardBackSprite;
         }
 
-
-        Card card = cardGO.GetComponent<Card>();
-        card.cardId = cardId;
-        card.currentZone = Card.Zone.Hand;
-        card.ownerId = ownerId;
     }
 
     private void InitializeSecurityStacks()
@@ -215,7 +249,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Deck is empty.");
+                Debug.Log("Deck is empty. AI Wins");
+                return;
             }
         }
         else
@@ -229,7 +264,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("Player 2 Deck is empty");
+                Debug.Log("Player 2 Deck is empty. Player Wins");
+                return;
             }
         }
 
@@ -362,22 +398,28 @@ public class GameManager : MonoBehaviour
 
             int cardId = player2Hand[0];
 
-            GameObject cardGO = Instantiate(cardPrefab, opponentBattleZone);
-            Image image = cardGO.GetComponent<Image>();
+            Card card = opponentHandZone
+            .GetComponentsInChildren<Card>()
+            .FirstOrDefault(c => c.cardId == cardId);
 
-            if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+            if (card == null)
             {
-                image.sprite = sprite;
+                Debug.LogWarning("Ai Card not found in their hand");
+                return;
+            }
+
+            if (card.cardType == "Tamer")
+            {
+                card.transform.SetParent(opponentTamerZone);
+                card.currentZone = Card.Zone.TamerArea;
             }
             else
             {
-                image.sprite = cardBackSprite;
+                card.transform.SetParent(opponentBattleZone);
+                card.currentZone = Card.Zone.BattleArea;
             }
 
-            Card card = cardGO.GetComponent<Card>();
-            card.cardId = cardId;
-            card.ownerId = 1;
-            card.currentZone = Card.Zone.BattleArea;
+            card.GetComponent<Image>().sprite = card.sprite;
 
             player2Hand.RemoveAt(0);
             PlayCardToBattleArea(card);
