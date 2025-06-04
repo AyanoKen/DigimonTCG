@@ -372,6 +372,15 @@ public class GameManager : MonoBehaviour
         StartTurn(nextPlayer);
     }
 
+    public void ForceEndTurn()
+    {
+        currentMemory = 0;
+
+        memoryManager.SetMemory(currentMemory);
+
+        EndTurn();
+    }
+
     public void CheckTurnSwitch()
     {
         if ((activePlayer == 0 && currentMemory < 0) || (activePlayer == 1 && currentMemory > 0))
