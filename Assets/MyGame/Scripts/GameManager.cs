@@ -67,6 +67,7 @@ public class GameManager : MonoBehaviour
     private List<int> player2SecurityStack = new List<int>();
     private int currentMemory = 0;
     private int activePlayer = 0;
+    private bool isGameOver = false;
 
     public bool isHatchingSlotOccupied = false;
     public int localPlayerId = 0;
@@ -89,6 +90,12 @@ public class GameManager : MonoBehaviour
         InitializeSecurityStacks();
 
         StartTurn(0);
+    }
+
+    private void GameOver()
+    {
+        Time.timeScale = 0;
+        Debug.Log("Game Over — Freezing time.");
     }
 
     private void LoadDeckGuide()
@@ -239,35 +246,38 @@ public class GameManager : MonoBehaviour
 
     public void DrawCardFromDeck(int playerId)
     {
+        
         if (playerId == 0)
-        {
-            if (deck.Count > 0)
             {
-                int cardId = deck[0];
-                deck.RemoveAt(0);
-                SpawnCardToHand(cardId, handZone, 0);
+                if (deck.Count > 0)
+                {
+                    int cardId = deck[0];
+                    deck.RemoveAt(0);
+                    SpawnCardToHand(cardId, handZone, 0);
+                }
+                else
+                {
+                    Debug.Log("Deck is empty. AI Wins");
+                    isGameOver = true;
+                    GameOver();
+                }
             }
-            else
-            {
-                Debug.Log("Deck is empty. AI Wins");
-                return;
-            }
-        }
         else
-        {
-            if (player2Deck.Count > 0)
             {
-                int cardId = player2Deck[0];
-                player2Deck.RemoveAt(0);
-                player2Hand.Add(cardId);
-                SpawnCardToHand(cardId, opponentHandZone, 1);
+                if (player2Deck.Count > 0)
+                {
+                    int cardId = player2Deck[0];
+                    player2Deck.RemoveAt(0);
+                    player2Hand.Add(cardId);
+                    SpawnCardToHand(cardId, opponentHandZone, 1);
+                }
+                else
+                {
+                    Debug.Log("Player 2 Deck is empty. Player Wins");
+                    isGameOver = true;
+                    GameOver();
+                }
             }
-            else
-            {
-                Debug.Log("Player 2 Deck is empty. Player Wins");
-                return;
-            }
-        }
 
     }
 
@@ -348,9 +358,13 @@ public class GameManager : MonoBehaviour
 
     public void StartTurn(int playerId)
     {
+        if (isGameOver) return;
+
         activePlayer = playerId;
 
         DrawCardFromDeck(playerId);
+
+        if (isGameOver) return;
 
         Debug.Log($"Player {playerId + 1}'s turn started.");
 
@@ -432,9 +446,14 @@ public class GameManager : MonoBehaviour
 
             player2Hand.RemoveAt(0);
             PlayCardToBattleArea(card);
+
+            if (activePlayer != 1)
+            {
+                return;
+            } 
         }
 
-        EndTurn();
+        ForceEndTurn();
     }
 
 }
