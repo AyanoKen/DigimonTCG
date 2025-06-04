@@ -492,6 +492,7 @@ MonoBehaviour:
   cardPrefab: {fileID: 6554642789408046384, guid: 5f56e3253710cbe409c866b80e32d7ff, type: 3}
   handZone: {fileID: 1307490109}
   opponentHandZone: {fileID: 665487899}
+  opponentBattleZone: {fileID: 5303302001107597170}
   breedingZone: {fileID: 1532630491}
   memoryManager: {fileID: 5303302001107597169}
   cardBackSprite: {fileID: 21300000, guid: 5d0faa240513ede44a7df8a2bdaecd02, type: 3}
@@ -685,6 +686,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f66540798ba5d5f4bb0827b26350eab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &5303302001107597170 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3998947788112693927, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

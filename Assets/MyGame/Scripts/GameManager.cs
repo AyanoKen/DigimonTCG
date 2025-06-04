@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform handZone;
     [SerializeField] private Transform opponentHandZone;
+    [SerializeField] private Transform opponentBattleZone;
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
     [SerializeField] private Sprite cardBackSprite;
@@ -275,7 +276,15 @@ public class GameManager : MonoBehaviour
             cost = data.play_cost.Value;
         }
 
-        currentMemory -= cost;
+        if (activePlayer == 0)
+        {
+            currentMemory -= cost;
+        }
+        else
+        {
+            currentMemory += cost;
+        }
+
         currentMemory = Mathf.Clamp(currentMemory, -10, 10);
 
         memoryManager.SetMemory(currentMemory);
@@ -308,6 +317,11 @@ public class GameManager : MonoBehaviour
         DrawCardFromDeck(playerId);
 
         Debug.Log($"Player {playerId + 1}'s turn started.");
+
+        if (playerId == 1)
+        {
+            RunAiTurn();
+        }
     }
 
     public void EndTurn()
@@ -333,6 +347,43 @@ public class GameManager : MonoBehaviour
     public int GetActivePlayer()
     {
         return activePlayer;
+    }
+
+    public void RunAiTurn()
+    {
+        Debug.Log("AI Turn Started");
+
+        while (player2Hand.Count > 0)
+        {
+            if (activePlayer != 1)
+            {
+                return;
+            }
+
+            int cardId = player2Hand[0];
+
+            GameObject cardGO = Instantiate(cardPrefab, opponentBattleZone);
+            Image image = cardGO.GetComponent<Image>();
+
+            if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+            {
+                image.sprite = sprite;
+            }
+            else
+            {
+                image.sprite = cardBackSprite;
+            }
+
+            Card card = cardGO.GetComponent<Card>();
+            card.cardId = cardId;
+            card.ownerId = 1;
+            card.currentZone = Card.Zone.BattleArea;
+
+            player2Hand.RemoveAt(0);
+            PlayCardToBattleArea(card);
+        }
+
+        EndTurn();
     }
 
 }
