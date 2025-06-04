@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
     private List<int> player1SecurityStack = new List<int>();
     private List<int> player2SecurityStack = new List<int>();
     private int currentMemory = 0;
+    private int activePlayer = 0;
 
     public bool isHatchingSlotOccupied = false;
     public int localPlayerId = 0;
@@ -76,6 +77,8 @@ public class GameManager : MonoBehaviour
         InitializeOpponentDeck();
 
         InitializeSecurityStacks();
+
+        StartTurn(0);
     }
 
     private void LoadDeckGuide()
@@ -199,18 +202,36 @@ public class GameManager : MonoBehaviour
         card.currentZone = Card.Zone.BreedingActiveSlot;
     }
 
-    public void DrawCardFromDeck()
+    public void DrawCardFromDeck(int playerId)
     {
-        if (deck.Count > 0)
+        if (playerId == 0)
         {
-            int cardId = deck[0];
-            deck.RemoveAt(0);
-            SpawnCardToHand(cardId, handZone, 0);
+            if (deck.Count > 0)
+            {
+                int cardId = deck[0];
+                deck.RemoveAt(0);
+                SpawnCardToHand(cardId, handZone, 0);
+            }
+            else
+            {
+                Debug.Log("Deck is empty.");
+            }
         }
         else
         {
-            Debug.Log("Deck is empty.");
+            if (player2Deck.Count > 0)
+            {
+                int cardId = player2Deck[0];
+                player2Deck.RemoveAt(0);
+                player2Hand.Add(cardId);
+                SpawnCardToHand(cardId, opponentHandZone, 1);
+            }
+            else
+            {
+                Debug.Log("Player 2 Deck is empty");
+            }
         }
+
     }
 
     public bool DrawCardFromEggs()
@@ -258,6 +279,8 @@ public class GameManager : MonoBehaviour
         currentMemory = Mathf.Clamp(currentMemory, -10, 10);
 
         memoryManager.SetMemory(currentMemory);
+
+        CheckTurnSwitch();
     }
 
     public int RevealTopSecurityCard(int playerId)
@@ -276,6 +299,35 @@ public class GameManager : MonoBehaviour
         }
 
         return -1; // Invalid or empty
+    }
+
+    public void StartTurn(int playerId)
+    {
+        activePlayer = playerId;
+
+        DrawCardFromDeck(playerId);
+
+        Debug.Log($"Player {playerId + 1}'s turn started.");
+    }
+
+    public void EndTurn()
+    {
+        int nextPlayer = 0;
+
+        if (activePlayer == 0)
+        {
+            nextPlayer = 1;
+        }
+
+        StartTurn(nextPlayer);
+    }
+
+    public void CheckTurnSwitch()
+    {
+        if ((activePlayer == 0 && currentMemory < 0) || (activePlayer == 1 && currentMemory > 0))
+        {
+            EndTurn();
+        }
     }
 
 }
