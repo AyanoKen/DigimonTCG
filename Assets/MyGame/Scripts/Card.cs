@@ -15,6 +15,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         BreedingEggSlot,
         BreedingActiveSlot,
         BattleArea,
+        TamerArea,
         Trash,
         Security
     }
