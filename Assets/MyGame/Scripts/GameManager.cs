@@ -330,4 +330,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public int GetActivePlayer()
+    {
+        return activePlayer;
+    }
+
 }

@@ -10,23 +10,25 @@ public class DropZone : MonoBehaviour, IDropHandler
 
         if (droppedCard != null)
         {
-            droppedCard.transform.SetParent(transform);
-
             Card card = droppedCard.GetComponent<Card>();
 
-            if (card != null)
+            if (card == null || card.ownerId != 0 || GameManager.Instance.GetActivePlayer() != 0)
             {
-                if (card.currentZone == Card.Zone.BreedingActiveSlot)
-                {
-                    GameManager.Instance.isHatchingSlotOccupied = false;
-                }
+                return;
+            }
 
-                card.currentZone = zoneType;
+            droppedCard.transform.SetParent(transform);
 
-                if (zoneType == Card.Zone.BattleArea)
-                {
-                    GameManager.Instance.PlayCardToBattleArea(card);
-                }
+            if (card.currentZone == Card.Zone.BreedingActiveSlot)
+            {
+                GameManager.Instance.isHatchingSlotOccupied = false;
+            }
+
+            card.currentZone = zoneType;
+
+            if (zoneType == Card.Zone.BattleArea)
+            {
+                GameManager.Instance.PlayCardToBattleArea(card);
             }
         }
     }

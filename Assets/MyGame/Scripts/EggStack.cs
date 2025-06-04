@@ -13,7 +13,7 @@ public class EggStack : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (eventData.button == PointerEventData.InputButton.Left && GameManager.Instance.GetActivePlayer() == 0)
         {
             bool success = GameManager.Instance.DrawCardFromEggs();
 
