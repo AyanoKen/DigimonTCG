@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
     private List<int> player2Deck = new List<int>();
     private List<int> player2Hand = new List<int>();
     private List<int> player2Eggs = new List<int>();
+    private List<int> player1SecurityStack = new List<int>();
+    private List<int> player2SecurityStack = new List<int>();
     private int currentMemory = 0;
 
     public bool isHatchingSlotOccupied = false;
@@ -72,6 +74,8 @@ public class GameManager : MonoBehaviour
         DrawStartingHand(5);
 
         InitializeOpponentDeck();
+
+        InitializeSecurityStacks();
     }
 
     private void LoadDeckGuide()
@@ -163,6 +167,23 @@ public class GameManager : MonoBehaviour
         card.ownerId = ownerId;
     }
 
+    private void InitializeSecurityStacks()
+    {
+        for (int i = 0; i < 5 && deck.Count > 0; i++)
+        {
+            int cardId = deck[0];
+            deck.RemoveAt(0);
+            player1SecurityStack.Add(cardId);
+        }
+
+        for (int i = 0; i < 5 && player2Deck.Count > 0; i++)
+        {
+            int cardId = player2Deck[0];
+            player2Deck.RemoveAt(0);
+            player2SecurityStack.Add(cardId);
+        }
+    }
+
     private void HatchDigiegg(int cardId)
     {
         GameObject cardGO = Instantiate(cardPrefab, breedingZone);
@@ -237,6 +258,24 @@ public class GameManager : MonoBehaviour
         currentMemory = Mathf.Clamp(currentMemory, -10, 10);
 
         memoryManager.SetMemory(currentMemory);
+    }
+
+    public int RevealTopSecurityCard(int playerId)
+    {
+        if (playerId == 0 && player1SecurityStack.Count > 0)
+        {
+            int topCard = player1SecurityStack[0];
+            player1SecurityStack.RemoveAt(0);
+            return topCard;
+        }
+        else if (playerId == 1 && player2SecurityStack.Count > 0)
+        {
+            int topCard = player2SecurityStack[0];
+            player2SecurityStack.RemoveAt(0);
+            return topCard;
+        }
+
+        return -1; // Invalid or empty
     }
 
 }
