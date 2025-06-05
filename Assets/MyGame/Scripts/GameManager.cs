@@ -242,6 +242,7 @@ public class GameManager : MonoBehaviour
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
         card.currentZone = Card.Zone.BreedingActiveSlot;
+        Destroy(card.GetComponent<CardDropHandler>());
     }
 
     public void DrawCardFromDeck(int playerId)

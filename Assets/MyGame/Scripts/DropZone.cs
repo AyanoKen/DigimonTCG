@@ -27,7 +27,14 @@ public class DropZone : MonoBehaviour, IDropHandler
 
                 droppedCard.transform.SetParent(transform);
                 card.currentZone = zoneType;
-                GameManager.Instance.PlayCardToBattleArea(card); 
+                Destroy(card.GetComponent<CardDropHandler>());
+                GameManager.Instance.PlayCardToBattleArea(card);
+                return;
+            }
+
+            if (zoneType == Card.Zone.TamerArea)
+            {
+                Debug.Log("Only Tamer cards can be played into the tamer area");
                 return;
             }
 
@@ -39,11 +46,8 @@ public class DropZone : MonoBehaviour, IDropHandler
             }
 
             card.currentZone = zoneType;
-
-            if (zoneType == Card.Zone.BattleArea)
-            {
-                GameManager.Instance.PlayCardToBattleArea(card);
-            }
+            Destroy(card.GetComponent<CardDropHandler>());
+            GameManager.Instance.PlayCardToBattleArea(card);
         }
     }
 }

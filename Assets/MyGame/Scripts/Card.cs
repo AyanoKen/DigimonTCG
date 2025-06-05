@@ -58,7 +58,20 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // Intentionally left empty to avoid conflicts with hold detection
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (currentZone == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
+            {
+                if (canAttack)
+                {
+                    Debug.Log($"Card {cardName} is ready to attack. Showing options...");
+                }
+                else
+                {
+                    Debug.Log("This Digimon cannot attack right now.");
+                }
+            }
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
