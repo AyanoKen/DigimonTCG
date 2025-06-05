@@ -376,6 +376,17 @@ public class GameManager : MonoBehaviour
 
     public void EndTurn()
     {
+        var allCards = FindObjectsOfType<Card>();
+
+        foreach (var card in allCards)
+        {
+            if (card.currentZone == Card.Zone.BattleArea && card.ownerId == activePlayer)
+            {
+                card.canAttack = true;
+            }
+        }
+
+
         int nextPlayer = 0;
 
         if (activePlayer == 0)
@@ -388,11 +399,14 @@ public class GameManager : MonoBehaviour
 
     public void ForceEndTurn()
     {
-        currentMemory = 0;
+        if (activePlayer == 0)
+        {
+            currentMemory = 0;
 
-        memoryManager.SetMemory(currentMemory);
+            memoryManager.SetMemory(currentMemory);
 
-        EndTurn();
+            EndTurn();
+        }
     }
 
     public void CheckTurnSwitch()

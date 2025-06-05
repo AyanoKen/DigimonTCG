@@ -17,6 +17,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public Zone currentZone;
     public int ownerId;
 
+    public bool canAttack = false;
+
     public enum Zone
     {
         Deck,
