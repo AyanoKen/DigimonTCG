@@ -27,7 +27,10 @@ public class DropZone : MonoBehaviour, IDropHandler
 
                 droppedCard.transform.SetParent(transform);
                 card.currentZone = zoneType;
+
+                card.GetComponent<CanvasGroup>().blocksRaycasts = true;
                 Destroy(card.GetComponent<CardDropHandler>());
+
                 GameManager.Instance.PlayCardToBattleArea(card);
                 return;
             }
@@ -46,7 +49,10 @@ public class DropZone : MonoBehaviour, IDropHandler
             }
 
             card.currentZone = zoneType;
+
+            card.GetComponent<CanvasGroup>().blocksRaycasts = true;
             Destroy(card.GetComponent<CardDropHandler>());
+
             GameManager.Instance.PlayCardToBattleArea(card);
         }
     }

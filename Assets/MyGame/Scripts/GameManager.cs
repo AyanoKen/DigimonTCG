@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
     [SerializeField] private Sprite cardBackSprite;
+    [SerializeField] private GameObject securityRevealPrefab;
+    [SerializeField] private Transform canvasTransform;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -247,38 +249,38 @@ public class GameManager : MonoBehaviour
 
     public void DrawCardFromDeck(int playerId)
     {
-        
+
         if (playerId == 0)
+        {
+            if (deck.Count > 0)
             {
-                if (deck.Count > 0)
-                {
-                    int cardId = deck[0];
-                    deck.RemoveAt(0);
-                    SpawnCardToHand(cardId, handZone, 0);
-                }
-                else
-                {
-                    Debug.Log("Deck is empty. AI Wins");
-                    isGameOver = true;
-                    GameOver();
-                }
+                int cardId = deck[0];
+                deck.RemoveAt(0);
+                SpawnCardToHand(cardId, handZone, 0);
             }
+            else
+            {
+                Debug.Log("Deck is empty. AI Wins");
+                isGameOver = true;
+                GameOver();
+            }
+        }
         else
+        {
+            if (player2Deck.Count > 0)
             {
-                if (player2Deck.Count > 0)
-                {
-                    int cardId = player2Deck[0];
-                    player2Deck.RemoveAt(0);
-                    player2Hand.Add(cardId);
-                    SpawnCardToHand(cardId, opponentHandZone, 1);
-                }
-                else
-                {
-                    Debug.Log("Player 2 Deck is empty. Player Wins");
-                    isGameOver = true;
-                    GameOver();
-                }
+                int cardId = player2Deck[0];
+                player2Deck.RemoveAt(0);
+                player2Hand.Add(cardId);
+                SpawnCardToHand(cardId, opponentHandZone, 1);
             }
+            else
+            {
+                Debug.Log("Player 2 Deck is empty. Player Wins");
+                isGameOver = true;
+                GameOver();
+            }
+        }
 
     }
 
@@ -395,6 +397,11 @@ public class GameManager : MonoBehaviour
             nextPlayer = 1;
         }
 
+        foreach (var card in FindObjectsOfType<Card>())
+        {
+            card.HideActionPanel();
+        }
+
         StartTurn(nextPlayer);
     }
 
@@ -465,10 +472,47 @@ public class GameManager : MonoBehaviour
             if (activePlayer != 1)
             {
                 return;
-            } 
+            }
         }
 
         ForceEndTurn();
+    }
+
+    public void ResolveSecurityAttack(Card attacker)
+    {
+        int opponentId = 0;
+
+        if (attacker.ownerId == 0)
+        {
+            opponentId = 1;
+        }
+
+        int securitycardId = RevealTopSecurityCard(opponentId);
+
+        if (securitycardId == -1)
+        {
+            Debug.Log("Opponent has no security left, you win!");
+            GameOver();
+            return;
+        }
+
+        Debug.Log($"Revealed security card ID: {securitycardId}");
+
+        if (!idToSprite.TryGetValue(securitycardId, out Sprite sprite))
+        {
+            Debug.LogWarning("No Sprite found for Security Card");
+        }
+
+        GameObject reveal = Instantiate(securityRevealPrefab, canvasTransform);
+        Image img = reveal.GetComponent<Image>();
+        img.sprite = sprite;
+
+        RectTransform rect = reveal.GetComponent<RectTransform>();
+        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 440);
+        rect.anchoredPosition = Vector2.zero;
+
+        Destroy(reveal, 2f);
     }
 
 }

@@ -16,8 +16,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public int cardId;
     public Zone currentZone;
     public int ownerId;
-
     public bool canAttack = false;
+    public GameObject actionPanel;
 
     public enum Zone
     {
@@ -60,11 +60,21 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
+            Debug.Log("Able to detect click");
             if (currentZone == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
             {
                 if (canAttack)
                 {
                     Debug.Log($"Card {cardName} is ready to attack. Showing options...");
+
+                    foreach (var card in FindObjectsOfType<Card>())
+                    {
+                        if (card != this)
+                            card.actionPanel?.SetActive(false);
+                    }
+
+                    bool shouldShow = !actionPanel.activeSelf;
+                    actionPanel.SetActive(shouldShow);
                 }
                 else
                 {
@@ -123,5 +133,24 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, originalSize.x);
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalSize.y);
+    }
+
+    public void AttackSecurity()
+    {
+        if (!canAttack || ownerId != GameManager.Instance.GetActivePlayer())
+        {
+            Debug.Log("Cannot Attack Security");
+            return;
+        }
+
+        canAttack = false;
+        actionPanel.SetActive(false);
+
+        GameManager.Instance.ResolveSecurityAttack(this);
+    }
+    
+    public void HideActionPanel()
+    {
+        actionPanel?.SetActive(false);
     }
 }
