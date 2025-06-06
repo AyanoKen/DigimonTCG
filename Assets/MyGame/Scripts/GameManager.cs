@@ -67,6 +67,8 @@ public class GameManager : MonoBehaviour
     private List<int> player2Eggs = new List<int>();
     private List<int> player1SecurityStack = new List<int>();
     private List<int> player2SecurityStack = new List<int>();
+    private List<int> player1Trash = new List<int>();
+    private List<int> player2Trash = new List<int>();
     private int currentMemory = 0;
     private int activePlayer = 0;
     private bool isGameOver = false;
@@ -498,21 +500,64 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Revealed security card ID: {securitycardId}");
 
-        if (!idToSprite.TryGetValue(securitycardId, out Sprite sprite))
+        if (idToSprite.TryGetValue(securitycardId, out Sprite sprite))
         {
-            Debug.LogWarning("No Sprite found for Security Card");
+            GameObject reveal = Instantiate(securityRevealPrefab, canvasTransform);
+            Image img = reveal.GetComponent<Image>();
+            img.sprite = sprite;
+
+            RectTransform rect = reveal.GetComponent<RectTransform>();
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
+            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 440);
+            rect.anchoredPosition = Vector2.zero;
+
+            Destroy(reveal, 2f);
+        }
+        else
+        {
+            Debug.LogWarning("Sprite not found for Security card");
+            return;
         }
 
-        GameObject reveal = Instantiate(securityRevealPrefab, canvasTransform);
-        Image img = reveal.GetComponent<Image>();
-        img.sprite = sprite;
+        if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
+        {
+            Debug.LogWarning("Unable to fetch card data for revealed security card");
+            return;
+        }
 
-        RectTransform rect = reveal.GetComponent<RectTransform>();
-        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
-        rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 440);
-        rect.anchoredPosition = Vector2.zero;
+        int attackerDP = attacker.dp ?? 0;
+        int securityDP = securityCardData.dp ?? 0;
 
-        Destroy(reveal, 2f);
+        Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
+
+        if (securityDP >= attackerDP)
+        {
+            Debug.Log("Attacker is deleted.");
+
+            if (attacker.ownerId == 0)
+            {
+                player1Trash.Add(attacker.cardId);
+            }
+            else
+            {
+                player2Trash.Add(attacker.cardId);
+            }
+
+            Destroy(attacker.gameObject);
+        }
+        else
+        {
+            Debug.Log("Attacker won, not deleted from play.");
+            
+            if (opponentId == 0)
+            {
+                player1Trash.Add(securitycardId);
+            }
+            else
+            {
+                player2Trash.Add(securitycardId);
+            }
+        }
     }
 
 }
