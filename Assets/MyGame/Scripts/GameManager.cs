@@ -246,7 +246,22 @@ public class GameManager : MonoBehaviour
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
         card.currentZone = Card.Zone.BreedingActiveSlot;
+        card.ownerId = 0;
+
         Destroy(card.GetComponent<CardDropHandler>());
+
+        if (idToData.TryGetValue(cardId, out CardData data))
+        {
+            card.cardName = data.name;
+            card.cardType = data.card_type;
+            card.level = data.level;
+            card.color = data.color;
+            card.form = data.form;
+            card.attribute = data.attribute;
+            card.dp = data.dp;
+            card.playCost = data.play_cost ?? 0;
+            card.digivolveCost = data.digivolve_costs?.Select(dc => new DigivolveCostEntry { color = dc.color, cost = dc.cost }).ToList() ?? new List<DigivolveCostEntry>();
+        }
     }
 
     public void DrawCardFromDeck(int playerId)
@@ -548,7 +563,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.Log("Attacker won, not deleted from play.");
-            
+
             if (opponentId == 0)
             {
                 player1Trash.Add(securitycardId);
@@ -558,6 +573,48 @@ public class GameManager : MonoBehaviour
                 player2Trash.Add(securitycardId);
             }
         }
+    }
+
+    public bool TryDigivolve(Card baseCard, Card newCard)
+    {
+        if (!newCard.CanDigivolveFrom(baseCard))
+        {
+            Debug.Log("Cannot Digivolve from card");
+            return false;
+        }
+
+        int cost = newCard.GetDigivolveCost(baseCard);
+
+        if (cost < 0)
+        {
+            Debug.Log("No Valid Digivolution cost entry found");
+            return false;
+        }
+
+        if (activePlayer == 0)
+        {
+            currentMemory -= cost;
+        }
+        else
+        {
+            currentMemory += cost;
+        }
+
+        memoryManager.SetMemory(currentMemory);
+
+        newCard.transform.SetParent(baseCard.transform);
+        newCard.transform.localPosition = new Vector3(0, 40f, 0);
+        baseCard.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+        newCard.inheritedStack.Add(baseCard);
+
+        Destroy(newCard.GetComponent<CardDropHandler>());
+
+        CheckTurnSwitch();
+
+        Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
+
+        return true;
     }
 
 }

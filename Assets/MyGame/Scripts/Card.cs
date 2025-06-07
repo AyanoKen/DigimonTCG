@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
 
 [System.Serializable]
 public class DigivolveCostEntry
@@ -41,6 +42,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public int playCost;
     public Sprite sprite;
     public List<DigivolveCostEntry> digivolveCost;
+    public List<Card> inheritedStack = new List<Card>();
 
     private bool isZoomed = false;
     private Vector3 originalPosition;
@@ -148,9 +150,50 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
         GameManager.Instance.ResolveSecurityAttack(this);
     }
-    
+
     public void HideActionPanel()
     {
         actionPanel?.SetActive(false);
+    }
+
+    public bool CanDigivolveFrom(Card baseCard)
+    {
+        if (baseCard.level == null || this.level == null)
+        {
+            Debug.Log("Checkpoint 1");
+            return false;
+        }
+
+        if (this.cardType != "Digimon")
+        {
+            Debug.Log("Checkpoint 2A: New card is not Digimon");
+            return false;
+        }
+
+        if (baseCard.cardType == "Tamer" || baseCard.cardType == "Option")
+        {
+            Debug.Log("Checkpoint 2B: Cannot digivolve from Tamer/Option");
+            return false;
+        }
+
+        if (this.level != baseCard.level + 1)
+        {
+            Debug.Log("Checkpoint 3");
+            return false;
+        }
+
+        if (this.digivolveCost == null)
+        {
+            Debug.Log("Checkpoint 4");
+            return false;
+        }
+
+        return this.digivolveCost.Any(entry => entry.color == baseCard.color);
+    }
+
+    public int GetDigivolveCost(Card baseCard)
+    {
+        var costEntry = this.digivolveCost.FirstOrDefault(entry => entry.color == baseCard.color);
+        return costEntry != null ? costEntry.cost : -1;
     }
 }

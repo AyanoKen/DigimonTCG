@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 6130387994301884355}
   - component: {fileID: 3697380661077183074}
   - component: {fileID: 575741044024098785}
+  - component: {fileID: 7012542056664938310}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -251,6 +252,7 @@ MonoBehaviour:
   playCost: 0
   sprite: {fileID: 0}
   digivolveCost: []
+  inheritedStack: []
 --- !u!114 &3697380661077183074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,6 +285,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &7012542056664938310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6554642789408046384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f957401505aded84f880d090bd207b62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7059347981399489603
 GameObject:
   m_ObjectHideFlags: 0
