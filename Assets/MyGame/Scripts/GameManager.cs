@@ -603,18 +603,62 @@ public class GameManager : MonoBehaviour
         memoryManager.SetMemory(currentMemory);
 
         newCard.transform.SetParent(baseCard.transform);
-        newCard.transform.localPosition = new Vector3(0, 40f, 0);
-        baseCard.GetComponent<CanvasGroup>().blocksRaycasts = false;
+        newCard.transform.localPosition = new Vector3(0, 30f, 0);
+        baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        newCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         newCard.inheritedStack.Add(baseCard);
+        newCard.currentZone = Card.Zone.BattleArea;
 
         Destroy(newCard.GetComponent<CardDropHandler>());
+
+        if (baseCard.currentZone == Card.Zone.BreedingActiveSlot)
+        {
+            newCard.GetComponent<CanvasGroup>().blocksRaycasts = false;
+
+            if (baseCard.GetComponent<CardDropHandler>() == null)
+            {
+                baseCard.gameObject.AddComponent<CardDropHandler>();
+            }
+            baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        }
 
         CheckTurnSwitch();
 
         Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
 
         return true;
+    }
+
+    public void PromoteDigivolvedCardToBattle(Card stackBase)
+    {
+        if (stackBase.transform.childCount == 0)
+        {
+            Debug.LogWarning("Promote failed: not a digivolution stack");
+            return;
+        }
+
+        Card topCard = stackBase.GetComponentsInChildren<Card>().Last();
+
+        CanvasGroup topGroup = topCard.GetComponent<CanvasGroup>();
+        if (topGroup != null)
+        {
+            topGroup.blocksRaycasts = true;
+        }
+
+        topCard.canAttack = false;
+
+        var baseDrag = stackBase.GetComponent<CardDropHandler>();
+        if (baseDrag != null) Destroy(baseDrag);
+
+        var baseGroup = stackBase.GetComponent<CanvasGroup>();
+        if (baseGroup != null) baseGroup.blocksRaycasts = true;
+
+        topCard.currentZone = Card.Zone.BattleArea;
+
+        Debug.Log("Promoted top card in digivolution stack to active.");
+
+        PlayCardToBattleArea(topCard);
     }
 
 }

@@ -46,6 +46,8 @@ public class DropZone : MonoBehaviour, IDropHandler
             if (card.currentZone == Card.Zone.BreedingActiveSlot)
             {
                 GameManager.Instance.isHatchingSlotOccupied = false;
+                GameManager.Instance.PromoteDigivolvedCardToBattle(card);
+                return;
             }
 
             card.currentZone = zoneType;

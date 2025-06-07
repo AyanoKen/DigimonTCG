@@ -62,7 +62,12 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            Debug.Log("Able to detect click");
+            if (transform.childCount > 1)
+            {
+                return;
+            }
+
+            Debug.Log($"Card {cardName} Able to detect click");
             if (currentZone == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
             {
                 if (canAttack)
