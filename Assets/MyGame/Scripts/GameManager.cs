@@ -233,6 +233,8 @@ public class GameManager : MonoBehaviour
             {
                 card.digivolveCost = null;
             }
+
+            card.InitializeFlagsFromEffects();
         }
 
         if (idToSprite.TryGetValue(cardId, out Sprite sprite))
@@ -298,6 +300,8 @@ public class GameManager : MonoBehaviour
             card.digivolveCost = data.digivolve_costs?.Select(dc => new DigivolveCostEntry { color = dc.color, cost = dc.cost }).ToList() ?? new List<DigivolveCostEntry>();
             card.effects = data.effects ?? new List<EffectData>();
             card.inheritedEffects = data.inheritedEffects ?? new List<EffectData>();
+
+            card.InitializeFlagsFromEffects();
         }
     }
 

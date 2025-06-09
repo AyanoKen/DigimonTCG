@@ -19,6 +19,9 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public int ownerId;
     public bool canAttack = false;
     public GameObject actionPanel;
+    public bool isBlocker = false;
+    public bool isBlocking = false;
+    public Button blockerButton;
 
     public enum Zone
     {
@@ -202,5 +205,43 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     {
         var costEntry = this.digivolveCost.FirstOrDefault(entry => entry.color == baseCard.color);
         return costEntry != null ? costEntry.cost : -1;
+    }
+
+    public void InitializeFlagsFromEffects()
+    {
+        foreach (var effect in effects)
+        {
+            if (effect.type == EffectType.Blocker)
+            {
+                isBlocker = true;
+            }
+
+            if (isBlocker && blockerButton != null)
+            {
+                blockerButton.gameObject.SetActive(true); 
+            }
+        }
+    }
+
+    public void ActivateBlockerMode()
+    {
+        if (GameManager.Instance.GetActivePlayer() != ownerId)
+        {
+            return;
+        }
+
+        foreach (var card in FindObjectsOfType<Card>())
+        {
+            if (card != this &&
+                card.ownerId == ownerId &&
+                card.isBlocker &&
+                card.currentZone == Zone.BattleArea)
+            {
+                card.isBlocking = false;
+            }
+        }
+
+        isBlocking = true;
+        Debug.Log($"{cardName} Blocker Mode set to: {isBlocking}");
     }
 }

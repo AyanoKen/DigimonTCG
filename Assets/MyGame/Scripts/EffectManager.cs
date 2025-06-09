@@ -77,12 +77,6 @@ public class EffectManager : MonoBehaviour
                     break;
                 }
 
-            case EffectType.Blocker:
-                {
-                    Debug.Log($"[Effect] {source.cardName} is a Blocker");
-                    break;
-                }
-
             default:
                 {
                     Debug.LogWarning($"[Effect] Unknown effect type: {effect.type}");
