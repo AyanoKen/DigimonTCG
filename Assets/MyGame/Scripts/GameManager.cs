@@ -728,4 +728,12 @@ public class GameManager : MonoBehaviour
         };
     }
 
+    public void ModifyMemory(int delta)
+    {
+        currentMemory += delta;
+        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
+        memoryManager.SetMemory(currentMemory);
+        CheckTurnSwitch();
+    }
+
 }
