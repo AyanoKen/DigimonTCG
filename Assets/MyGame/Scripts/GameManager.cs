@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 [System.Serializable]
-public class CardData
+public class CardData //Datatype for storing CardData parsed from the JSON
 {
     public int id;
     public string name;
@@ -19,7 +20,8 @@ public class CardData
     public int? play_cost;
     public List<DigivolveCost> digivolve_costs;
     public string image_path;
-    // TODO: Effect fields
+    public List<EffectData> effects;
+    public List<EffectData> inheritedEffects;
 
     //Debug function to be able to log card data
     public override string ToString()
@@ -28,17 +30,11 @@ public class CardData
     }
 
     [System.Serializable]
-    public class DigivolveCost
+    public class DigivolveCost //Datatype for representing Digivolution conditions
     {
         public string color;
         public int cost;
     }
-}
-
-[System.Serializable]
-public class CardDataList
-{
-    public List<CardData> cards;
 }
 
 public class GameManager : MonoBehaviour
@@ -111,10 +107,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        deckguide = JsonConvert.DeserializeObject<List<CardData>>(jsonFile.text);
+        JArray jsonArray = JArray.Parse(jsonFile.text);
+        deckguide = new List<CardData>();
 
-        foreach (CardData card in deckguide)
+        foreach (var token in jsonArray)
         {
+            CardData card = token.ToObject<CardData>();
+            deckguide.Add(card);
             idToData[card.id] = card;
 
             if (card.card_type == "Digi-Egg")
@@ -132,6 +131,40 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("Image not found for: " + path);
+            }
+
+            // Parse main effects
+            if (token["effect"] is JArray effectArray)
+            {
+                card.effects = new List<EffectData>();
+                foreach (var entry in effectArray)
+                {
+                    string type = entry["type"]?.ToString();
+                    string trigger = entry["trigger"]?.ToString();
+                    string keyword = entry["keyword"]?.ToString();
+
+                    var innerEffect = entry["effect"];
+                    int value = innerEffect?["value"]?.Value<int>() ?? 0;
+
+                    card.effects.Add(new EffectData(
+                        ParseTrigger(trigger),
+                        ParseEffectType(type, keyword),
+                        value
+                    ));
+                }
+            }
+
+            // Parse inherited effects
+            if (token["inherited_effect"] is JObject inh)
+            {
+                string phase = inh["phase"]?.ToString();
+                string innerType = inh["effect"]?["type"]?.ToString();
+                int value = inh["effect"]?["value"]?.Value<int>() ?? 0;
+
+                card.inheritedEffects = new List<EffectData>
+                {
+                    new EffectData(ParseTrigger(phase), ParseEffectType(innerType), value)
+                };
             }
         }
     }
@@ -187,6 +220,8 @@ public class GameManager : MonoBehaviour
             card.attribute = data.attribute;
             card.dp = data.dp;
             card.playCost = data.play_cost ?? 0;
+            card.effects = data.effects ?? new List<EffectData>();
+            card.inheritedEffects = data.inheritedEffects ?? new List<EffectData>();
 
             if (data.digivolve_costs != null && data.digivolve_costs.Count > 0)
             {
@@ -261,6 +296,8 @@ public class GameManager : MonoBehaviour
             card.dp = data.dp;
             card.playCost = data.play_cost ?? 0;
             card.digivolveCost = data.digivolve_costs?.Select(dc => new DigivolveCostEntry { color = dc.color, cost = dc.cost }).ToList() ?? new List<DigivolveCostEntry>();
+            card.effects = data.effects ?? new List<EffectData>();
+            card.inheritedEffects = data.inheritedEffects ?? new List<EffectData>();
         }
     }
 
@@ -659,6 +696,36 @@ public class GameManager : MonoBehaviour
         Debug.Log("Promoted top card in digivolution stack to active.");
 
         PlayCardToBattleArea(topCard);
+    }
+
+    private EffectTrigger ParseTrigger(string trigger)
+    {
+        return trigger switch
+        {
+            "when_attacking" => EffectTrigger.WhenAttacking,
+            "when_digivolving" => EffectTrigger.WhenDigivolving,
+            "your_turn" => EffectTrigger.YourTurn,
+            "main" => EffectTrigger.MainPhase,
+            _ => EffectTrigger.None
+        };
+    }
+
+    private EffectType ParseEffectType(string type, string keyword = null)
+    {
+        if (type == "keyword" && keyword == "Blocker")
+            return EffectType.Blocker;
+
+        if (type == "keyword" && keyword == "Security Attack +1")
+            return EffectType.ExtraSecurityAttack;
+
+        return type switch
+        {
+            "modify_dp" => EffectType.ModifyDP,
+            "gain_memory" => EffectType.GainMemory,
+            "lose_memory" => EffectType.LoseMemory,
+            "extra_security_attack" => EffectType.ExtraSecurityAttack,
+            _ => EffectType.None
+        };
     }
 
 }

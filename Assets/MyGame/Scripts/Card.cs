@@ -43,6 +43,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public Sprite sprite;
     public List<DigivolveCostEntry> digivolveCost;
     public List<Card> inheritedStack = new List<Card>();
+    public List<EffectData> effects = new List<EffectData>();
+    public List<EffectData> inheritedEffects = new List<EffectData>();
 
     private bool isZoomed = false;
     private Vector3 originalPosition;
