@@ -545,6 +545,52 @@ public class GameManager : MonoBehaviour
             opponentId = 1;
         }
 
+        Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone = Card.Zone.BattleArea);
+
+        if (blocker != null)
+        {
+            Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
+            blocker.isBlocking = false;
+
+            //TODO: Suspend indication
+            blocker.canAttack = false;
+
+            int attackerDP = attacker.dp ?? 0;
+            int blockerDP = blocker.dp ?? 0;
+
+            Debug.Log($"Battle: Attacker DP {attackerDP} vs Blocker DP {blockerDP}");
+
+            if (attackerDP >= blockerDP)
+            {
+                Debug.Log($"{blocker.cardName} is deleted!");
+                if (blocker.ownerId == 0)
+                {
+                    player1Trash.Add(blocker.cardId);
+                }
+                else
+                {
+                    player2Trash.Add(blocker.cardId);
+                }
+                Destroy(blocker.gameObject);
+            }
+
+            if (blockerDP >= attackerDP)
+            {
+                Debug.Log($"{attacker.cardName} is deleted!");
+                if (attacker.ownerId == 0)
+                {
+                    player1Trash.Add(attacker.cardId);
+                }
+                else
+                {
+                    player2Trash.Add(attacker.cardId);
+                }
+                Destroy(attacker.gameObject);
+            }
+
+            return;
+        }
+
         int securitycardId = RevealTopSecurityCard(opponentId);
 
         if (securitycardId == -1)
