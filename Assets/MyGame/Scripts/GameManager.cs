@@ -139,16 +139,15 @@ public class GameManager : MonoBehaviour
                 card.effects = new List<EffectData>();
                 foreach (var entry in effectArray)
                 {
-                    string type = entry["type"]?.ToString();
+                    string outerType = entry["type"]?.ToString();              
                     string trigger = entry["trigger"]?.ToString();
                     string keyword = entry["keyword"]?.ToString();
-
-                    var innerEffect = entry["effect"];
-                    int value = innerEffect?["value"]?.Value<int>() ?? 0;
+                    string innerType = entry["effect"]?["type"]?.ToString();   
+                    int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
 
                     card.effects.Add(new EffectData(
                         ParseTrigger(trigger),
-                        ParseEffectType(type, keyword),
+                        ParseEffectType(innerType ?? outerType, keyword),
                         value
                     ));
                 }
@@ -558,6 +557,8 @@ public class GameManager : MonoBehaviour
         {
             opponentId = 1;
         }
+
+        EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, attacker);
 
         Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone == Card.Zone.BattleArea);
 

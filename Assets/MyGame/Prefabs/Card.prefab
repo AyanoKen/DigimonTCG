@@ -246,6 +246,7 @@ MonoBehaviour:
   actionPanel: {fileID: 7059347981399489603}
   isBlocker: 0
   isBlocking: 0
+  isSuspended: 0
   blockerButton: {fileID: 7207692311624067610}
   cardName: 
   cardType: 
@@ -502,7 +503,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 6130387994301884355}
         m_TargetAssemblyTypeName: Card, Assembly-CSharp
-        m_MethodName: AttackSecurity
+        m_MethodName: ActivateBlockerMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

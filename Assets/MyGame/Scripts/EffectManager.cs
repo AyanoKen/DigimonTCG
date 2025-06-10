@@ -58,14 +58,14 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.GainMemory:
                 {
-                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? -effect.value : effect.value);
+                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);
                     Debug.Log($"[Effect] {source.cardName} gains {effect.value} memory.");
                     break;
                 }
 
             case EffectType.LoseMemory:
                 {
-                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);
+                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? -effect.value : effect.value);
                     Debug.Log($"[Effect] {source.cardName} loses {effect.value} memory.");
                     break;
                 }
