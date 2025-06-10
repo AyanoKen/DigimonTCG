@@ -441,10 +441,24 @@ public class GameManager : MonoBehaviour
 
         foreach (var card in allCards)
         {
-            if (card.currentZone == Card.Zone.BattleArea && card.ownerId == activePlayer)
+            if (card.currentZone == Card.Zone.BattleArea)
             {
-                card.canAttack = true;
+                if (card.ownerId == activePlayer)
+                {
+                    card.canAttack = true;
+
+                    if (card.isSuspended)
+                    {
+                        card.isSuspended = false;
+                        card.transform.rotation = Quaternion.identity;
+                    }
+                }
+                else
+                {
+                    card.isBlocking = false;
+                }
             }
+            
         }
 
 
@@ -554,6 +568,8 @@ public class GameManager : MonoBehaviour
 
             //TODO: Suspend indication
             blocker.canAttack = false;
+            blocker.isSuspended = true;
+            blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
 
             int attackerDP_b = attacker.dp ?? 0;
             int blockerDP_b = blocker.dp ?? 0;

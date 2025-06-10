@@ -21,6 +21,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public GameObject actionPanel;
     public bool isBlocker = false;
     public bool isBlocking = false;
+    public bool isSuspended = false;
     public Button blockerButton;
 
     public enum Zone
