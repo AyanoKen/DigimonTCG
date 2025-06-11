@@ -22,6 +22,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public bool isBlocker = false;
     public bool isBlocking = false;
     public bool isSuspended = false;
+
+    public int securityAttackCount = 1;
     public int dpBuff = 0;
     public Button blockerButton;
 
@@ -160,7 +162,12 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         canAttack = false;
         actionPanel.SetActive(false);
 
-        GameManager.Instance.ResolveSecurityAttack(this);
+        for (int i = 0; i < securityAttackCount; i++)
+        {
+            GameManager.Instance.ResolveSecurityAttack(this);
+            if (this == null || gameObject == null)
+                break;
+        }
     }
 
     public void HideActionPanel()
@@ -220,7 +227,26 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
             if (isBlocker && blockerButton != null)
             {
-                blockerButton.gameObject.SetActive(true); 
+                blockerButton.gameObject.SetActive(true);
+            }
+
+            if (effect.type == EffectType.ExtraSecurityAttack)
+            {
+                securityAttackCount += effect.value;
+            }
+        }
+    }
+
+    public void ApplyInheritedEffects()
+    {
+        foreach (var inheritedCard in inheritedStack)
+        {
+            foreach (var effect in inheritedCard.inheritedEffects)
+            {
+                if (effect.type == EffectType.ExtraSecurityAttack)
+                {
+                    securityAttackCount += effect.value;
+                }
             }
         }
     }
