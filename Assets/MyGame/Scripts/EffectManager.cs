@@ -51,7 +51,7 @@ public class EffectManager : MonoBehaviour
         {
             case EffectType.ModifyDP:
                 {
-                    source.dp += effect.value;
+                    source.dpBuff += effect.value;
                     Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
                     break;
                 }

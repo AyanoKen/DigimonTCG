@@ -22,6 +22,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public bool isBlocker = false;
     public bool isBlocking = false;
     public bool isSuspended = false;
+    public int dpBuff = 0;
     public Button blockerButton;
 
     public enum Zone

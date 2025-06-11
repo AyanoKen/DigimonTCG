@@ -575,6 +575,9 @@ public class GameManager : MonoBehaviour
             int attackerDP_b = attacker.dp ?? 0;
             int blockerDP_b = blocker.dp ?? 0;
 
+            attackerDP_b += attacker.dpBuff;
+            attacker.dpBuff = 0;
+
             Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
 
             if (attackerDP_b >= blockerDP_b)
@@ -646,6 +649,9 @@ public class GameManager : MonoBehaviour
 
         int attackerDP = attacker.dp ?? 0;
         int securityDP = securityCardData.dp ?? 0;
+
+        attackerDP += attacker.dpBuff;
+        attacker.dpBuff = 0;
 
         Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
 
