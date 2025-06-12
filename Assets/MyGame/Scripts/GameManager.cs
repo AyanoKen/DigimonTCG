@@ -779,6 +779,14 @@ public class GameManager : MonoBehaviour
         PlayCardToBattleArea(topCard);
     }
 
+    public void ModifyMemory(int delta)
+    {
+        currentMemory += delta;
+        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
+        memoryManager.SetMemory(currentMemory);
+        CheckTurnSwitch();
+    }
+
     private EffectTrigger ParseTrigger(string trigger)
     {
         return trigger switch
@@ -787,6 +795,7 @@ public class GameManager : MonoBehaviour
             "when_digivolving" => EffectTrigger.WhenDigivolving,
             "your_turn" => EffectTrigger.YourTurn,
             "main" => EffectTrigger.MainPhase,
+            "when_blocked" => EffectTrigger.WhenBlocked,
             _ => EffectTrigger.None
         };
     }
@@ -803,19 +812,17 @@ public class GameManager : MonoBehaviour
         {
             "modify_dp" => EffectType.ModifyDP,
             "modify_ally_dp" => EffectType.ModifyAllyDP,
+            "modify_party_dp" => EffectType.ModifyPartyDP,
+            "modify_dp_child_count" => EffectType.ModifyDP_ChildCount,
             "gain_memory" => EffectType.GainMemory,
             "lose_memory" => EffectType.LoseMemory,
             "extra_security_attack" => EffectType.ExtraSecurityAttack,
+            "increment_security_based_on_children" => EffectType.IncrementSecurityBasedOnChildren,
+            "delete_target_opponent" => EffectType.DeleteTargetOpponent,
+            "delete_opponent_dp_below_threshold" => EffectType.DeleteOpponentDPBelowThreshold,
+            "buff_security_dp" => EffectType.BuffSecurityDP,
             _ => EffectType.None
         };
-    }
-
-    public void ModifyMemory(int delta)
-    {
-        currentMemory += delta;
-        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
-        memoryManager.SetMemory(currentMemory);
-        CheckTurnSwitch();
     }
 
 }

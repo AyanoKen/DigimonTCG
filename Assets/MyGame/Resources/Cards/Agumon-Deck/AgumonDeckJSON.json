@@ -14,8 +14,9 @@
       "type": "passive",
       "phase": "your_turn",
       "effect": {
-        "type": "modify_dp",
-        "value": 1000
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
       }
     },
     "image_path": "./images/image_1.jpg",
@@ -362,8 +363,7 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Blocker",
-        "description": "When an opponent's Digimon attacks, you may suspend this Digimon to force the opponent to attack it instead."
+        "keyword": "Blocker"
       },
       {
         "type": "triggered",
@@ -397,8 +397,7 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Blocker",
-        "description": "When an opponent's Digimon attacks, you may suspend this Digimon to force the opponent to attack it instead."
+        "keyword": "Blocker"
       },
       {
         "type": "triggered",
@@ -604,7 +603,7 @@
     "effect": null,
     "inherited_effect": {
       "type": "passive",
-      "phase": "your_turn",
+      "phase": "when_blocked",
       "effect": {
         "type": "gain_memory",
         "value": 3
@@ -632,7 +631,7 @@
     "effect": null,
     "inherited_effect": {
       "type": "passive",
-      "phase": "your_turn",
+      "phase": "when_blocked",
       "effect": {
         "type": "gain_memory",
         "value": 3
@@ -660,7 +659,7 @@
     "effect": null,
     "inherited_effect": {
       "type": "passive",
-      "phase": "your_turn",
+      "phase": "when_blocked",
       "effect": {
         "type": "gain_memory",
         "value": 3
@@ -724,15 +723,15 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Security Attack +1",
-        "description": null
+        "keyword": "Security Attack +1"
       },
       {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "extra_security_attack",
-          "value": 1
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
         }
       }
     ],
@@ -759,15 +758,15 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Security Attack +1",
-        "description": null
+        "keyword": "Security Attack +1"
       },
       {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "extra_security_attack",
-          "value": 1
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
         }
       }
     ],
@@ -794,15 +793,15 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Security Attack +1",
-        "description": null
+        "keyword": "Security Attack +1"
       },
       {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "extra_security_attack",
-          "value": 1
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
         }
       }
     ],
@@ -829,15 +828,15 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Security Attack +1",
-        "description": null
+        "keyword": "Security Attack +1"
       },
       {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "extra_security_attack",
-          "value": 1
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
         }
       }
     ],
@@ -860,8 +859,8 @@
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "custom",
-          "description": "All of your Digimon get +1000 DP"
+          "type": "modify_party_dp",
+          "value": 1000
         }
       }
     ],
@@ -884,8 +883,8 @@
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "custom",
-          "description": "All of your Digimon get +1000 DP"
+          "type": "modify_party_dp",
+          "value": 1000
         }
       }
     ],
@@ -908,7 +907,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "modify_dp",
+          "type": "modify_ally_dp",
           "value": 3000
         }
       }
@@ -932,7 +931,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "modify_dp",
+          "type": "modify_ally_dp",
           "value": 3000
         }
       }
@@ -956,7 +955,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "modify_dp",
+          "type": "modify_ally_dp",
           "value": 3000
         }
       }
@@ -980,8 +979,8 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "All of your Security Digimon get +7000 DP until the end of your opponent's next turn"
+          "type": "buff_security_dp",
+          "value": 7000
         }
       }
     ],
@@ -1004,8 +1003,8 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "Delete up to 2 of your opponent's Digimon with 4000 DP or less"
+          "type": "delete_opponent_dp_below_threshold",
+          "value": 4000
         }
       }
     ],
@@ -1028,8 +1027,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "Delete 1 of your opponent's Digimon"
+          "type": "delete_target_opponent"
         }
       }
     ],
@@ -1052,8 +1050,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "Delete 1 of your opponent's Digimon"
+          "type": "delete_target_opponent"
         }
       }
     ],
@@ -1076,8 +1073,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "Delete 1 of your opponent's Digimon"
+          "type": "delete_target_opponent"
         }
       }
     ],
@@ -1100,8 +1096,7 @@
         "type": "triggered",
         "trigger": "main",
         "effect": {
-          "type": "custom",
-          "description": "Delete 1 of your opponent's Digimon"
+          "type": "delete_target_opponent"
         }
       }
     ],
@@ -1124,8 +1119,9 @@
       "type": "passive",
       "phase": "your_turn",
       "effect": {
-        "type": "modify_dp",
-        "value": 1000
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
       }
     },
     "image_path": "./images/image_1.jpg",
@@ -1146,8 +1142,9 @@
       "type": "passive",
       "phase": "your_turn",
       "effect": {
-        "type": "modify_dp",
-        "value": 1000
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
       }
     },
     "image_path": "./images/image_1.jpg",
@@ -1168,8 +1165,9 @@
       "type": "passive",
       "phase": "your_turn",
       "effect": {
-        "type": "modify_dp",
-        "value": 1000
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
       }
     },
     "image_path": "./images/image_1.jpg",
@@ -1190,8 +1188,9 @@
       "type": "passive",
       "phase": "your_turn",
       "effect": {
-        "type": "modify_dp",
-        "value": 1000
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
       }
     },
     "image_path": "./images/image_1.jpg",
@@ -1293,15 +1292,15 @@
     "effect": [
       {
         "type": "keyword",
-        "keyword": "Security Attack +1",
-        "description": null
+        "keyword": "Security Attack +1"
       },
       {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
-          "type": "extra_security_attack",
-          "value": 1
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
         }
       }
     ],

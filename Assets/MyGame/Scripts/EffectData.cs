@@ -9,8 +9,9 @@ public enum EffectTrigger
     WhenAttacking,
     WhenDigivolving,
     YourTurn,
-    OpponentTurn, 
-    MainPhase
+    OpponentTurn,
+    MainPhase,
+    WhenBlocked
 }
 
 public enum EffectType
@@ -18,10 +19,16 @@ public enum EffectType
     None,
     ModifyDP,
     ModifyAllyDP,
+    ModifyPartyDP, //TODO
+    ModifyDP_ChildCount, //TODO
     GainMemory,
     LoseMemory,
     ExtraSecurityAttack,
-    Blocker
+    IncrementSecurityBasedOnChildren, //TODO
+    Blocker,
+    DeleteTargetOpponent, //TODO
+    DeleteOpponentDPBelowThreshold, //TODO
+    BuffSecurityDP //TODO
 }
 
 [System.Serializable]
