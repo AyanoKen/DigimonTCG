@@ -144,11 +144,13 @@ public class GameManager : MonoBehaviour
                     string keyword = entry["keyword"]?.ToString();
                     string innerType = entry["effect"]?["type"]?.ToString();   
                     int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
+                    bool targetSelf = entry["targets_self"]?.Value<bool>() ?? true;
 
                     card.effects.Add(new EffectData(
                         ParseTrigger(trigger),
                         ParseEffectType(innerType ?? outerType, keyword),
-                        value
+                        value, 
+                        targetSelf
                     ));
                 }
             }

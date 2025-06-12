@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class EffectManager : MonoBehaviour
 {
@@ -51,8 +52,32 @@ public class EffectManager : MonoBehaviour
         {
             case EffectType.ModifyDP:
                 {
-                    source.dpBuff += effect.value;
-                    Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
+                    if (effect.targetSelf)
+                    {
+                        source.dpBuff += effect.value;
+                        Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
+                    }
+                    else
+                    {
+                        var candidates = FindObjectsOfType<Card>()
+                            .Where(c => c.ownerId == source.ownerId
+                                    && c.currentZone == Card.Zone.BattleArea
+                                    && c != source)
+                            .ToList();
+
+                        if (candidates.Count > 0)
+                        {
+                            Card target = candidates[Random.Range(0, candidates.Count)];
+                            target.dpBuff += effect.value;
+                            Debug.Log($"[Effect] {target.cardName} gains {effect.value} DP (random target).");
+                        }
+                        else
+                        {
+                            Debug.Log("No valid targets found, applying to self.");
+                            source.dpBuff += effect.value;
+                        }
+                    }
+                    
                     break;
                 }
 
