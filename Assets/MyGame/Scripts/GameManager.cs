@@ -736,6 +736,7 @@ public class GameManager : MonoBehaviour
         CheckTurnSwitch();
 
         Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
+        EffectManager.Instance.TriggerEffects(EffectTrigger.WhenDigivolving, newCard);
 
         return true;
     }
