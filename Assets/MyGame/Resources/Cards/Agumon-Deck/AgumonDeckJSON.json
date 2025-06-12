@@ -546,7 +546,7 @@
         "type": "triggered",
         "trigger": "when_digivolving",
         "effect": {
-          "type": "modify_dp",
+          "type": "modify_ally_dp",
           "value": 3000
         }
       }
@@ -576,7 +576,7 @@
         "type": "triggered",
         "trigger": "when_digivolving",
         "effect": {
-          "type": "modify_dp",
+          "type": "modify_ally_dp",
           "value": 3000
         }
       }

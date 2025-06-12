@@ -58,6 +58,28 @@ public class EffectManager : MonoBehaviour
                     break;
                 }
 
+            case EffectType.ModifyAllyDP:
+                {
+                    var candidates = FindObjectsOfType<Card>()
+                        .Where(c => c.ownerId == source.ownerId
+                                && c.currentZone == Card.Zone.BattleArea
+                                && c != source)
+                        .ToList();
+
+                    if (candidates.Count > 0)
+                    {
+                        Card target = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+                        target.dpBuff += effect.value;
+                        Debug.Log($"[Effect] {target.cardName} gains {effect.value} DP (ModifyAllyDP).");
+                    }
+                    else
+                    {
+                        Debug.Log("No valid allies found for ModifyAllyDP.");
+                    }
+
+                    break;
+                }
+
             case EffectType.GainMemory:
                 {
                     GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);

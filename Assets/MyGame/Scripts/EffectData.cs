@@ -17,6 +17,7 @@ public enum EffectType
 {
     None,
     ModifyDP,
+    ModifyAllyDP,
     GainMemory,
     LoseMemory,
     ExtraSecurityAttack,

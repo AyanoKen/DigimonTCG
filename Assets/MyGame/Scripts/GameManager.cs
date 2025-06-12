@@ -795,6 +795,7 @@ public class GameManager : MonoBehaviour
         return type switch
         {
             "modify_dp" => EffectType.ModifyDP,
+            "modify_ally_dp" => EffectType.ModifyAllyDP,
             "gain_memory" => EffectType.GainMemory,
             "lose_memory" => EffectType.LoseMemory,
             "extra_security_attack" => EffectType.ExtraSecurityAttack,
