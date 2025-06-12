@@ -144,11 +144,13 @@ public class GameManager : MonoBehaviour
                     string keyword = entry["keyword"]?.ToString();
                     string innerType = entry["effect"]?["type"]?.ToString();   
                     int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
+                    int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
 
                     card.effects.Add(new EffectData(
                         ParseTrigger(trigger),
                         ParseEffectType(innerType ?? outerType, keyword),
-                        value
+                        value,
+                        conditionValue
                     ));
                 }
             }
@@ -159,10 +161,15 @@ public class GameManager : MonoBehaviour
                 string phase = inh["phase"]?.ToString();
                 string innerType = inh["effect"]?["type"]?.ToString();
                 int value = inh["effect"]?["value"]?.Value<int>() ?? 0;
+                int conditionValue = inh["effect"]?["conditionValue"]?.Value<int>() ?? 0;
 
                 card.inheritedEffects = new List<EffectData>
                 {
-                    new EffectData(ParseTrigger(phase), ParseEffectType(innerType), value)
+                    new EffectData(
+                        ParseTrigger(phase),
+                        ParseEffectType(innerType),
+                        value,
+                        conditionValue)
                 };
             }
         }

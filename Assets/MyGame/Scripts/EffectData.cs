@@ -30,13 +30,15 @@ public class EffectData
     public EffectTrigger trigger;
     public EffectType type;
     public int value;
+    public int conditionValue;
 
     public EffectData() { }
 
-    public EffectData(EffectTrigger trigger, EffectType type, int value)
+    public EffectData(EffectTrigger trigger, EffectType type, int value, int conditionValue = 0)
     {
         this.trigger = trigger;
         this.type = type;
         this.value = value;
+        this.conditionValue = conditionValue;
     }
 }
