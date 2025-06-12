@@ -52,32 +52,9 @@ public class EffectManager : MonoBehaviour
         {
             case EffectType.ModifyDP:
                 {
-                    if (effect.targetSelf)
-                    {
-                        source.dpBuff += effect.value;
-                        Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
-                    }
-                    else
-                    {
-                        var candidates = FindObjectsOfType<Card>()
-                            .Where(c => c.ownerId == source.ownerId
-                                    && c.currentZone == Card.Zone.BattleArea
-                                    && c != source)
-                            .ToList();
+                    source.dpBuff += effect.value;
+                    Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
 
-                        if (candidates.Count > 0)
-                        {
-                            Card target = candidates[Random.Range(0, candidates.Count)];
-                            target.dpBuff += effect.value;
-                            Debug.Log($"[Effect] {target.cardName} gains {effect.value} DP (random target).");
-                        }
-                        else
-                        {
-                            Debug.Log("No valid targets found, applying to self.");
-                            source.dpBuff += effect.value;
-                        }
-                    }
-                    
                     break;
                 }
 
