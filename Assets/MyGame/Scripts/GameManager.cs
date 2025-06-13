@@ -463,6 +463,8 @@ public class GameManager : MonoBehaviour
                 {
                     card.isBlocking = false;
                 }
+
+                card.ResetStats();
             }
             
         }
@@ -565,8 +567,6 @@ public class GameManager : MonoBehaviour
             opponentId = 1;
         }
 
-        EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, attacker);
-
         Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone == Card.Zone.BattleArea);
 
         if (blocker != null)
@@ -583,7 +583,6 @@ public class GameManager : MonoBehaviour
             int blockerDP_b = blocker.dp ?? 0;
 
             attackerDP_b += attacker.dpBuff;
-            attacker.dpBuff = 0;
 
             Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
 
@@ -658,7 +657,6 @@ public class GameManager : MonoBehaviour
         int securityDP = securityCardData.dp ?? 0;
 
         attackerDP += attacker.dpBuff;
-        attacker.dpBuff = 0;
 
         Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
 

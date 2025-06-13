@@ -162,12 +162,17 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         canAttack = false;
         actionPanel.SetActive(false);
 
+        EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);
+
         for (int i = 0; i < securityAttackCount; i++)
         {
             GameManager.Instance.ResolveSecurityAttack(this);
             if (this == null || gameObject == null)
                 break;
         }
+
+        securityAttackCount = 1;
+        dpBuff = 0;
     }
 
     public void HideActionPanel()
@@ -271,5 +276,11 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
         isBlocking = true;
         Debug.Log($"{cardName} Blocker Mode set to: {isBlocking}");
+    }
+
+    public void ResetStats()
+    {
+        dpBuff = 0;
+        securityAttackCount = 1;
     }
 }

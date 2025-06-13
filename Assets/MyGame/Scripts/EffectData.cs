@@ -1,6 +1,29 @@
 using System;
-using System.Linq; 
+using System.Linq;
 using System.Collections.Generic;
+
+
+/* 
+Effects Dictionary
+
+Effect Trigers:
+
+OnPlay: Triggers when a card is played into the battle area
+WhenAttacking: Triggers while resolving Security attack
+WhenDigivolving: Triggers when digivolving
+YourTurn: Triggers at the start of the player's turn
+OpponentTurn: Triggers at the start of Opponent's turn
+
+
+
+
+
+
+
+
+
+
+*/
 
 public enum EffectTrigger
 {
@@ -20,11 +43,11 @@ public enum EffectType
     ModifyDP,
     ModifyAllyDP,
     ModifyPartyDP, //TODO
-    ModifyDP_ChildCount, //TODO
+    ModifyDP_ChildCount, // While this card has more than {conditionValue} digivolution cards, gain {value} dp
     GainMemory,
     LoseMemory,
     ExtraSecurityAttack,
-    IncrementSecurityBasedOnChildren, //TODO
+    IncrementSecurityBasedOnChildren, // 
     Blocker,
     DeleteTargetOpponent, //TODO
     DeleteOpponentDPBelowThreshold, //TODO

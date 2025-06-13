@@ -80,6 +80,31 @@ public class EffectManager : MonoBehaviour
                     break;
                 }
 
+            case EffectType.ModifyPartyDP:
+                {
+                    var party = FindObjectsOfType<Card>()
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea)
+                        .ToList();
+
+                    foreach (var member in party)
+                    {
+                        member.dpBuff += effect.value;
+                        Debug.Log($"[Effect] {member.cardName} gains {effect.value} DP from Party Buff.");
+                    }
+
+                    break;
+                }
+
+            case EffectType.ModifyDP_ChildCount:
+                {
+                    if (source.inheritedStack.Count > effect.conditionValue)
+                    {
+                        source.dpBuff += effect.value;
+                        Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP from inherited stack condition.");
+                    }
+                    break;
+                }
+
             case EffectType.GainMemory:
                 {
                     GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);
@@ -99,6 +124,35 @@ public class EffectManager : MonoBehaviour
                     Debug.Log($"[Effect] {source.cardName} gains Security Attack +{effect.value} for the turn");
                     break;
                 }
+
+            case EffectType.IncrementSecurityBasedOnChildren:
+                {
+                    int bonus = (source.inheritedStack.Count / effect.conditionValue) * effect.value;
+                    source.securityAttackCount += bonus;
+                    Debug.Log($"[Effect] {source.cardName} gains +{bonus} security attack based on child stack.");
+                    break;
+                }
+
+            case EffectType.DeleteTargetOpponent:
+                {
+                    Debug.Log("[Effect] Deleting target opponent card -- (placeholder)");
+                    break;
+                }
+            
+
+            case EffectType.DeleteOpponentDPBelowThreshold:
+                {
+                    Debug.Log("[Effect] Deleting opponent Digimon with DP <= threshold -- (placeholder)");
+                    break;
+                }
+            
+
+            case EffectType.BuffSecurityDP:
+                {
+                    Debug.Log("[Effect] Buffing security stack DP -- (placeholder)");
+                    break;
+                }
+                
 
             default:
                 {
