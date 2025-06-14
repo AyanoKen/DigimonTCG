@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 
 [System.Serializable]
 public class DigivolveCostEntry
@@ -14,10 +15,14 @@ public class DigivolveCostEntry
 
 public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 {
+    [SerializeField] private TMP_Text attackButton;
+    [SerializeField] private Button blockerButton;
+
     public int cardId;
     public Zone currentZone;
     public int ownerId;
     public bool canAttack = false;
+    public bool mainEffectUsed = false;
     public GameObject actionPanel;
     public bool isBlocker = false;
     public bool isBlocking = false;
@@ -25,7 +30,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
     public int securityAttackCount = 1;
     public int dpBuff = 0;
-    public Button blockerButton;
 
     public enum Zone
     {
@@ -97,6 +101,22 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
                     Debug.Log("This Digimon cannot attack right now.");
                 }
             }
+
+            if (currentZone == Zone.TamerArea && ownerId == GameManager.Instance.GetActivePlayer() && !mainEffectUsed)
+            {
+                foreach (var card in FindObjectsOfType<Card>())
+                {
+                    if (card != this)
+                    {
+                        card.actionPanel.SetActive(false);
+                    }
+                }
+
+                bool shouldShow = !actionPanel.activeSelf;
+                actionPanel.SetActive(shouldShow);
+
+                attackButton.text = "Activate Effect";
+            }
         }
     }
 
@@ -153,6 +173,23 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
     public void AttackSecurity()
     {
+        if (currentZone == Zone.TamerArea)
+        {
+            if (mainEffectUsed)
+            {
+                Debug.Log("Main Phase effect already used.");
+                return;
+            }
+
+            Debug.Log("Activating Main Phase effect for Tamer.");
+            actionPanel.SetActive(false);
+
+            EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, this);
+            mainEffectUsed = true;
+
+            return;
+        }
+
         if (!canAttack || ownerId != GameManager.Instance.GetActivePlayer())
         {
             Debug.Log("Cannot Attack Security");

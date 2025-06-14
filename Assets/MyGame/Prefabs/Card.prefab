@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1787394994418068064}
   - component: {fileID: 1991269762070019408}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: AttackText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -239,15 +239,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95ecd7112c9903446881310673b5bb66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackButton: {fileID: 1991269762070019408}
+  blockerButton: {fileID: 7207692311624067610}
   cardId: 0
   currentZone: 1
   ownerId: 0
   canAttack: 0
+  mainEffectUsed: 0
   actionPanel: {fileID: 7059347981399489603}
   isBlocker: 0
   isBlocking: 0
   isSuspended: 0
-  blockerButton: {fileID: 7207692311624067610}
+  securityAttackCount: 1
+  dpBuff: 0
   cardName: 
   cardType: 
   color: 
@@ -526,7 +530,7 @@ GameObject:
   - component: {fileID: 4589637454254113587}
   - component: {fileID: 2622395215929805563}
   m_Layer: 5
-  m_Name: AttackSecurity
+  m_Name: AttackSecurityButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

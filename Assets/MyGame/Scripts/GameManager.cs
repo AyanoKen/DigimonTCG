@@ -502,13 +502,18 @@ public class GameManager : MonoBehaviour
                         card.isSuspended = false;
                         card.transform.rotation = Quaternion.identity;
                     }
+
+                    card.ResetStats();
                 }
                 else
                 {
                     card.isBlocking = false;
                 }
+            }
 
-                card.ResetStats();
+            if (card.currentZone == Card.Zone.TamerArea && card.ownerId == activePlayer)
+            {
+                card.mainEffectUsed = false;
             }
             
         }
@@ -891,6 +896,19 @@ public class GameManager : MonoBehaviour
         else
         {
             player2Trash.Add(card.cardId);
+        }
+
+        Destroy(card.gameObject);
+    }
+
+    public void DestroyDigimonStack(Card card)
+    {
+        foreach (var inheritedCard in card.inheritedStack)
+        {
+            if (inheritedCard != null)
+            {
+                Destroy(inheritedCard.gameObject);
+            }
         }
 
         Destroy(card.gameObject);
