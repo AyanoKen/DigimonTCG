@@ -135,25 +135,34 @@ public class GameManager : MonoBehaviour
 
             // Parse main effects
             if (token["effect"] is JArray effectArray)
-            {
-                card.effects = new List<EffectData>();
-                foreach (var entry in effectArray)
                 {
-                    string outerType = entry["type"]?.ToString();              
-                    string trigger = entry["trigger"]?.ToString();
-                    string keyword = entry["keyword"]?.ToString();
-                    string innerType = entry["effect"]?["type"]?.ToString();   
-                    int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
-                    int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
+                    card.effects = new List<EffectData>();
 
-                    card.effects.Add(new EffectData(
-                        ParseTrigger(trigger),
-                        ParseEffectType(innerType ?? outerType, keyword),
-                        value,
-                        conditionValue
-                    ));
+                    foreach (var entry in effectArray)
+                    {
+                        string outerType = entry["type"]?.ToString();
+                        string trigger = entry["trigger"]?.ToString();
+                        string phase = entry["phase"]?.ToString();
+                        string keyword = entry["keyword"]?.ToString();
+
+                        // 🔧 Here is the critical fix you need to add:
+                        if (outerType == "passive" && string.IsNullOrEmpty(trigger))
+                        {
+                            trigger = phase;
+                        }
+
+                        string innerType = entry["effect"]?["type"]?.ToString();
+                        int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
+                        int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
+
+                        card.effects.Add(new EffectData(
+                            ParseTrigger(trigger),
+                            ParseEffectType(innerType ?? outerType, keyword),
+                            value,
+                            conditionValue
+                        ));
+                    }
                 }
-            }
 
             // Parse inherited effects
             if (token["inherited_effect"] is JObject inh)

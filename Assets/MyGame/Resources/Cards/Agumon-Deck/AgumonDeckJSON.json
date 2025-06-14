@@ -722,10 +722,6 @@
     ],
     "effect": [
       {
-        "type": "keyword",
-        "keyword": "Security Attack +1"
-      },
-      {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
@@ -756,10 +752,6 @@
       }
     ],
     "effect": [
-      {
-        "type": "keyword",
-        "keyword": "Security Attack +1"
-      },
       {
         "type": "triggered",
         "trigger": "your_turn",
@@ -792,10 +784,6 @@
     ],
     "effect": [
       {
-        "type": "keyword",
-        "keyword": "Security Attack +1"
-      },
-      {
         "type": "triggered",
         "trigger": "your_turn",
         "effect": {
@@ -826,10 +814,6 @@
       }
     ],
     "effect": [
-      {
-        "type": "keyword",
-        "keyword": "Security Attack +1"
-      },
       {
         "type": "triggered",
         "trigger": "your_turn",
@@ -1290,10 +1274,6 @@
       }
     ],
     "effect": [
-      {
-        "type": "keyword",
-        "keyword": "Security Attack +1"
-      },
       {
         "type": "triggered",
         "trigger": "your_turn",

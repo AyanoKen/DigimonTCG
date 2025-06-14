@@ -31,7 +31,7 @@ DeleteOpponentDPBelowThreshold: //TODO
 BuffSecurityDP: //TODO
 */
 
-public enum EffectTrigger
+public enum EffectTrigger 
 {
     None,
     OnPlay,

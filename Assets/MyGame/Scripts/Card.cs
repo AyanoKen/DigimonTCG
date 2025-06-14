@@ -234,25 +234,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
             {
                 blockerButton.gameObject.SetActive(true);
             }
-
-            if (effect.type == EffectType.ExtraSecurityAttack)
-            {
-                securityAttackCount += effect.value;
-            }
-        }
-    }
-
-    public void ApplyInheritedEffects()
-    {
-        foreach (var inheritedCard in inheritedStack)
-        {
-            foreach (var effect in inheritedCard.inheritedEffects)
-            {
-                if (effect.type == EffectType.ExtraSecurityAttack)
-                {
-                    securityAttackCount += effect.value;
-                }
-            }
         }
     }
 

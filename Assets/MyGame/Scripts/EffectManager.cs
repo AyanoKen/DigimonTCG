@@ -121,6 +121,7 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.ExtraSecurityAttack:
                 {
+                    source.securityAttackCount += effect.value;
                     Debug.Log($"[Effect] {source.cardName} gains Security Attack +{effect.value} for the turn");
                     break;
                 }
