@@ -648,7 +648,7 @@ public class GameManager : MonoBehaviour
                 {
                     player2Trash.Add(blocker.cardId);
                 }
-                Destroy(blocker.gameObject);
+                DestroyDigimonStack(blocker);
             }
 
             if (blockerDP_b >= attackerDP_b)
@@ -662,7 +662,7 @@ public class GameManager : MonoBehaviour
                 {
                     player2Trash.Add(attacker.cardId);
                 }
-                Destroy(attacker.gameObject);
+                DestroyDigimonStack(attacker);
             }
 
             return;
@@ -766,8 +766,8 @@ public class GameManager : MonoBehaviour
             {
                 player2Trash.Add(attacker.cardId);
             }
-
-            Destroy(attacker.gameObject);
+            
+            DestroyDigimonStack(attacker);
         }
         else
         {
