@@ -31,7 +31,7 @@ DeleteOpponentDPBelowThreshold: Remove all digimon in opponent's battle area whi
 BuffSecurityDP: //TODO
 */
 
-public enum EffectTrigger 
+public enum EffectTrigger
 {
     None,
     OnPlay,
@@ -40,7 +40,8 @@ public enum EffectTrigger
     YourTurn,
     OpponentTurn,
     MainPhase,
-    WhenBlocked
+    WhenBlocked,
+    Security
 }
 
 public enum EffectType
@@ -48,16 +49,23 @@ public enum EffectType
     None,
     ModifyDP,
     ModifyAllyDP,
-    ModifyPartyDP, //TODO
-    ModifyDP_ChildCount, // While this card has more than {conditionValue} digivolution cards, gain {value} dp
+    ModifyPartyDP, 
+    ModifyDP_ChildCount, 
     GainMemory,
     LoseMemory,
     ExtraSecurityAttack,
-    IncrementSecurityBasedOnChildren, // 
+    IncrementSecurityBasedOnChildren, 
     Blocker,
-    DeleteTargetOpponent, //TODO
-    DeleteOpponentDPBelowThreshold, //TODO
-    BuffSecurityDP //TODO
+    DeleteTargetOpponent,
+    DeleteOpponentDPBelowThreshold,
+    BuffSecurityDP, //TODO
+
+
+    // Security Effects
+    PlayCardWithoutMemory,
+    ExtraSecurityAttackPartyNextTurn,
+    BuffSecurityNextTurn,
+    ActivateMainEffect
 }
 
 [System.Serializable]

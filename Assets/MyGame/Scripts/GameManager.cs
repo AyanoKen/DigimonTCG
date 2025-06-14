@@ -45,7 +45,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform handZone;
     [SerializeField] private Transform opponentHandZone;
     [SerializeField] private Transform opponentBattleZone;
-    [SerializeField] private Transform opponentTamerZone;
+    [SerializeField] public Transform opponentTamerZone;
+    [SerializeField] public Transform playerTamerZone;
+    [SerializeField] private Transform playerSecurityStackVisual;
+    [SerializeField] private Transform opponentSecurityStackVisual;
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
     [SerializeField] private Sprite cardBackSprite;
@@ -420,12 +423,24 @@ public class GameManager : MonoBehaviour
         {
             int topCard = player1SecurityStack[0];
             player1SecurityStack.RemoveAt(0);
+
+            if (playerSecurityStackVisual.childCount > 0)
+            {
+                Destroy(playerSecurityStackVisual.GetChild(0).gameObject);
+            }
+
             return topCard;
         }
         else if (playerId == 1 && player2SecurityStack.Count > 0)
         {
             int topCard = player2SecurityStack[0];
             player2SecurityStack.RemoveAt(0);
+
+            if (opponentSecurityStackVisual.childCount > 0)
+            {
+                Destroy(opponentSecurityStackVisual.GetChild(0).gameObject);
+            }
+
             return topCard;
         }
 
@@ -597,6 +612,8 @@ public class GameManager : MonoBehaviour
             blocker.isSuspended = true;
             blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
 
+            EffectManager.Instance.TriggerEffects(EffectTrigger.WhenBlocked, attacker);
+
             int attackerDP_b = attacker.dp ?? 0;
             int blockerDP_b = blocker.dp ?? 0;
 
@@ -668,6 +685,40 @@ public class GameManager : MonoBehaviour
         if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
         {
             Debug.LogWarning("Unable to fetch card data for revealed security card");
+            return;
+        }
+
+        if (securityCardData.card_type == "Option" || securityCardData.card_type == "Tamer")
+        {
+            Debug.Log("Resolving Security Option effect.");
+
+            GameObject cardGO = Instantiate(cardPrefab);
+            Card securityCard = cardGO.GetComponent<Card>();
+
+            securityCard.cardId = securityCardData.id;
+            securityCard.cardName = securityCardData.name;
+            securityCard.cardType = securityCardData.card_type;
+            securityCard.ownerId = opponentId;
+            securityCard.currentZone = Card.Zone.Security;
+            securityCard.sprite = sprite;
+
+            securityCard.effects = securityCardData.effects ?? new List<EffectData>();
+            securityCard.inheritedEffects = securityCardData.inheritedEffects ?? new List<EffectData>();
+
+            EffectManager.Instance.TriggerEffects(EffectTrigger.Security, securityCard);
+
+            // After resolving, trash security card
+            if (securityCard.currentZone == Card.Zone.Security)
+            {
+                if (opponentId == 0)
+                {
+                    player1Trash.Add(securitycardId);
+                }
+                else
+                {
+                    player2Trash.Add(securitycardId);
+                }
+            }
             return;
         }
 
@@ -834,6 +885,7 @@ public class GameManager : MonoBehaviour
             "your_turn" => EffectTrigger.YourTurn,
             "main" => EffectTrigger.MainPhase,
             "when_blocked" => EffectTrigger.WhenBlocked,
+            "security" => EffectTrigger.Security,
             _ => EffectTrigger.None
         };
     }
@@ -859,6 +911,10 @@ public class GameManager : MonoBehaviour
             "delete_target_opponent" => EffectType.DeleteTargetOpponent,
             "delete_opponent_dp_below_threshold" => EffectType.DeleteOpponentDPBelowThreshold,
             "buff_security_dp" => EffectType.BuffSecurityDP,
+            "play_card_without_memory" => EffectType.PlayCardWithoutMemory,
+            "extra_security_attack_party_next_turn" => EffectType.ExtraSecurityAttackPartyNextTurn,
+            "buff_security_next_turn" => EffectType.BuffSecurityNextTurn,
+            "activate_main_effect" => EffectType.ActivateMainEffect,
             _ => EffectType.None
         };
     }

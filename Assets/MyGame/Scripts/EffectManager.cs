@@ -173,6 +173,62 @@ public class EffectManager : MonoBehaviour
                     }
                     break;
                 }
+
+            case EffectType.PlayCardWithoutMemory:
+                {
+                    Debug.Log("[Security Effect] Playing card directly onto field without paying cost.");
+
+                    Transform targetZone = GameManager.Instance.opponentTamerZone;
+
+                    if (source.ownerId == 0)
+                    {
+                        targetZone = GameManager.Instance.playerTamerZone;
+                    }
+
+                    if (source.cardType == "Tamer")
+                    {
+                        source.transform.SetParent(targetZone);
+                        source.currentZone = Card.Zone.TamerArea;
+
+                        CanvasGroup cg = source.GetComponent<CanvasGroup>();
+                        if (cg != null)
+                        {
+                            cg.blocksRaycasts = true;
+                        }
+                    }
+
+                    break;
+                }
+
+            case EffectType.ExtraSecurityAttackPartyNextTurn:
+                {
+                    Debug.Log("[Security Effect] All Digimon get +Security Attack next turn.");
+
+                    var party = FindObjectsOfType<Card>()
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea)
+                        .ToList();
+
+                    foreach (var member in party)
+                    {
+                        member.securityAttackCount += effect.value;
+                    }
+                    break;
+                }
+
+            case EffectType.BuffSecurityNextTurn:
+                {
+                    Debug.Log("[Security Effect] Security Digimon gain +" + effect.value + " DP for next turn.");
+                    // We'll flag this for future implementation — requires persistent turn-state buff system
+                    break;
+                }
+
+            case EffectType.ActivateMainEffect:
+                {
+                    Debug.Log("[Security Effect] Activating card's main effect.");
+
+                    TriggerEffects(EffectTrigger.MainPhase, source);
+                    break;
+                }
             
 
             case EffectType.BuffSecurityDP:
