@@ -447,7 +447,7 @@ public class GameManager : MonoBehaviour
         var allCards = FindObjectsOfType<Card>();
         foreach (var card in allCards)
         {
-            if (card.ownerId == playerId && card.currentZone == Card.Zone.BattleArea)
+            if (card.ownerId == playerId && (card.currentZone == Card.Zone.BattleArea || card.currentZone == Card.Zone.TamerArea))
             {
                 EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
             }
@@ -805,7 +805,7 @@ public class GameManager : MonoBehaviour
         {
             currentMemory -= delta;
         }
-        
+
         currentMemory = Mathf.Clamp(currentMemory, -10, 10);
         memoryManager.SetMemory(currentMemory);
         CheckTurnSwitch();
