@@ -28,7 +28,7 @@ ExtraSecurityAttack: Gain +{value} security attack
 IncrementSecurityBasedOnChildren: For every {conditionValue} digivolution cards, gain {value} security attack 
 DeleteTargetOpponent: Remove a digimon from opponent's battle area 
 DeleteOpponentDPBelowThreshold: Remove all digimon in opponent's battle area which are below {value} DP
-BuffSecurityDP: //TODO
+BuffSecurityDP: 
 */
 
 public enum EffectTrigger
@@ -58,7 +58,7 @@ public enum EffectType
     Blocker,
     DeleteTargetOpponent,
     DeleteOpponentDPBelowThreshold,
-    BuffSecurityDP, //TODO
+    BuffSecurityDP, 
 
 
     // Security Effects
