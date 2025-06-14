@@ -834,7 +834,7 @@
     "level": null,
     "color": "Red",
     "form": null,
-    "attribute": "Vaccine",
+    "attribute": null,
     "dp": null,
     "play_cost": 2,
     "digivolve_costs": [],
@@ -988,7 +988,8 @@
         "trigger": "main",
         "effect": {
           "type": "delete_opponent_dp_below_threshold",
-          "value": 4000
+          "value": 4000,
+          "conditionValue": 2
         }
       }
     ],

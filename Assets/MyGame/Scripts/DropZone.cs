@@ -41,6 +41,17 @@ public class DropZone : MonoBehaviour, IDropHandler
                 return;
             }
 
+            if (card.cardType == "Option")
+            {
+                EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, card);
+                Debug.Log($"Played Option card: {card.cardName}, cost: {card.playCost}");
+
+                GameManager.Instance.ModifyMemory(-card.playCost);
+
+                Destroy(card.gameObject);
+                return;
+            }
+
             droppedCard.transform.SetParent(transform);
 
             if (card.currentZone == Card.Zone.BreedingActiveSlot)

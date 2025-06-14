@@ -8,11 +8,11 @@ Effects Dictionary
 
 Effect Triggers:
 
-OnPlay: Triggers when a card is played into the battle area
+OnPlay: Triggers when a card is played into the battle area //Not Implemented
 WhenAttacking: Triggers in Card.AttackSecurity() when attacking
 WhenDigivolving: Triggers when digivolving in GameManager.TryDigivolve()
-YourTurn: Triggers at the start of the player's turn
-OpponentTurn: Triggers at the start of Opponent's turn
+YourTurn: Triggers at the start of the player's turn in GameManager.StartTurn()
+OpponentTurn: Triggers at the start of Opponent's turn //Not Implemented
 WhenBlocked: Triggers in GameManager.ResolveSecurityAttack() when blocked
 
 
@@ -20,14 +20,14 @@ Effect Types:
 
 ModifyDP: Gain {value} DP
 ModifyAllyDP: Random ally gains {value} DP
-ModifyPartyDP: //TODO
+ModifyPartyDP: All digimon in battle area gain {value} DP
 ModifyDP_ChildCount: While this card has more than {conditionValue} digivolution cards, gain {value} dp
 GainMemory: Gain {value} memory
 LoseMemory: Lose {value} memory
 ExtraSecurityAttack: Gain +{value} security attack
 IncrementSecurityBasedOnChildren: For every {conditionValue} digivolution cards, gain {value} security attack 
-DeleteTargetOpponent: //TODO
-DeleteOpponentDPBelowThreshold: //TODO
+DeleteTargetOpponent: Remove a digimon from opponent's battle area 
+DeleteOpponentDPBelowThreshold: Remove all digimon in opponent's battle area which are below {value} DP
 BuffSecurityDP: //TODO
 */
 

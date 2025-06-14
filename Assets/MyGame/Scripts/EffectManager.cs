@@ -163,10 +163,13 @@ public class EffectManager : MonoBehaviour
                                     && c.dp <= effect.value)
                         .ToList();
 
-                    foreach (var target in targets)
+                    for (int i = 0; i < effect.conditionValue; i++)
                     {
-                        GameManager.Instance.SendToTrash(target);
-                        Debug.Log($"[Effect] Deleted {target.cardName} with DP ≤ {effect.value}.");
+                        if (i < targets.Count)
+                        {
+                            GameManager.Instance.SendToTrash(targets[i]);
+                            Debug.Log($"[Effect] Deleted {targets[i].cardName} with DP ≤ {effect.value}.");
+                        }
                     }
                     break;
                 }
