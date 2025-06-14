@@ -794,6 +794,20 @@ public class GameManager : MonoBehaviour
         CheckTurnSwitch();
     }
 
+    public void SendToTrash(Card card)
+    {
+        if (card.ownerId == 0)
+        {
+            player1Trash.Add(card.cardId);
+        }
+        else
+        {
+            player2Trash.Add(card.cardId);
+        }
+
+        Destroy(card.gameObject);
+    }
+
     private EffectTrigger ParseTrigger(string trigger)
     {
         return trigger switch

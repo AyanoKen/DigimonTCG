@@ -136,14 +136,38 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.DeleteTargetOpponent:
                 {
-                    Debug.Log("[Effect] Deleting target opponent card -- (placeholder)");
+                    var opponents = FindObjectsOfType<Card>()
+                        .Where(c => c.ownerId != source.ownerId 
+                                    && c.currentZone == Card.Zone.BattleArea)
+                        .ToList();
+
+                    if (opponents.Count > 0)
+                    {
+                        Card target = opponents[UnityEngine.Random.Range(0, opponents.Count)];
+                        GameManager.Instance.SendToTrash(target);
+                        Debug.Log($"[Effect] Deleted {target.cardName} (DeleteTargetOpponent).");
+                    }
+                    else
+                    {
+                        Debug.Log("No valid opponent Digimon to delete.");
+                    }
                     break;
                 }
             
 
             case EffectType.DeleteOpponentDPBelowThreshold:
                 {
-                    Debug.Log("[Effect] Deleting opponent Digimon with DP <= threshold -- (placeholder)");
+                    var targets = FindObjectsOfType<Card>()
+                        .Where(c => c.ownerId != source.ownerId
+                                    && c.currentZone == Card.Zone.BattleArea
+                                    && c.dp <= effect.value)
+                        .ToList();
+
+                    foreach (var target in targets)
+                    {
+                        GameManager.Instance.SendToTrash(target);
+                        Debug.Log($"[Effect] Deleted {target.cardName} with DP ≤ {effect.value}.");
+                    }
                     break;
                 }
             
