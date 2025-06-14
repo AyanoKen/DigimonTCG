@@ -444,10 +444,19 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Player {playerId + 1}'s turn started.");
 
-        if (playerId == 1)
+        var allCards = FindObjectsOfType<Card>();
+        foreach (var card in allCards)
         {
-            RunAiTurn();
+            if (card.ownerId == playerId && card.zone == Card.Zone.BattleArea)
+            {
+                EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+            }
         }
+
+        if (playerId == 1)
+            {
+                RunAiTurn();
+            }
     }
 
     public void EndTurn()
