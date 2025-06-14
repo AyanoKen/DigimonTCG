@@ -74,6 +74,8 @@ public class GameManager : MonoBehaviour
 
     public bool isHatchingSlotOccupied = false;
     public int localPlayerId = 0;
+    public int player1SecurityBuff = 0;
+    public int player2SecurityBuff = 0;
 
     private void Awake()
     {
@@ -459,6 +461,15 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Player {playerId + 1}'s turn started.");
 
+        if (playerId == 0)
+        {
+            player1SecurityBuff = 0;
+        }
+        else
+        {
+            player2SecurityBuff = 0;
+        }
+
         var allCards = FindObjectsOfType<Card>();
         foreach (var card in allCards)
         {
@@ -469,9 +480,9 @@ public class GameManager : MonoBehaviour
         }
 
         if (playerId == 1)
-            {
-                RunAiTurn();
-            }
+        {
+            RunAiTurn();
+        }
     }
 
     public void EndTurn()
@@ -726,6 +737,15 @@ public class GameManager : MonoBehaviour
         int securityDP = securityCardData.dp ?? 0;
 
         attackerDP += attacker.dpBuff;
+
+        if (opponentId == 0)
+        {
+            securityDP += player1SecurityBuff;
+        }
+        else
+        {
+            securityDP += player2SecurityBuff;
+        }
 
         Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
 

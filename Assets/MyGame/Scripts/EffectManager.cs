@@ -218,7 +218,15 @@ public class EffectManager : MonoBehaviour
             case EffectType.BuffSecurityNextTurn:
                 {
                     Debug.Log("[Security Effect] Security Digimon gain +" + effect.value + " DP for next turn.");
-                    // We'll flag this for future implementation — requires persistent turn-state buff system
+
+                    if (source.ownerId == 0)
+                    {
+                        GameManager.Instance.player1SecurityBuff += effect.value;
+                    }
+                    else
+                    {
+                        GameManager.Instance.player2SecurityBuff += effect.value;
+                    }
                     break;
                 }
 
@@ -233,7 +241,15 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.BuffSecurityDP:
                 {
-                    Debug.Log("[Effect] Buffing security stack DP -- (placeholder)");
+                    Debug.Log("[Effect] Buffing security stack DP");
+                    if (source.ownerId == 0)
+                    {
+                        GameManager.Instance.player1SecurityBuff += effect.value;
+                    }
+                    else
+                    {
+                        GameManager.Instance.player2SecurityBuff += effect.value;
+                    }
                     break;
                 }
                 
