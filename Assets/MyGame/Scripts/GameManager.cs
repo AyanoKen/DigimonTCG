@@ -414,6 +414,11 @@ public class GameManager : MonoBehaviour
             currentMemory += cost;
         }
 
+        if (card.cardType == "Digimon")
+        {
+            card.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
+        }
+
         currentMemory = Mathf.Clamp(currentMemory, -10, 10);
 
         memoryManager.SetMemory(currentMemory);
