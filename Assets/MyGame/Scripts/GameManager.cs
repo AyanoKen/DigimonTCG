@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Sprite cardBackSprite;
     [SerializeField] private GameObject securityRevealPrefab;
     [SerializeField] private Transform canvasTransform;
+    [SerializeField] private GameObject endTurnBanner;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -437,7 +438,7 @@ public class GameManager : MonoBehaviour
 
             if (playerSecurityStackVisual.childCount > 0)
             {
-                Destroy(playerSecurityStackVisual.GetChild(0).gameObject);
+                DestroyImmediate(playerSecurityStackVisual.GetChild(0).gameObject);
             }
 
             return topCard;
@@ -449,7 +450,7 @@ public class GameManager : MonoBehaviour
 
             if (opponentSecurityStackVisual.childCount > 0)
             {
-                Destroy(opponentSecurityStackVisual.GetChild(0).gameObject);
+                DestroyImmediate(opponentSecurityStackVisual.GetChild(0).gameObject);
             }
 
             return topCard;
@@ -462,13 +463,9 @@ public class GameManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        activePlayer = playerId;
-
         DrawCardFromDeck(playerId);
 
         if (isGameOver) return;
-
-        Debug.Log($"Player {playerId + 1}'s turn started.");
 
         if (playerId == 0)
         {
@@ -536,13 +533,20 @@ public class GameManager : MonoBehaviour
             nextPlayer = 1;
         }
 
+        activePlayer = nextPlayer;
+
         foreach (var card in FindObjectsOfType<Card>())
         {
             card.HideActionPanel();
         }
 
         turnTransition = true;
-        yield return new WaitForSeconds(2f);
+
+        endTurnBanner.SetActive(true);
+        endTurnBanner.GetComponent<TurnTransitionBanner>().StartTransition();
+
+        yield return new WaitForSeconds(2.5f);
+
         turnTransition = false;
 
         StartTurn(nextPlayer);
@@ -575,8 +579,6 @@ public class GameManager : MonoBehaviour
 
     public void RunAiTurn()
     {
-        Debug.Log("AI Turn Started");
-
         while (player2Hand.Count > 0)
         {
             if (activePlayer != 1)

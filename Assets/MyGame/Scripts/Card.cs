@@ -81,13 +81,10 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
                 return;
             }
 
-            Debug.Log($"Card {cardName} Able to detect click");
             if (currentZone == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
             {
                 if (canAttack)
                 {
-                    Debug.Log($"Card {cardName} is ready to attack. Showing options...");
-
                     foreach (var card in FindObjectsOfType<Card>())
                     {
                         if (card != this)
@@ -223,31 +220,26 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     {
         if (baseCard.level == null || this.level == null)
         {
-            Debug.Log("Checkpoint 1");
             return false;
         }
 
         if (this.cardType != "Digimon")
         {
-            Debug.Log("Checkpoint 2A: New card is not Digimon");
             return false;
         }
 
         if (baseCard.cardType == "Tamer" || baseCard.cardType == "Option")
         {
-            Debug.Log("Checkpoint 2B: Cannot digivolve from Tamer/Option");
             return false;
         }
 
         if (this.level != baseCard.level + 1)
         {
-            Debug.Log("Checkpoint 3");
             return false;
         }
 
         if (this.digivolveCost == null)
         {
-            Debug.Log("Checkpoint 4");
             return false;
         }
 
