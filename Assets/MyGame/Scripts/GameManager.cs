@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -76,6 +77,7 @@ public class GameManager : MonoBehaviour
     public int localPlayerId = 0;
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
+    public bool turnTransition = false;
 
     private void Awake()
     {
@@ -492,7 +494,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void EndTurn()
+    public IEnumerator EndTurn()
     {
         var allCards = FindObjectsOfType<Card>();
 
@@ -539,6 +541,10 @@ public class GameManager : MonoBehaviour
             card.HideActionPanel();
         }
 
+        turnTransition = true;
+        yield return new WaitForSeconds(2f);
+        turnTransition = false;
+
         StartTurn(nextPlayer);
     }
 
@@ -550,7 +556,7 @@ public class GameManager : MonoBehaviour
 
             memoryManager.SetMemory(currentMemory);
 
-            EndTurn();
+            StartCoroutine(EndTurn());
         }
     }
 
@@ -558,7 +564,7 @@ public class GameManager : MonoBehaviour
     {
         if ((activePlayer == 0 && currentMemory < 0) || (activePlayer == 1 && currentMemory > 0))
         {
-            EndTurn();
+            StartCoroutine(EndTurn());
         }
     }
 
