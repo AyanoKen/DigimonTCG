@@ -819,6 +819,7 @@ public class GameManager : MonoBehaviour
         baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
         newCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
+        newCard.inheritedStack.AddRange(baseCard.inheritedStack);
         newCard.inheritedStack.Add(baseCard);
         newCard.currentZone = Card.Zone.BattleArea;
 

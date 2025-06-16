@@ -14,6 +14,7 @@ public class DropZone : MonoBehaviour, IDropHandler
 
             if (card == null || card.ownerId != 0 || GameManager.Instance.GetActivePlayer() != 0)
             {
+                GlowManager.Instance.HideGlow();
                 return;
             }
 
@@ -38,6 +39,7 @@ public class DropZone : MonoBehaviour, IDropHandler
             if (zoneType == Card.Zone.TamerArea)
             {
                 Debug.Log("Only Tamer cards can be played into the tamer area");
+                GlowManager.Instance.HideGlow();
                 return;
             }
 
@@ -49,6 +51,7 @@ public class DropZone : MonoBehaviour, IDropHandler
                 GameManager.Instance.ModifyMemory(-card.playCost);
 
                 Destroy(card.gameObject);
+                GlowManager.Instance.HideGlow();
                 return;
             }
 
