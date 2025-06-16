@@ -198,6 +198,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         }
 
         canAttack = false;
+        GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
         actionPanel.SetActive(false);
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);

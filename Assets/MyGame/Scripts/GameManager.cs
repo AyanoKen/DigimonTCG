@@ -498,6 +498,7 @@ public class GameManager : MonoBehaviour
                 if (card.ownerId == activePlayer)
                 {
                     card.canAttack = true;
+                    card.GetComponent<Image>().color = Color.white;
 
                     if (card.isSuspended)
                     {
@@ -625,8 +626,8 @@ public class GameManager : MonoBehaviour
             Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
             blocker.isBlocking = false;
 
-            //TODO: Suspend indication
             blocker.canAttack = false;
+            blocker.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
             blocker.isSuspended = true;
             blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
 
@@ -822,6 +823,7 @@ public class GameManager : MonoBehaviour
         newCard.inheritedStack.AddRange(baseCard.inheritedStack);
         newCard.inheritedStack.Add(baseCard);
         newCard.currentZone = Card.Zone.BattleArea;
+        newCard.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
 
         Destroy(newCard.GetComponent<CardDropHandler>());
 

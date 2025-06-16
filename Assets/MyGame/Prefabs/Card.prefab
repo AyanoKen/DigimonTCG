@@ -251,6 +251,7 @@ MonoBehaviour:
   isBlocker: 0
   isBlocking: 0
   isSuspended: 0
+  isDigivolved: 0
   securityAttackCount: 1
   dpBuff: 0
   cardName: 
