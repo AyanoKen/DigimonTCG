@@ -389,6 +389,8 @@ public class GameManager : MonoBehaviour
 
     public void PlayCardToBattleArea(Card card)
     {
+        GlowManager.Instance.HideGlow();
+
         if (!idToData.ContainsKey(card.cardId))
         {
             Debug.LogError("Card ID Missing in database");
@@ -813,6 +815,7 @@ public class GameManager : MonoBehaviour
 
         newCard.transform.SetParent(baseCard.transform);
         newCard.transform.localPosition = new Vector3(0, 30f, 0);
+        baseCard.isDigivolved = true;
         baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
         newCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
 

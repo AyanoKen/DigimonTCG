@@ -27,6 +27,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
     public bool isBlocker = false;
     public bool isBlocking = false;
     public bool isSuspended = false;
+    public bool isDigivolved = false;
 
     public int securityAttackCount = 1;
     public int dpBuff = 0;

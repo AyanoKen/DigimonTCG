@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class CardDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -40,6 +41,36 @@ public class CardDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
 
         rectTransform.anchoredPosition += eventData.delta / transform.root.GetComponent<Canvas>().scaleFactor;
+
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        Transform hoveredTarget = null;
+
+        foreach (var result in results)
+        {
+            var digimonCard = result.gameObject.GetComponent<Card>();
+            if (digimonCard != null && digimonCard != card && card.CanDigivolveFrom(digimonCard) && digimonCard.ownerId == card.ownerId && !digimonCard.isDigivolved)
+            {
+                hoveredTarget = digimonCard.transform;
+                break;
+            }
+
+            var dropZone = result.gameObject.GetComponent<DropZone>();
+            if (dropZone != null && hoveredTarget == null)
+            {
+                hoveredTarget = dropZone.transform;
+            }
+        }
+
+        if (hoveredTarget != null)
+        {
+            GlowManager.Instance.ShowGlow(hoveredTarget);
+        }
+        else
+        {
+            GlowManager.Instance.HideGlow();
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -57,6 +88,8 @@ public class CardDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             transform.SetParent(originalParent);
         }
 
+        GlowManager.Instance.HideGlow();
         canDrag = false;
+
     }
 }

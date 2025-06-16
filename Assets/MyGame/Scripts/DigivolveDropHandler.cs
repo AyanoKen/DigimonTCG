@@ -25,12 +25,18 @@ public class DigivolveDropHandler : MonoBehaviour, IDropHandler
             return;
         }
 
-        if (targetCard.currentZone != Card.Zone.BattleArea && targetCard.currentZone != Card.Zone.BreedingActiveSlot)
+        if (targetCard.isDigivolved)
         {
-            Debug.Log("Can only evolve cards in battle area or breeding area");
             return;
         }
 
+        if (targetCard.currentZone != Card.Zone.BattleArea && targetCard.currentZone != Card.Zone.BreedingActiveSlot)
+            {
+                Debug.Log("Can only evolve cards in battle area or breeding area");
+                return;
+            }
+
+        GlowManager.Instance.HideGlow();
         bool success = GameManager.Instance.TryDigivolve(targetCard, draggedCard);
     }
 }
