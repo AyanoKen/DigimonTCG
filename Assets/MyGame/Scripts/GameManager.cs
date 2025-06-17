@@ -58,10 +58,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject endTurnBanner;
     [SerializeField] private SecurityBattlePreview battlePreviewPanel;
 
-    private List<CardData> deckguide;
-    private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
-    private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
-
     private List<int> digieggs = new List<int>();
     private List<int> deck = new List<int>();
     private List<int> player2Deck = new List<int>();
@@ -109,88 +105,10 @@ public class GameManager : MonoBehaviour
 
     private void LoadDeckGuide()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/Agumon-Deck/AgumonDeckJSON");
-        if (jsonFile == null)
-        {
-            Debug.LogError("Deck JSON file not found.");
-            return;
-        }
+        DeckManager.Instance.LoadDeck("Agumon-Deck");
 
-        JArray jsonArray = JArray.Parse(jsonFile.text);
-        deckguide = new List<CardData>();
-
-        foreach (var token in jsonArray)
-        {
-            CardData card = token.ToObject<CardData>();
-            deckguide.Add(card);
-            idToData[card.id] = card;
-
-            if (card.card_type == "Digi-Egg")
-                digieggs.Add(card.id);
-            else
-                deck.Add(card.id);
-
-            // Load and cache image
-            string path = card.image_path.Replace("./", "Cards/Agumon-Deck/").Replace(".jpg", "").Replace(".png", "");
-            Sprite sprite = Resources.Load<Sprite>(path);
-            if (sprite != null)
-            {
-                idToSprite[card.id] = sprite;
-            }
-            else
-            {
-                Debug.LogWarning("Image not found for: " + path);
-            }
-
-            // Parse main effects
-            if (token["effect"] is JArray effectArray)
-                {
-                    card.effects = new List<EffectData>();
-
-                    foreach (var entry in effectArray)
-                    {
-                        string outerType = entry["type"]?.ToString();
-                        string trigger = entry["trigger"]?.ToString();
-                        string phase = entry["phase"]?.ToString();
-                        string keyword = entry["keyword"]?.ToString();
-
-                        // 🔧 Here is the critical fix you need to add:
-                        if (outerType == "passive" && string.IsNullOrEmpty(trigger))
-                        {
-                            trigger = phase;
-                        }
-
-                        string innerType = entry["effect"]?["type"]?.ToString();
-                        int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
-                        int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
-
-                        card.effects.Add(new EffectData(
-                            ParseTrigger(trigger),
-                            ParseEffectType(innerType ?? outerType, keyword),
-                            value,
-                            conditionValue
-                        ));
-                    }
-                }
-
-            // Parse inherited effects
-            if (token["inherited_effect"] is JObject inh)
-            {
-                string phase = inh["phase"]?.ToString();
-                string innerType = inh["effect"]?["type"]?.ToString();
-                int value = inh["effect"]?["value"]?.Value<int>() ?? 0;
-                int conditionValue = inh["effect"]?["conditionValue"]?.Value<int>() ?? 0;
-
-                card.inheritedEffects = new List<EffectData>
-                {
-                    new EffectData(
-                        ParseTrigger(phase),
-                        ParseEffectType(innerType),
-                        value,
-                        conditionValue)
-                };
-            }
-        }
+        deck = DeckManager.Instance.GetMainDeckIds();
+        digieggs = DeckManager.Instance.GetEggDeckIds();
     }
 
     private void InitializeDeck()
@@ -234,7 +152,8 @@ public class GameManager : MonoBehaviour
         card.currentZone = Card.Zone.Hand;
         card.ownerId = ownerId;
 
-        if (idToData.TryGetValue(cardId, out CardData data))
+        CardData data = DeckManager.Instance.GetCardData(cardId);
+        if (data != null)
         {
             card.cardName = data.name;
             card.cardType = data.card_type;
@@ -261,7 +180,8 @@ public class GameManager : MonoBehaviour
             card.InitializeFlagsFromEffects();
         }
 
-        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        Sprite sprite = DeckManager.Instance.GetCardSprite(cardId);
+        if (sprite != null)
         {
             card.sprite = sprite;
         }
@@ -299,7 +219,8 @@ public class GameManager : MonoBehaviour
         GameObject cardGO = Instantiate(cardPrefab, breedingZone);
         Image image = cardGO.GetComponent<Image>();
 
-        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        Sprite sprite = DeckManager.Instance.GetCardSprite(cardId);
+        if (sprite != null)
         {
             image.sprite = sprite;
         }
@@ -311,7 +232,8 @@ public class GameManager : MonoBehaviour
 
         Destroy(card.GetComponent<CardDropHandler>());
 
-        if (idToData.TryGetValue(cardId, out CardData data))
+        CardData data = DeckManager.Instance.GetCardData(cardId);
+        if (data != null)
         {
             card.cardName = data.name;
             card.cardType = data.card_type;
@@ -395,12 +317,12 @@ public class GameManager : MonoBehaviour
     {
         GlowManager.Instance.HideGlow();
 
-        if (!idToData.ContainsKey(card.cardId))
+        CardData data = DeckManager.Instance.GetCardData(card.cardId);
+        if (data == null)
         {
             Debug.LogError("Card ID Missing in database");
+            return;
         }
-
-        CardData data = idToData[card.cardId];
 
         int cost = 0;
 
