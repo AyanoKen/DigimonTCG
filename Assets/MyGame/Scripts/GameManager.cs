@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject securityRevealPrefab;
     [SerializeField] private Transform canvasTransform;
     [SerializeField] private GameObject endTurnBanner;
+    [SerializeField] private SecurityBattlePreview battlePreviewPanel;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -623,7 +624,7 @@ public class GameManager : MonoBehaviour
         ForceEndTurn();
     }
 
-    public void ResolveSecurityAttack(Card attacker)
+    public IEnumerator ResolveSecurityAttack(Card attacker)
     {
         int opponentId = 0;
 
@@ -653,6 +654,10 @@ public class GameManager : MonoBehaviour
 
             Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
 
+            battlePreviewPanel.ShowPreview(attacker.sprite, blocker.sprite);
+
+            yield return new WaitForSeconds(2f);
+
             if (attackerDP_b >= blockerDP_b)
             {
                 Debug.Log($"{blocker.cardName} is deleted!");
@@ -681,7 +686,8 @@ public class GameManager : MonoBehaviour
                 DestroyDigimonStack(attacker);
             }
 
-            return;
+            battlePreviewPanel.HidePreview();
+            yield break;
         }
 
         int securitycardId = RevealTopSecurityCard(opponentId);
@@ -690,34 +696,26 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Opponent has no security left, you win!");
             GameOver();
-            return;
+            yield break;
         }
 
         Debug.Log($"Revealed security card ID: {securitycardId}");
 
         if (idToSprite.TryGetValue(securitycardId, out Sprite sprite))
         {
-            GameObject reveal = Instantiate(securityRevealPrefab, canvasTransform);
-            Image img = reveal.GetComponent<Image>();
-            img.sprite = sprite;
-
-            RectTransform rect = reveal.GetComponent<RectTransform>();
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 300);
-            rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 440);
-            rect.anchoredPosition = Vector2.zero;
-
-            Destroy(reveal, 2f);
+            battlePreviewPanel.ShowPreview(attacker.sprite, sprite);
+            yield return new WaitForSeconds(2f);
         }
         else
         {
             Debug.LogWarning("Sprite not found for Security card");
-            return;
+            yield break;
         }
 
         if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
         {
             Debug.LogWarning("Unable to fetch card data for revealed security card");
-            return;
+            yield break;
         }
 
         if (securityCardData.card_type == "Option" || securityCardData.card_type == "Tamer")
@@ -751,7 +749,8 @@ public class GameManager : MonoBehaviour
                     player2Trash.Add(securitycardId);
                 }
             }
-            return;
+            battlePreviewPanel.HidePreview();
+            yield break;
         }
 
         int attackerDP = attacker.dp ?? 0;
@@ -782,7 +781,7 @@ public class GameManager : MonoBehaviour
             {
                 player2Trash.Add(attacker.cardId);
             }
-            
+
             DestroyDigimonStack(attacker);
         }
         else
@@ -798,6 +797,8 @@ public class GameManager : MonoBehaviour
                 player2Trash.Add(securitycardId);
             }
         }
+        
+        battlePreviewPanel.HidePreview();
     }
 
     public bool TryDigivolve(Card baseCard, Card newCard)
@@ -931,6 +932,12 @@ public class GameManager : MonoBehaviour
         }
 
         Destroy(card.gameObject);
+    }
+
+    public void HideSecurityPreview()
+    {
+        Debug.Log("Triggering Hide Preview");
+        battlePreviewPanel.HidePreview();
     }
 
     private EffectTrigger ParseTrigger(string trigger)

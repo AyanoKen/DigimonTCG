@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using TMPro;
 
@@ -195,20 +196,33 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         }
 
         canAttack = false;
-        GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
         actionPanel.SetActive(false);
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);
 
+        StartCoroutine(PerformSecurityChecks());
+
+    }
+
+    private IEnumerator PerformSecurityChecks()
+    {
         for (int i = 0; i < securityAttackCount; i++)
         {
-            GameManager.Instance.ResolveSecurityAttack(this);
+            StartCoroutine(GameManager.Instance.ResolveSecurityAttack(this));
+
+            GameManager.Instance.turnTransition = true;
+
+            yield return new WaitForSeconds(3f);
+
+            GameManager.Instance.turnTransition = false;
+
             if (this == null || gameObject == null)
-                break;
+                yield break;
         }
 
         securityAttackCount = 1;
         dpBuff = 0;
+        GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
     }
 
     public void HideActionPanel()
