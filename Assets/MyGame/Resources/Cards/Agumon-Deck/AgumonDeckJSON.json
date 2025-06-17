@@ -698,7 +698,13 @@
     "attribute": "Vaccine",
     "dp": 12000,
     "play_cost": 10,
-    "digivolve_costs": [],
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
     "effect": null,
     "inherited_effect": null,
     "image_path": "./images/image_27.jpg",
