@@ -63,7 +63,7 @@ public class EffectManager : MonoBehaviour
                     var candidates = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId == source.ownerId
                                 && c.currentZone == Card.Zone.BattleArea
-                                && c != source)
+                                && c != source && !c.isDigivolved)
                         .ToList();
 
                     if (candidates.Count > 0)
@@ -83,7 +83,7 @@ public class EffectManager : MonoBehaviour
             case EffectType.ModifyPartyDP:
                 {
                     var party = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea)
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     foreach (var member in party)
@@ -138,7 +138,7 @@ public class EffectManager : MonoBehaviour
                 {
                     var opponents = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId != source.ownerId 
-                                    && c.currentZone == Card.Zone.BattleArea && c.isDigivolved)
+                                    && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     if (opponents.Count > 0)
