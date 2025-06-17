@@ -138,13 +138,13 @@ public class EffectManager : MonoBehaviour
                 {
                     var opponents = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId != source.ownerId 
-                                    && c.currentZone == Card.Zone.BattleArea)
+                                    && c.currentZone == Card.Zone.BattleArea && c.isDigivolved)
                         .ToList();
 
                     if (opponents.Count > 0)
                     {
                         Card target = opponents[UnityEngine.Random.Range(0, opponents.Count)];
-                        GameManager.Instance.SendToTrash(target);
+                        GameManager.Instance.DestroyDigimonStack(target);
                         Debug.Log($"[Effect] Deleted {target.cardName} (DeleteTargetOpponent).");
                     }
                     else
@@ -160,14 +160,14 @@ public class EffectManager : MonoBehaviour
                     var targets = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId != source.ownerId
                                     && c.currentZone == Card.Zone.BattleArea
-                                    && c.dp <= effect.value)
+                                    && c.dp <= effect.value && !c.isDigivolved)
                         .ToList();
 
                     for (int i = 0; i < effect.conditionValue; i++)
                     {
                         if (i < targets.Count)
                         {
-                            GameManager.Instance.SendToTrash(targets[i]);
+                            GameManager.Instance.DestroyDigimonStack(targets[i]);
                             Debug.Log($"[Effect] Deleted {targets[i].cardName} with DP ≤ {effect.value}.");
                         }
                     }

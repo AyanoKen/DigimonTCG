@@ -624,8 +624,9 @@ public class GameManager : MonoBehaviour
         ForceEndTurn();
     }
 
-    public IEnumerator ResolveSecurityAttack(Card attacker)
+    public IEnumerator ResolveSecurityAttack(Card attacker, int count, int dpBuff)
     {
+
         int opponentId = 0;
 
         if (attacker.ownerId == 0)
@@ -633,48 +634,161 @@ public class GameManager : MonoBehaviour
             opponentId = 1;
         }
 
-        Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone == Card.Zone.BattleArea);
-
-        if (blocker != null)
+        for (int i = 0; i < count; i++)
         {
-            Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
-            blocker.isBlocking = false;
-
-            blocker.canAttack = false;
-            blocker.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
-            blocker.isSuspended = true;
-            blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
-
-            EffectManager.Instance.TriggerEffects(EffectTrigger.WhenBlocked, attacker);
-
-            int attackerDP_b = attacker.dp ?? 0;
-            int blockerDP_b = blocker.dp ?? 0;
-
-            attackerDP_b += attacker.dpBuff;
-
-            Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
-
-            battlePreviewPanel.ShowPreview(attacker.sprite, blocker.sprite);
-
-            yield return new WaitForSeconds(2f);
-
-            if (attackerDP_b >= blockerDP_b)
+            turnTransition = true;
+            if (attacker == null)
             {
-                Debug.Log($"{blocker.cardName} is deleted!");
-                if (blocker.ownerId == 0)
-                {
-                    player1Trash.Add(blocker.cardId);
-                }
-                else
-                {
-                    player2Trash.Add(blocker.cardId);
-                }
-                DestroyDigimonStack(blocker);
+                turnTransition = false;
+                yield break;
             }
 
-            if (blockerDP_b >= attackerDP_b)
+            Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone == Card.Zone.BattleArea);
+
+            if (blocker != null)
             {
-                Debug.Log($"{attacker.cardName} is deleted!");
+                Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
+                blocker.isBlocking = false;
+
+                blocker.canAttack = false;
+                blocker.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
+                blocker.isSuspended = true;
+                blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+
+                attacker.dpBuff = 0;
+                EffectManager.Instance.TriggerEffects(EffectTrigger.WhenBlocked, attacker);
+
+                int attackerDP_b = attacker.dp ?? 0;
+                int blockerDP_b = blocker.dp ?? 0;
+
+                attackerDP_b += dpBuff;
+                attackerDP_b += attacker.dpBuff;
+
+                Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
+
+                battlePreviewPanel.ShowPreview(attacker.sprite, blocker.sprite);
+
+                yield return new WaitForSeconds(2f);
+
+                if (attackerDP_b >= blockerDP_b)
+                {
+                    Debug.Log($"{blocker.cardName} is deleted!");
+                    if (blocker.ownerId == 0)
+                    {
+                        player1Trash.Add(blocker.cardId);
+                    }
+                    else
+                    {
+                        player2Trash.Add(blocker.cardId);
+                    }
+                    DestroyDigimonStack(blocker);
+                }
+
+                if (blockerDP_b >= attackerDP_b)
+                {
+                    Debug.Log($"{attacker.cardName} is deleted!");
+                    if (attacker.ownerId == 0)
+                    {
+                        player1Trash.Add(attacker.cardId);
+                    }
+                    else
+                    {
+                        player2Trash.Add(attacker.cardId);
+                    }
+                    DestroyDigimonStack(attacker);
+                }
+
+                battlePreviewPanel.HidePreview();
+                turnTransition = false;
+                yield break;
+            }
+
+            int securitycardId = RevealTopSecurityCard(opponentId);
+
+            if (securitycardId == -1)
+            {
+                Debug.Log("Opponent has no security left, you win!");
+                GameOver();
+                yield break;
+            }
+
+            Debug.Log($"Revealed security card ID: {securitycardId}");
+
+            if (idToSprite.TryGetValue(securitycardId, out Sprite sprite))
+            {
+                battlePreviewPanel.ShowPreview(attacker.sprite, sprite);
+                yield return new WaitForSeconds(2f);
+            }
+            else
+            {
+                Debug.LogWarning("Sprite not found for Security card");
+                turnTransition = false;
+                yield break;
+            }
+
+            if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
+            {
+                Debug.LogWarning("Unable to fetch card data for revealed security card");
+                turnTransition = false;
+                yield break;
+            }
+
+            if (securityCardData.card_type == "Option" || securityCardData.card_type == "Tamer")
+            {
+                Debug.Log("Resolving Security Option effect.");
+
+                GameObject cardGO = Instantiate(cardPrefab);
+                Card securityCard = cardGO.GetComponent<Card>();
+
+                securityCard.cardId = securityCardData.id;
+                securityCard.cardName = securityCardData.name;
+                securityCard.cardType = securityCardData.card_type;
+                securityCard.ownerId = opponentId;
+                securityCard.currentZone = Card.Zone.Security;
+                securityCard.sprite = sprite;
+
+                securityCard.effects = securityCardData.effects ?? new List<EffectData>();
+                securityCard.inheritedEffects = securityCardData.inheritedEffects ?? new List<EffectData>();
+
+                EffectManager.Instance.TriggerEffects(EffectTrigger.Security, securityCard);
+
+                // After resolving, trash security card
+                if (securityCard.currentZone == Card.Zone.Security)
+                {
+                    if (opponentId == 0)
+                    {
+                        player1Trash.Add(securitycardId);
+                    }
+                    else
+                    {
+                        player2Trash.Add(securitycardId);
+                    }
+                }
+                battlePreviewPanel.HidePreview();
+                turnTransition = false;
+                yield break;
+            }
+
+            int attackerDP = attacker.dp ?? 0;
+            int securityDP = securityCardData.dp ?? 0;
+
+            attackerDP += dpBuff;
+
+            if (opponentId == 0)
+            {
+                securityDP += player1SecurityBuff;
+            }
+            else
+            {
+                securityDP += player2SecurityBuff;
+            }
+
+            Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
+
+            if (securityDP >= attackerDP)
+            {
+                Debug.Log("Attacker is deleted.");
+
                 if (attacker.ownerId == 0)
                 {
                     player1Trash.Add(attacker.cardId);
@@ -683,63 +797,13 @@ public class GameManager : MonoBehaviour
                 {
                     player2Trash.Add(attacker.cardId);
                 }
+
                 DestroyDigimonStack(attacker);
             }
-
-            battlePreviewPanel.HidePreview();
-            yield break;
-        }
-
-        int securitycardId = RevealTopSecurityCard(opponentId);
-
-        if (securitycardId == -1)
-        {
-            Debug.Log("Opponent has no security left, you win!");
-            GameOver();
-            yield break;
-        }
-
-        Debug.Log($"Revealed security card ID: {securitycardId}");
-
-        if (idToSprite.TryGetValue(securitycardId, out Sprite sprite))
-        {
-            battlePreviewPanel.ShowPreview(attacker.sprite, sprite);
-            yield return new WaitForSeconds(2f);
-        }
-        else
-        {
-            Debug.LogWarning("Sprite not found for Security card");
-            yield break;
-        }
-
-        if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
-        {
-            Debug.LogWarning("Unable to fetch card data for revealed security card");
-            yield break;
-        }
-
-        if (securityCardData.card_type == "Option" || securityCardData.card_type == "Tamer")
-        {
-            Debug.Log("Resolving Security Option effect.");
-
-            GameObject cardGO = Instantiate(cardPrefab);
-            Card securityCard = cardGO.GetComponent<Card>();
-
-            securityCard.cardId = securityCardData.id;
-            securityCard.cardName = securityCardData.name;
-            securityCard.cardType = securityCardData.card_type;
-            securityCard.ownerId = opponentId;
-            securityCard.currentZone = Card.Zone.Security;
-            securityCard.sprite = sprite;
-
-            securityCard.effects = securityCardData.effects ?? new List<EffectData>();
-            securityCard.inheritedEffects = securityCardData.inheritedEffects ?? new List<EffectData>();
-
-            EffectManager.Instance.TriggerEffects(EffectTrigger.Security, securityCard);
-
-            // After resolving, trash security card
-            if (securityCard.currentZone == Card.Zone.Security)
+            else
             {
+                Debug.Log("Attacker won, not deleted from play.");
+
                 if (opponentId == 0)
                 {
                     player1Trash.Add(securitycardId);
@@ -749,56 +813,10 @@ public class GameManager : MonoBehaviour
                     player2Trash.Add(securitycardId);
                 }
             }
+
             battlePreviewPanel.HidePreview();
-            yield break;
+            turnTransition = false;
         }
-
-        int attackerDP = attacker.dp ?? 0;
-        int securityDP = securityCardData.dp ?? 0;
-
-        attackerDP += attacker.dpBuff;
-
-        if (opponentId == 0)
-        {
-            securityDP += player1SecurityBuff;
-        }
-        else
-        {
-            securityDP += player2SecurityBuff;
-        }
-
-        Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
-
-        if (securityDP >= attackerDP)
-        {
-            Debug.Log("Attacker is deleted.");
-
-            if (attacker.ownerId == 0)
-            {
-                player1Trash.Add(attacker.cardId);
-            }
-            else
-            {
-                player2Trash.Add(attacker.cardId);
-            }
-
-            DestroyDigimonStack(attacker);
-        }
-        else
-        {
-            Debug.Log("Attacker won, not deleted from play.");
-
-            if (opponentId == 0)
-            {
-                player1Trash.Add(securitycardId);
-            }
-            else
-            {
-                player2Trash.Add(securitycardId);
-            }
-        }
-        
-        battlePreviewPanel.HidePreview();
     }
 
     public bool TryDigivolve(Card baseCard, Card newCard)
@@ -927,8 +945,25 @@ public class GameManager : MonoBehaviour
         {
             if (inheritedCard != null)
             {
+                if (inheritedCard.ownerId == 0)
+                {
+                    player1Trash.Add(inheritedCard.cardId);
+                }
+                else
+                {
+                    player2Trash.Add(inheritedCard.cardId);
+                }
                 Destroy(inheritedCard.gameObject);
             }
+        }
+
+        if (card.ownerId == 0)
+        {
+            player1Trash.Add(card.cardId);
+        }
+        else
+        {
+            player2Trash.Add(card.cardId);
         }
 
         Destroy(card.gameObject);

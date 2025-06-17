@@ -200,25 +200,7 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);
 
-        StartCoroutine(PerformSecurityChecks());
-
-    }
-
-    private IEnumerator PerformSecurityChecks()
-    {
-        for (int i = 0; i < securityAttackCount; i++)
-        {
-            StartCoroutine(GameManager.Instance.ResolveSecurityAttack(this));
-
-            GameManager.Instance.turnTransition = true;
-
-            yield return new WaitForSeconds(3f);
-
-            GameManager.Instance.turnTransition = false;
-
-            if (this == null || gameObject == null)
-                yield break;
-        }
+        StartCoroutine(GameManager.Instance.ResolveSecurityAttack(this, securityAttackCount, dpBuff));
 
         securityAttackCount = 1;
         dpBuff = 0;
