@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.Netcode; 
 
 [System.Serializable]
 public class CardData //Datatype for storing CardData parsed from the JSON
@@ -227,6 +228,11 @@ public class GameManager : MonoBehaviour
     private void SpawnCardToHand(int cardId, Transform zone, int ownerId)
     {
         GameObject cardGO = Instantiate(cardPrefab, zone);
+        var netObj = cardGO.GetComponent<NetworkObject>();
+        if (netObj != null && !netObj.IsSpawned)
+        {
+            netObj.SpawnWithOwnership(ownerId == 0 ? NetworkManager.Singleton.LocalClientId : GetRemoteClientId());
+        }
         Image image = cardGO.GetComponent<Image>();
 
         Card card = cardGO.GetComponent<Card>();
@@ -294,9 +300,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void HatchDigiegg(int cardId)
+    private void HatchDigiegg(int cardId, int ownerId)
     {
         GameObject cardGO = Instantiate(cardPrefab, breedingZone);
+        var netObj = cardGO.GetComponent<NetworkObject>();
+        if (netObj != null && !netObj.IsSpawned)
+        {
+            netObj.SpawnWithOwnership(ownerId == 0 ? NetworkManager.Singleton.LocalClientId : GetRemoteClientId());
+        }
         Image image = cardGO.GetComponent<Image>();
 
         if (idToSprite.TryGetValue(cardId, out Sprite sprite))
@@ -307,7 +318,7 @@ public class GameManager : MonoBehaviour
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
         card.currentZone = Card.Zone.BreedingActiveSlot;
-        card.ownerId = 0;
+        card.ownerId = ownerId;
 
         Destroy(card.GetComponent<CardDropHandler>());
 
@@ -374,7 +385,7 @@ public class GameManager : MonoBehaviour
             {
                 int cardId = digieggs[0];
                 digieggs.RemoveAt(0);
-                HatchDigiegg(cardId);
+                HatchDigiegg(cardId, activePlayer);
                 isHatchingSlotOccupied = true;
             }
             else
@@ -757,6 +768,11 @@ public class GameManager : MonoBehaviour
                 Debug.Log("Resolving Security Option effect.");
 
                 GameObject cardGO = Instantiate(cardPrefab);
+                var netObj = cardGO.GetComponent<NetworkObject>();
+                if (netObj != null && !netObj.IsSpawned)
+                {
+                    netObj.SpawnWithOwnership(opponentId == 0 ? NetworkManager.Singleton.LocalClientId : GetRemoteClientId());
+                }
                 Card securityCard = cardGO.GetComponent<Card>();
 
                 RectTransform rect = cardGO.GetComponent<RectTransform>();
@@ -1017,6 +1033,18 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Triggering Hide Preview");
         battlePreviewPanel.HidePreview();
+    }
+
+    private ulong GetRemoteClientId()
+    {
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList) 
+        {
+            if (client.ClientId != NetworkManager.Singleton.LocalClientId)
+            {
+                return client.ClientId;
+            }
+        }
+        return 0;
     }
 
     private EffectTrigger ParseTrigger(string trigger)
