@@ -523,6 +523,8 @@ public class GameManager : MonoBehaviour
             {
                 card.mainEffectUsed = false;
             }
+
+            BattleLogManager.Instance.ClearLog();
             
         }
 
