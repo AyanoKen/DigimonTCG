@@ -480,7 +480,7 @@ public class GameManager : MonoBehaviour
         var allCards = FindObjectsOfType<Card>();
         foreach (var card in allCards)
         {
-            if (card.ownerId == playerId && (card.currentZone == Card.Zone.BattleArea || card.currentZone == Card.Zone.TamerArea))
+            if (card.ownerId == playerId && (card.currentZone == Card.Zone.BattleArea || card.currentZone == Card.Zone.TamerArea) && !card.isDigivolved)
             {
                 EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
             }
@@ -668,6 +668,11 @@ public class GameManager : MonoBehaviour
 
                 Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
 
+                BattleLogManager.Instance.AddLog(
+                            $"[Security Attack] {attacker.cardName}'s attack [{attackerDP_b} DP] is blocked by {blocker.cardName} [{blockerDP_b} DP]",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
+
                 battlePreviewPanel.ShowPreview(attacker.sprite, blocker.sprite);
 
                 yield return new WaitForSeconds(2f);
@@ -675,6 +680,12 @@ public class GameManager : MonoBehaviour
                 if (attackerDP_b >= blockerDP_b)
                 {
                     Debug.Log($"{blocker.cardName} is deleted!");
+
+                    BattleLogManager.Instance.AddLog(
+                            $"{blocker.cardName} is deleted!",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
+
                     if (blocker.ownerId == 0)
                     {
                         player1Trash.Add(blocker.cardId);
@@ -689,6 +700,12 @@ public class GameManager : MonoBehaviour
                 if (blockerDP_b >= attackerDP_b)
                 {
                     Debug.Log($"{attacker.cardName} is deleted!");
+
+                    BattleLogManager.Instance.AddLog(
+                            $"{attacker.cardName} is deleted!",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
+
                     if (attacker.ownerId == 0)
                     {
                         player1Trash.Add(attacker.cardId);
@@ -787,9 +804,19 @@ public class GameManager : MonoBehaviour
 
             Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
 
+            BattleLogManager.Instance.AddLog(
+                            $"[Security Attack] {attacker.cardName} [{attackerDP} DP] is attacking {securityCardData.name} [{securityDP}]]",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
+
             if (securityDP >= attackerDP)
             {
                 Debug.Log("Attacker is deleted.");
+
+                BattleLogManager.Instance.AddLog(
+                            $"{attacker.cardName} is deleted!",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
 
                 if (attacker.ownerId == 0)
                 {
@@ -805,6 +832,11 @@ public class GameManager : MonoBehaviour
             else
             {
                 Debug.Log("Attacker won, not deleted from play.");
+
+                BattleLogManager.Instance.AddLog(
+                            $"{attacker.cardName} won!",
+                            BattleLogManager.LogType.System,
+                            attacker.ownerId);
 
                 if (opponentId == 0)
                 {
@@ -875,6 +907,12 @@ public class GameManager : MonoBehaviour
         CheckTurnSwitch();
 
         Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
+
+        BattleLogManager.Instance.AddLog(
+                            $"Digivolved {baseCard.cardName} into {newCard.cardName}",
+                            BattleLogManager.LogType.System,
+                            baseCard.ownerId);
+
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenDigivolving, newCard);
 
         return true;

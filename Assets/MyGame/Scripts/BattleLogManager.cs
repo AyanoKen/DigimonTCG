@@ -32,10 +32,12 @@ public class BattleLogManager : MonoBehaviour
         System
     }
 
-    public void AddLog(string message, LogType type)
+    public void AddLog(string message, LogType type, int playerid)
     {
         Color color = GetColorForType(type);
-        AddLog(message, color);
+
+        string prefix = $"[Player {playerid + 1}]";
+        AddLog($"{prefix}: {message}", color);
     }
 
     public void AddLog(string message, Color color)

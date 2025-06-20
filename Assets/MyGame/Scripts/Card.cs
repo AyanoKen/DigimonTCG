@@ -198,6 +198,11 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         canAttack = false;
         actionPanel.SetActive(false);
 
+        BattleLogManager.Instance.AddLog(
+                            $"[Security Attack] {cardName} is attacking!",
+                            BattleLogManager.LogType.Attack,
+                            ownerId);
+
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);
 
         StartCoroutine(GameManager.Instance.ResolveSecurityAttack(this, securityAttackCount, dpBuff));

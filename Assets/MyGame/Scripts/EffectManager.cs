@@ -53,6 +53,12 @@ public class EffectManager : MonoBehaviour
             case EffectType.ModifyDP:
                 {
                     source.dpBuff += effect.value;
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName} gains {effect.value} DP.",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                     Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP.");
 
                     break;
@@ -70,6 +76,12 @@ public class EffectManager : MonoBehaviour
                     {
                         Card target = candidates[UnityEngine.Random.Range(0, candidates.Count)];
                         target.dpBuff += effect.value;
+
+                        BattleLogManager.Instance.AddLog(
+                            $"[Effect] {target.cardName} gains {effect.value} DP (ModifyAllyDP).",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+                        
                         Debug.Log($"[Effect] {target.cardName} gains {effect.value} DP (ModifyAllyDP).");
                     }
                     else
@@ -89,6 +101,12 @@ public class EffectManager : MonoBehaviour
                     foreach (var member in party)
                     {
                         member.dpBuff += effect.value;
+
+                        BattleLogManager.Instance.AddLog(
+                            $"[Effect] {member.cardName} gains {effect.value} DP from Party Buff.",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                         Debug.Log($"[Effect] {member.cardName} gains {effect.value} DP from Party Buff.");
                     }
 
@@ -100,6 +118,12 @@ public class EffectManager : MonoBehaviour
                     if (source.inheritedStack.Count > effect.conditionValue)
                     {
                         source.dpBuff += effect.value;
+
+                        BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName} gains {effect.value} DP from inherited stack condition.",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                         Debug.Log($"[Effect] {source.cardName} gains {effect.value} DP from inherited stack condition.");
                     }
                     break;
@@ -108,6 +132,12 @@ public class EffectManager : MonoBehaviour
             case EffectType.GainMemory:
                 {
                     GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName}, player gains {effect.value} memory.",
+                            BattleLogManager.LogType.System,
+                            source.ownerId);
+
                     Debug.Log($"[Effect] {source.cardName} gains {effect.value} memory.");
                     break;
                 }
@@ -115,6 +145,12 @@ public class EffectManager : MonoBehaviour
             case EffectType.LoseMemory:
                 {
                     GameManager.Instance.ModifyMemory(source.ownerId == 0 ? -effect.value : effect.value);
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName}, player loses {effect.value} memory.",
+                            BattleLogManager.LogType.System,
+                            source.ownerId);
+
                     Debug.Log($"[Effect] {source.cardName} loses {effect.value} memory.");
                     break;
                 }
@@ -122,6 +158,12 @@ public class EffectManager : MonoBehaviour
             case EffectType.ExtraSecurityAttack:
                 {
                     source.securityAttackCount += effect.value;
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName} gains Security Attack +{effect.value} for the turn",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                     Debug.Log($"[Effect] {source.cardName} gains Security Attack +{effect.value} for the turn");
                     break;
                 }
@@ -130,6 +172,12 @@ public class EffectManager : MonoBehaviour
                 {
                     int bonus = (source.inheritedStack.Count / effect.conditionValue) * effect.value;
                     source.securityAttackCount += bonus;
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName} gains +{bonus} security attack based on child stack.",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                     Debug.Log($"[Effect] {source.cardName} gains +{bonus} security attack based on child stack.");
                     break;
                 }
@@ -145,6 +193,12 @@ public class EffectManager : MonoBehaviour
                     {
                         Card target = opponents[UnityEngine.Random.Range(0, opponents.Count)];
                         GameManager.Instance.DestroyDigimonStack(target);
+
+                        BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName}, Deleted {target.cardName}.",
+                            BattleLogManager.LogType.Destroy,
+                            source.ownerId);
+
                         Debug.Log($"[Effect] Deleted {target.cardName} (DeleteTargetOpponent).");
                     }
                     else
@@ -168,6 +222,12 @@ public class EffectManager : MonoBehaviour
                         if (i < targets.Count)
                         {
                             GameManager.Instance.DestroyDigimonStack(targets[i]);
+
+                            BattleLogManager.Instance.AddLog(
+                                $"[Effect] {source.cardName}, Deleted {targets[i].cardName} with DP ≤ {effect.value}.",
+                                BattleLogManager.LogType.Destroy,
+                                source.ownerId);
+
                             Debug.Log($"[Effect] Deleted {targets[i].cardName} with DP ≤ {effect.value}.");
                         }
                     }
@@ -177,6 +237,11 @@ public class EffectManager : MonoBehaviour
             case EffectType.PlayCardWithoutMemory:
                 {
                     Debug.Log("[Security Effect] Playing card directly onto field without paying cost.");
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Security Effect] {source.cardName}, Playing card directly onto field without paying cost.",
+                            BattleLogManager.LogType.System,
+                            source.ownerId);
 
                     Transform targetZone = GameManager.Instance.opponentTamerZone;
 
@@ -204,8 +269,13 @@ public class EffectManager : MonoBehaviour
                 {
                     Debug.Log("[Security Effect] All Digimon get +Security Attack next turn.");
 
+                    BattleLogManager.Instance.AddLog(
+                            $"[Security Effect] {source.cardName}, All Digimon get +1 Security Attack next turn",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+
                     var party = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea)
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     foreach (var member in party)
@@ -218,6 +288,11 @@ public class EffectManager : MonoBehaviour
             case EffectType.BuffSecurityNextTurn:
                 {
                     Debug.Log("[Security Effect] Security Digimon gain +" + effect.value + " DP for next turn.");
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Security Effect] {source.cardName}, Security Digimon gain +" + effect.value + " DP until end of turn.",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
 
                     if (source.ownerId == 0)
                     {
@@ -234,6 +309,11 @@ public class EffectManager : MonoBehaviour
                 {
                     Debug.Log("[Security Effect] Activating card's main effect.");
 
+                    BattleLogManager.Instance.AddLog(
+                            $"[Security Effect] {source.cardName}, Activating card's main effect",
+                            BattleLogManager.LogType.System,
+                            source.ownerId);
+
                     TriggerEffects(EffectTrigger.MainPhase, source);
                     break;
                 }
@@ -242,6 +322,12 @@ public class EffectManager : MonoBehaviour
             case EffectType.BuffSecurityDP:
                 {
                     Debug.Log("[Effect] Buffing security stack DP");
+
+                    BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName}, Buffing security stack DP",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
+                    
                     if (source.ownerId == 0)
                     {
                         GameManager.Instance.player1SecurityBuff += effect.value;
