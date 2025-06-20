@@ -759,6 +759,10 @@ public class GameManager : MonoBehaviour
                 GameObject cardGO = Instantiate(cardPrefab);
                 Card securityCard = cardGO.GetComponent<Card>();
 
+                RectTransform rect = cardGO.GetComponent<RectTransform>();
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150);
+                rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 220);
+
                 securityCard.cardId = securityCardData.id;
                 securityCard.cardName = securityCardData.name;
                 securityCard.cardType = securityCardData.card_type;
