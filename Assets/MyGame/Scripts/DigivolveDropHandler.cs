@@ -30,7 +30,7 @@ public class DigivolveDropHandler : MonoBehaviour, IDropHandler
             return;
         }
 
-        if (targetCard.currentZone != Card.Zone.BattleArea && targetCard.currentZone != Card.Zone.BreedingActiveSlot)
+        if (targetCard.currentZone.Value != Card.Zone.BattleArea && targetCard.currentZone.Value != Card.Zone.BreedingActiveSlot)
             {
                 Debug.Log("Can only evolve cards in battle area or breeding area");
                 return;

@@ -53,7 +53,7 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private Transform opponentSecurityStackVisual;
     [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
-    [SerializeField] private Sprite cardBackSprite;
+    [SerializeField] public Sprite cardBackSprite;
     [SerializeField] private GameObject securityRevealPrefab;
     [SerializeField] private Transform canvasTransform;
     [SerializeField] private GameObject endTurnBanner;
@@ -61,16 +61,16 @@ public class GameManager : NetworkBehaviour
 
 
     [Header("Bottom Zones (Local Player Layout)")]
-    [SerializeField] private Transform handZone_Bottom;
-    [SerializeField] private Transform battleZone_Bottom;
-    [SerializeField] private Transform tamerZone_Bottom;
-    [SerializeField] private Transform breedingZone_Bottom;
+    [SerializeField] public Transform handZone_Bottom;
+    [SerializeField] public Transform battleZone_Bottom;
+    [SerializeField] public Transform tamerZone_Bottom;
+    [SerializeField] public Transform breedingZone_Bottom;
 
     [Header("Top Zones (Opponent Layout)")]
-    [SerializeField] private Transform handZone_Top;
-    [SerializeField] private Transform battleZone_Top;
-    [SerializeField] private Transform tamerZone_Top;
-    [SerializeField] private Transform breedingZone_Top;
+    [SerializeField] public Transform handZone_Top;
+    [SerializeField] public Transform battleZone_Top;
+    [SerializeField] public Transform tamerZone_Top;
+    [SerializeField] public Transform breedingZone_Top;
 
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
@@ -126,7 +126,7 @@ public class GameManager : NetworkBehaviour
 
         if (IsServer)
         {
-            StartTurn(0);
+            StartTurn();
         }
     }
 
@@ -262,8 +262,12 @@ public class GameManager : NetworkBehaviour
 
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
-        card.NotifyZoneChange(Card.Zone.Hand);
         card.ownerId = (int)clientId;
+
+        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        {
+            card.sprite = sprite;
+        }
 
         if (idToData.TryGetValue(cardId, out CardData data))
         {
@@ -292,10 +296,7 @@ public class GameManager : NetworkBehaviour
             card.InitializeFlagsFromEffects();
         }
 
-        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
-        {
-            card.sprite = sprite;
-        }
+        card.NotifyZoneChange(Card.Zone.Hand);
     }
 
     private void InitializeSecurityStacks()
@@ -310,7 +311,7 @@ public class GameManager : NetworkBehaviour
 
     private void HatchDigiegg(int cardId, ulong clientId)
     {
-        GameObject cardGO = Instantiate(cardPrefab, breedingZone);
+        GameObject cardGO = Instantiate(cardPrefab);
         var netObj = cardGO.GetComponent<NetworkObject>();
         if (netObj != null && !netObj.IsSpawned)
         {
@@ -318,15 +319,14 @@ public class GameManager : NetworkBehaviour
         }
         Image image = cardGO.GetComponent<Image>();
 
-        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
-        {
-            image.sprite = sprite;
-        }
-
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
-        card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
         card.ownerId = (int)clientId;
+
+        if (idToSprite.TryGetValue(cardId, out Sprite sprite))
+        {
+            card.sprite = sprite;
+        }
 
         Destroy(card.GetComponent<CardDropHandler>());
 
@@ -346,6 +346,8 @@ public class GameManager : NetworkBehaviour
 
             card.InitializeFlagsFromEffects();
         }
+
+        card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
     }
 
     public void DrawCardFromDeck()
@@ -460,27 +462,20 @@ public class GameManager : NetworkBehaviour
         return -1; // Invalid or empty
     }
 
-    public void StartTurn(int playerId)
+    public void StartTurn()
     {
         if (isGameOver) return;
 
-        DrawCardFromDeck(playerId);
+        DrawCardFromDeck();
 
         if (isGameOver) return;
 
-        if (playerId == 0)
-        {
-            player1SecurityBuff = 0;
-        }
-        else
-        {
-            player2SecurityBuff = 0;
-        }
+        player1SecurityBuff = 0;
 
         var allCards = FindObjectsOfType<Card>();
         foreach (var card in allCards)
         {
-            if (card.ownerId == playerId && (card.currentZone == Card.Zone.BattleArea || card.currentZone == Card.Zone.TamerArea) && !card.isDigivolved)
+            if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
             {
                 EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
             }
@@ -493,9 +488,9 @@ public class GameManager : NetworkBehaviour
 
         foreach (var card in allCards)
         {
-            if (card.currentZone == Card.Zone.BattleArea)
+            if (card.currentZone.Value == Card.Zone.BattleArea)
             {
-                if (card.ownerId == activePlayer)
+                if (card.ownerId == localPlayerId)
                 {
                     card.canAttack = true;
                     card.GetComponent<Image>().color = Color.white;
@@ -514,7 +509,7 @@ public class GameManager : NetworkBehaviour
                 }
             }
 
-            if (card.currentZone == Card.Zone.TamerArea && card.ownerId == activePlayer)
+            if (card.currentZone.Value == Card.Zone.TamerArea && card.ownerId == localPlayerId)
             {
                 card.mainEffectUsed = false;
             }
@@ -555,7 +550,7 @@ public class GameManager : NetworkBehaviour
 
     public void ForceEndTurn()
     {
-        if (activePlayer == 0)
+        if (activePlayer.Value == localPlayerId)
         {
             currentMemory = 0;
 
@@ -590,53 +585,7 @@ public class GameManager : NetworkBehaviour
 
     public int GetActivePlayer()
     {
-        return activePlayer;
-    }
-
-    public void RunAiTurn()
-    {
-        while (player2Hand.Count > 0)
-        {
-            if (activePlayer != 1)
-            {
-                return;
-            }
-
-            int cardId = player2Hand[0];
-
-            Card card = opponentHandZone
-            .GetComponentsInChildren<Card>()
-            .FirstOrDefault(c => c.cardId == cardId);
-
-            if (card == null)
-            {
-                Debug.LogWarning("Ai Card not found in their hand");
-                return;
-            }
-
-            if (card.cardType == "Tamer")
-            {
-                card.transform.SetParent(opponentTamerZone);
-                card.currentZone = Card.Zone.TamerArea;
-            }
-            else
-            {
-                card.transform.SetParent(opponentBattleZone);
-                card.currentZone = Card.Zone.BattleArea;
-            }
-
-            card.GetComponent<Image>().sprite = card.sprite;
-
-            player2Hand.RemoveAt(0);
-            PlayCardToBattleArea(card);
-
-            if (activePlayer != 1)
-            {
-                return;
-            }
-        }
-
-        ForceEndTurn();
+        return activePlayer.Value;
     }
 
     public IEnumerator ResolveSecurityAttack(Card attacker, int count, int dpBuff)
@@ -658,7 +607,7 @@ public class GameManager : NetworkBehaviour
                 yield break;
             }
 
-            Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone == Card.Zone.BattleArea);
+            Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone.Value == Card.Zone.BattleArea);
 
             if (blocker != null)
             {
@@ -785,7 +734,7 @@ public class GameManager : NetworkBehaviour
                 securityCard.cardName = securityCardData.name;
                 securityCard.cardType = securityCardData.card_type;
                 securityCard.ownerId = opponentId;
-                securityCard.currentZone = Card.Zone.Security;
+                securityCard.currentZone.Value = Card.Zone.None;
                 securityCard.sprite = sprite;
 
                 securityCard.effects = securityCardData.effects ?? new List<EffectData>();
@@ -794,7 +743,7 @@ public class GameManager : NetworkBehaviour
                 EffectManager.Instance.TriggerEffects(EffectTrigger.Security, securityCard);
 
                 // After resolving, trash security card
-                if (securityCard.currentZone == Card.Zone.Security)
+                if (securityCard.currentZone.Value == Card.Zone.None)
                 {
                     if (opponentId == 0)
                     {
@@ -891,7 +840,7 @@ public class GameManager : NetworkBehaviour
             return false;
         }
 
-        if (activePlayer == 0)
+        if (localPlayerId == 0)
         {
             currentMemory -= cost;
         }
@@ -910,12 +859,12 @@ public class GameManager : NetworkBehaviour
 
         newCard.inheritedStack.AddRange(baseCard.inheritedStack);
         newCard.inheritedStack.Add(baseCard);
-        newCard.currentZone = Card.Zone.BattleArea;
+        newCard.currentZone.Value = Card.Zone.BattleArea;
         newCard.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
 
         Destroy(newCard.GetComponent<CardDropHandler>());
 
-        if (baseCard.currentZone == Card.Zone.BreedingActiveSlot)
+        if (baseCard.currentZone.Value == Card.Zone.BreedingActiveSlot)
         {
             newCard.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
@@ -926,8 +875,6 @@ public class GameManager : NetworkBehaviour
             baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
 
-        CheckTurnSwitch();
-
         Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
 
         BattleLogManager.Instance.AddLog(
@@ -936,6 +883,8 @@ public class GameManager : NetworkBehaviour
                             baseCard.ownerId);
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenDigivolving, newCard);
+
+        CheckTurnSwitch();
 
         return true;
     }
@@ -964,7 +913,7 @@ public class GameManager : NetworkBehaviour
         var baseGroup = stackBase.GetComponent<CanvasGroup>();
         if (baseGroup != null) baseGroup.blocksRaycasts = true;
 
-        topCard.currentZone = Card.Zone.BattleArea;
+        topCard.currentZone.Value = Card.Zone.BattleArea;
 
         Debug.Log("Promoted top card in digivolution stack to active.");
 
@@ -973,7 +922,7 @@ public class GameManager : NetworkBehaviour
 
     public void ModifyMemory(int delta)
     {
-        if (activePlayer == 0)
+        if (localPlayerId == 0)
         {
             currentMemory += delta;
         }

@@ -146,12 +146,12 @@ GameObject:
   - component: {fileID: 2529395246709971645}
   - component: {fileID: 6333377576466086158}
   - component: {fileID: 6051540508339043511}
+  - component: {fileID: 64713341636569797}
   - component: {fileID: 6130387994301884355}
   - component: {fileID: 3697380661077183074}
   - component: {fileID: 575741044024098785}
   - component: {fileID: 7012542056664938310}
   - component: {fileID: 5379616755132158507}
-  - component: {fileID: 64713341636569797}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -229,6 +229,27 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &64713341636569797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6554642789408046384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 236938531
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 1
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 1
+  AutoObjectParentSync: 0
 --- !u!114 &6130387994301884355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,7 +265,6 @@ MonoBehaviour:
   attackButton: {fileID: 1991269762070019408}
   blockerButton: {fileID: 7207692311624067610}
   cardId: 0
-  currentZone: 1
   ownerId: 0
   canAttack: 0
   mainEffectUsed: 0
@@ -266,6 +286,8 @@ MonoBehaviour:
   inheritedStack: []
   effects: []
   inheritedEffects: []
+  currentZone:
+    m_InternalValue: 8
 --- !u!114 &3697380661077183074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,27 +347,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.7058824}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
---- !u!114 &64713341636569797
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6554642789408046384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3855393769
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 1
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 1
-  AutoObjectParentSync: 1
 --- !u!1 &7059347981399489603
 GameObject:
   m_ObjectHideFlags: 0

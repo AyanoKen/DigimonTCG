@@ -1302,6 +1302,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1723555255}
+  - component: {fileID: 1723555257}
   - component: {fileID: 1723555256}
   m_Layer: 0
   m_Name: GameManager
@@ -1352,11 +1353,42 @@ MonoBehaviour:
   canvasTransform: {fileID: 659146531}
   endTurnBanner: {fileID: 325800721}
   battlePreviewPanel: {fileID: 1642871171}
+  handZone_Bottom: {fileID: 1307490109}
+  battleZone_Bottom: {fileID: 5303302001107597172}
+  tamerZone_Bottom: {fileID: 830465702}
+  breedingZone_Bottom: {fileID: 1532630491}
+  handZone_Top: {fileID: 665487899}
+  battleZone_Top: {fileID: 5303302001107597170}
+  tamerZone_Top: {fileID: 1647336737}
+  breedingZone_Top: {fileID: 5303302001107597171}
   isHatchingSlotOccupied: 0
   localPlayerId: 0
   player1SecurityBuff: 0
   player2SecurityBuff: 0
   turnTransition: 0
+  activePlayer:
+    m_InternalValue: 0
+--- !u!114 &1723555257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723555254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 776334902
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!224 &1979666541 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 22685868390308388, guid: e23452d1fa303e8468582e108d35c302, type: 3}
@@ -1943,6 +1975,16 @@ MonoBehaviour:
 --- !u!224 &5303302001107597170 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3998947788112693927, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &5303302001107597171 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4369324641679286622, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+  m_PrefabInstance: {fileID: 5303302001107597167}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &5303302001107597172 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8436531612009574079, guid: e23452d1fa303e8468582e108d35c302, type: 3}
   m_PrefabInstance: {fileID: 5303302001107597167}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807

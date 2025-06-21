@@ -68,7 +68,7 @@ public class EffectManager : MonoBehaviour
                 {
                     var candidates = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId == source.ownerId
-                                && c.currentZone == Card.Zone.BattleArea
+                                && c.currentZone.Value == Card.Zone.BattleArea
                                 && c != source && !c.isDigivolved)
                         .ToList();
 
@@ -95,7 +95,7 @@ public class EffectManager : MonoBehaviour
             case EffectType.ModifyPartyDP:
                 {
                     var party = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     foreach (var member in party)
@@ -186,7 +186,7 @@ public class EffectManager : MonoBehaviour
                 {
                     var opponents = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId != source.ownerId 
-                                    && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
+                                    && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     if (opponents.Count > 0)
@@ -213,7 +213,7 @@ public class EffectManager : MonoBehaviour
                 {
                     var targets = FindObjectsOfType<Card>()
                         .Where(c => c.ownerId != source.ownerId
-                                    && c.currentZone == Card.Zone.BattleArea
+                                    && c.currentZone.Value == Card.Zone.BattleArea
                                     && c.dp <= effect.value && !c.isDigivolved)
                         .ToList();
 
@@ -253,7 +253,7 @@ public class EffectManager : MonoBehaviour
                     if (source.cardType == "Tamer")
                     {
                         source.transform.SetParent(targetZone);
-                        source.currentZone = Card.Zone.TamerArea;
+                        source.currentZone.Value = Card.Zone.TamerArea;
 
                         CanvasGroup cg = source.GetComponent<CanvasGroup>();
                         if (cg != null)
@@ -275,7 +275,7 @@ public class EffectManager : MonoBehaviour
                             source.ownerId);
 
                     var party = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId == source.ownerId && c.currentZone == Card.Zone.BattleArea && !c.isDigivolved)
+                        .Where(c => c.ownerId == source.ownerId && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
                         .ToList();
 
                     foreach (var member in party)

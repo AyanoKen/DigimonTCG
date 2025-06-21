@@ -81,11 +81,9 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
         base.OnNetworkSpawn();
 
         currentZone.OnValueChanged += OnZoneChanged;
-
-        UpdateView();
     }
 
-    private void OnDestroy()
+    protected new void OnDestroy()
     {
         currentZone.OnValueChanged -= OnZoneChanged;
     }
@@ -97,39 +95,46 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void UpdateView()
     {
-        if (!IsOwner && currentZone == Zone.Hand)
+        if (!IsOwner && currentZone.Value == Zone.Hand)
         {
-            image.sprite = GameManager.Instance.cardBackSprite;
+            GetComponent<Image>().sprite = GameManager.Instance.cardBackSprite;
         }
         else
         {
-            image.sprite = sprite;
+            GetComponent<Image>().sprite = sprite;
         }
 
-        Transform newParent = null;
-        switch (currentZone.Value)
+        if (transform.parent == null || transform.parent.GetComponent<Card>() == null)
         {
-            case Zone.Hand:
-                newParent = IsOwner ? GameManager.Instance.handZone_Bottom : GameManager.Instance.handZone_Top;
-                break;
-            case Zone.BattleArea:
-                newParent = IsOwner ? GameManager.Instance.battleZone_Bottom : GameManager.Instance.battleZone_Top;
-                break;
-            case Zone.TamerArea:
-                newParent = IsOwner ? GameManager.Instance.tamerZone_Bottom : GameManager.Instance.tamerZone_Top;
-                break;
-            case Zone.BreedingActiveSlot:
-                newParent = IsOwner ? GameManager.Instance.breedingZone_Bottom : GameManager.Instance.breedingZone_Top;
-                break;
-        }
+            Transform newParent = null;
+            switch (currentZone.Value)
+            {
+                case Zone.Hand:
+                    newParent = IsOwner ? GameManager.Instance.handZone_Bottom : GameManager.Instance.handZone_Top;
+                    break;
+                case Zone.BattleArea:
+                    newParent = IsOwner ? GameManager.Instance.battleZone_Bottom : GameManager.Instance.battleZone_Top;
+                    break;
+                case Zone.TamerArea:
+                    newParent = IsOwner ? GameManager.Instance.tamerZone_Bottom : GameManager.Instance.tamerZone_Top;
+                    break;
+                case Zone.BreedingActiveSlot:
+                    newParent = IsOwner ? GameManager.Instance.breedingZone_Bottom : GameManager.Instance.breedingZone_Top;
+                    break;
+            }
 
-        if (newParent != null)
-        {
-            transform.SetParent(newParent);
-            transform.localScale = Vector3.one;
-        }
+            if (newParent != null)
+            {
+                transform.SetParent(newParent);
+                transform.localScale = Vector3.one;
+            }
+            else
+            {
+                Debug.Log($"Parent not found: {currentZone.Value}");
+            }
 
-        GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+            GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+        }
     }
 
     public void NotifyZoneChange(Card.Zone newZone)
@@ -159,7 +164,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
                 return;
             }
 
-            if (currentZone == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
+            if (currentZone.Value == Zone.BattleArea && ownerId == GameManager.Instance.GetActivePlayer())
             {
                 if (canAttack)
                 {
@@ -178,7 +183,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
                 }
             }
 
-            if (currentZone == Zone.TamerArea && ownerId == GameManager.Instance.GetActivePlayer() && !mainEffectUsed)
+            if (currentZone.Value == Zone.TamerArea && ownerId == GameManager.Instance.GetActivePlayer() && !mainEffectUsed)
             {
                 foreach (var card in FindObjectsOfType<Card>())
                 {
@@ -249,7 +254,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void AttackSecurity()
     {
-        if (currentZone == Zone.TamerArea)
+        if (currentZone.Value == Zone.TamerArea)
         {
             if (mainEffectUsed)
             {
@@ -358,7 +363,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
             if (card != this &&
                 card.ownerId == ownerId &&
                 card.isBlocker &&
-                card.currentZone == Zone.BattleArea)
+                card.currentZone.Value == Zone.BattleArea)
             {
                 card.isBlocking = false;
             }
