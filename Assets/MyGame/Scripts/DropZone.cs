@@ -27,7 +27,7 @@ public class DropZone : MonoBehaviour, IDropHandler
                 }
 
                 droppedCard.transform.SetParent(transform);
-                card.currentZone = zoneType;
+                card.NotifyZoneChange(zoneType);
 
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;
                 Destroy(card.GetComponent<CardDropHandler>());
@@ -57,14 +57,14 @@ public class DropZone : MonoBehaviour, IDropHandler
 
             droppedCard.transform.SetParent(transform);
 
-            if (card.currentZone == Card.Zone.BreedingActiveSlot)
+            if (card.currentZone.Value == Card.Zone.BreedingActiveSlot)
             {
                 GameManager.Instance.isHatchingSlotOccupied = false;
                 GameManager.Instance.PromoteDigivolvedCardToBattle(card);
                 return;
             }
 
-            card.currentZone = zoneType;
+            card.NotifyZoneChange(zoneType);
 
             card.GetComponent<CanvasGroup>().blocksRaycasts = true;
             Destroy(card.GetComponent<CardDropHandler>());

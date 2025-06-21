@@ -1663,6 +1663,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 322
       objectReference: {fileID: 0}
+    - target: {fileID: 24687255508652813, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: BreedingArea_Bottom
+      objectReference: {fileID: 0}
     - target: {fileID: 435724450613324171, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Color.a
       value: 0
@@ -1674,6 +1678,10 @@ PrefabInstance:
     - target: {fileID: 1230611111873005622, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Color.a
       value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 1948284836774317535, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: SecurityStack_Top
       objectReference: {fileID: 0}
     - target: {fileID: 2129858515364459435, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -1690,6 +1698,18 @@ PrefabInstance:
     - target: {fileID: 2445667454730978018, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2459035576086269136, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: AttackArea_Top
+      objectReference: {fileID: 0}
+    - target: {fileID: 2764800473032485738, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: BreedingArea_Top
+      objectReference: {fileID: 0}
+    - target: {fileID: 2973841520298557340, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: TamerArea_Top
       objectReference: {fileID: 0}
     - target: {fileID: 3004105531690907586, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -1710,6 +1730,10 @@ PrefabInstance:
     - target: {fileID: 3821644293414849545, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -243.93544
+      objectReference: {fileID: 0}
+    - target: {fileID: 3825923858682428584, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: TopZones
       objectReference: {fileID: 0}
     - target: {fileID: 4062674008872870037, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1771,6 +1795,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 247
       objectReference: {fileID: 0}
+    - target: {fileID: 6240072258190496254, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: AttackArea_Bottom
+      objectReference: {fileID: 0}
+    - target: {fileID: 6858155312408390547, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: BottomZones
+      objectReference: {fileID: 0}
     - target: {fileID: 7319560623195951307, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Color.a
       value: 0.039215688
@@ -1778,6 +1810,18 @@ PrefabInstance:
     - target: {fileID: 7456587277225280367, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Color.a
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8505717749079183461, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: SecurityStack_Bottom
+      objectReference: {fileID: 0}
+    - target: {fileID: 8526327685802931309, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: Hand_Bottom
+      objectReference: {fileID: 0}
+    - target: {fileID: 8535243617906090354, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: Hand_Top
       objectReference: {fileID: 0}
     - target: {fileID: 8784869671478016433, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_Pivot.x
@@ -1862,6 +1906,10 @@ PrefabInstance:
     - target: {fileID: 8900767945014062975, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_ChildAlignment
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8971534153571084825, guid: e23452d1fa303e8468582e108d35c302, type: 3}
+      propertyPath: m_Name
+      value: TamerArea_Bottom
       objectReference: {fileID: 0}
     - target: {fileID: 9199204144306301403, guid: e23452d1fa303e8468582e108d35c302, type: 3}
       propertyPath: m_AnchoredPosition.x

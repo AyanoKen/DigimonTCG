@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using TMPro;
+using Unity.Netcode;
 
 [System.Serializable]
 public class DigivolveCostEntry
@@ -14,13 +15,12 @@ public class DigivolveCostEntry
 }
 
 
-public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
+public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] private TMP_Text attackButton;
     [SerializeField] private Button blockerButton;
 
     public int cardId;
-    public Zone currentZone;
     public int ownerId;
     public bool canAttack = false;
     public bool mainEffectUsed = false;
@@ -42,7 +42,8 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
         BattleArea,
         TamerArea,
         Trash,
-        Security
+        Security,
+        None
     }
 
     public string cardName;
@@ -68,9 +69,85 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IP
 
     private RectTransform rectTransform;
 
+    public NetworkVariable<Zone> currentZone = new NetworkVariable<Zone>(Zone.None);
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        currentZone.OnValueChanged += OnZoneChanged;
+
+        UpdateView();
+    }
+
+    private void OnDestroy()
+    {
+        currentZone.OnValueChanged -= OnZoneChanged;
+    }
+
+    private void OnZoneChanged(Zone previous, Zone current)
+    {
+        UpdateView();
+    }
+
+    public void UpdateView()
+    {
+        if (!IsOwner && currentZone == Zone.Hand)
+        {
+            image.sprite = GameManager.Instance.cardBackSprite;
+        }
+        else
+        {
+            image.sprite = sprite;
+        }
+
+        Transform newParent = null;
+        switch (currentZone.Value)
+        {
+            case Zone.Hand:
+                newParent = IsOwner ? GameManager.Instance.handZone_Bottom : GameManager.Instance.handZone_Top;
+                break;
+            case Zone.BattleArea:
+                newParent = IsOwner ? GameManager.Instance.battleZone_Bottom : GameManager.Instance.battleZone_Top;
+                break;
+            case Zone.TamerArea:
+                newParent = IsOwner ? GameManager.Instance.tamerZone_Bottom : GameManager.Instance.tamerZone_Top;
+                break;
+            case Zone.BreedingActiveSlot:
+                newParent = IsOwner ? GameManager.Instance.breedingZone_Bottom : GameManager.Instance.breedingZone_Top;
+                break;
+        }
+
+        if (newParent != null)
+        {
+            transform.SetParent(newParent);
+            transform.localScale = Vector3.one;
+        }
+
+        GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
+    }
+
+    public void NotifyZoneChange(Card.Zone newZone)
+    {
+        if (IsOwner || IsServer)
+        {
+            currentZone.Value = newZone;
+        }
+        else
+        {
+            NotifyZoneChangeServerRpc((int)newZone);
+        }
+    }
+
+    [ServerRpc]
+    private void NotifyZoneChangeServerRpc(int zoneValue)
+    {
+        currentZone.Value = (Zone)zoneValue;
     }
 
     public void OnPointerClick(PointerEventData eventData)

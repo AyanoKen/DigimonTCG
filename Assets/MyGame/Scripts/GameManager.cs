@@ -39,7 +39,7 @@ public class CardData //Datatype for storing CardData parsed from the JSON
     }
 }
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
 
@@ -59,6 +59,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject endTurnBanner;
     [SerializeField] private SecurityBattlePreview battlePreviewPanel;
 
+
+    [Header("Bottom Zones (Local Player Layout)")]
+    [SerializeField] private Transform handZone_Bottom;
+    [SerializeField] private Transform battleZone_Bottom;
+    [SerializeField] private Transform tamerZone_Bottom;
+    [SerializeField] private Transform breedingZone_Bottom;
+
+    [Header("Top Zones (Opponent Layout)")]
+    [SerializeField] private Transform handZone_Top;
+    [SerializeField] private Transform battleZone_Top;
+    [SerializeField] private Transform tamerZone_Top;
+    [SerializeField] private Transform breedingZone_Top;
+
     private List<CardData> deckguide;
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
     private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
@@ -73,7 +86,6 @@ public class GameManager : MonoBehaviour
     private List<int> player1Trash = new List<int>();
     private List<int> player2Trash = new List<int>();
     private int currentMemory = 0;
-    private int activePlayer = 0;
     private bool isGameOver = false;
 
     public bool isHatchingSlotOccupied = false;
@@ -81,6 +93,12 @@ public class GameManager : MonoBehaviour
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
     public bool turnTransition = false;
+
+    public NetworkVariable<int> activePlayer = new NetworkVariable<int>(
+        0, 
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
 
     private void Awake()
     {
@@ -95,11 +113,34 @@ public class GameManager : MonoBehaviour
         InitializeDeck();
         DrawStartingHand(5);
 
-        InitializeOpponentDeck();
-
         InitializeSecurityStacks();
+    }
 
-        StartTurn(0);
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        localPlayerId = (int)NetworkManager.Singleton.LocalClientId;
+
+        activePlayer.OnValueChanged += OnTurnChanged;
+
+        if (IsServer)
+        {
+            StartTurn(0);
+        }
+    }
+
+    private void OnTurnChanged(int previous, int current)
+    {
+        if ((ulong)current == NetworkManager.Singleton.LocalClientId)
+        {
+            Debug.Log("🚀 It's my turn!");
+            StartTurn();
+        }
+        else
+        {
+            Debug.Log("⏳ It's opponent's turn.");
+        }
     }
 
     private void GameOver()
@@ -199,46 +240,30 @@ public class GameManager : MonoBehaviour
         deck = deck.OrderBy(x => Random.value).ToList();
     }
 
-    private void InitializeOpponentDeck()
-    {
-        player2Deck = new List<int>(deck);
-        player2Eggs = new List<int>(digieggs);
-
-        player2Deck = player2Deck.OrderBy(x => Random.value).ToList();
-
-        for (int i = 0; i < 5 && player2Deck.Count > 0; i++)
-        {
-            int cardId = player2Deck[0];
-            player2Deck.RemoveAt(0);
-            player2Hand.Add(cardId);
-            SpawnCardToHand(cardId, opponentHandZone, 1);
-        }
-    }
-
     private void DrawStartingHand(int count)
     {
         for (int i = 0; i < count && deck.Count > 0; i++)
         {
             int cardId = deck[0];
             deck.RemoveAt(0);
-            SpawnCardToHand(cardId, handZone, 0);
+            SpawnCardToHand(cardId, NetworkManager.Singleton.LocalClientId);
         }
     }
 
-    private void SpawnCardToHand(int cardId, Transform zone, int ownerId)
+    private void SpawnCardToHand(int cardId, ulong clientId)
     {
-        GameObject cardGO = Instantiate(cardPrefab, zone);
+        GameObject cardGO = Instantiate(cardPrefab);
         var netObj = cardGO.GetComponent<NetworkObject>();
         if (netObj != null && !netObj.IsSpawned)
         {
-            netObj.SpawnWithOwnership(ownerId == 0 ? NetworkManager.Singleton.LocalClientId : GetRemoteClientId());
+            netObj.SpawnWithOwnership(clientId);
         }
         Image image = cardGO.GetComponent<Image>();
 
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
-        card.currentZone = Card.Zone.Hand;
-        card.ownerId = ownerId;
+        card.NotifyZoneChange(Card.Zone.Hand);
+        card.ownerId = (int)clientId;
 
         if (idToData.TryGetValue(cardId, out CardData data))
         {
@@ -271,16 +296,6 @@ public class GameManager : MonoBehaviour
         {
             card.sprite = sprite;
         }
-
-        if (ownerId == localPlayerId)
-        {
-            image.sprite = card.sprite;
-        }
-        else
-        {
-            image.sprite = cardBackSprite;
-        }
-
     }
 
     private void InitializeSecurityStacks()
@@ -291,22 +306,15 @@ public class GameManager : MonoBehaviour
             deck.RemoveAt(0);
             player1SecurityStack.Add(cardId);
         }
-
-        for (int i = 0; i < 5 && player2Deck.Count > 0; i++)
-        {
-            int cardId = player2Deck[0];
-            player2Deck.RemoveAt(0);
-            player2SecurityStack.Add(cardId);
-        }
     }
 
-    private void HatchDigiegg(int cardId, int ownerId)
+    private void HatchDigiegg(int cardId, ulong clientId)
     {
         GameObject cardGO = Instantiate(cardPrefab, breedingZone);
         var netObj = cardGO.GetComponent<NetworkObject>();
         if (netObj != null && !netObj.IsSpawned)
         {
-            netObj.SpawnWithOwnership(ownerId == 0 ? NetworkManager.Singleton.LocalClientId : GetRemoteClientId());
+            netObj.SpawnWithOwnership(clientId);
         }
         Image image = cardGO.GetComponent<Image>();
 
@@ -317,8 +325,8 @@ public class GameManager : MonoBehaviour
 
         Card card = cardGO.GetComponent<Card>();
         card.cardId = cardId;
-        card.currentZone = Card.Zone.BreedingActiveSlot;
-        card.ownerId = ownerId;
+        card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
+        card.ownerId = (int)clientId;
 
         Destroy(card.GetComponent<CardDropHandler>());
 
@@ -340,39 +348,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void DrawCardFromDeck(int playerId)
+    public void DrawCardFromDeck()
     {
 
-        if (playerId == 0)
+        if (deck.Count > 0)
         {
-            if (deck.Count > 0)
-            {
-                int cardId = deck[0];
-                deck.RemoveAt(0);
-                SpawnCardToHand(cardId, handZone, 0);
-            }
-            else
-            {
-                Debug.Log("Deck is empty. AI Wins");
-                isGameOver = true;
-                GameOver();
-            }
+            int cardId = deck[0];
+            deck.RemoveAt(0);
+
+            SpawnCardToHand(cardId, NetworkManager.Singleton.LocalClientId);
         }
         else
         {
-            if (player2Deck.Count > 0)
-            {
-                int cardId = player2Deck[0];
-                player2Deck.RemoveAt(0);
-                player2Hand.Add(cardId);
-                SpawnCardToHand(cardId, opponentHandZone, 1);
-            }
-            else
-            {
-                Debug.Log("Player 2 Deck is empty. Player Wins");
-                isGameOver = true;
-                GameOver();
-            }
+            Debug.Log("Deck is empty.");
+            // TODO: trigger game over for this player
         }
 
     }
@@ -385,7 +374,7 @@ public class GameManager : MonoBehaviour
             {
                 int cardId = digieggs[0];
                 digieggs.RemoveAt(0);
-                HatchDigiegg(cardId, activePlayer);
+                HatchDigiegg(cardId, NetworkManager.Singleton.LocalClientId);
                 isHatchingSlotOccupied = true;
             }
             else
@@ -420,7 +409,7 @@ public class GameManager : MonoBehaviour
             cost = data.play_cost.Value;
         }
 
-        if (activePlayer == 0)
+        if (NetworkManager.Singleton.LocalClientId == 0)
         {
             currentMemory -= cost;
         }
@@ -496,14 +485,9 @@ public class GameManager : MonoBehaviour
                 EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
             }
         }
-
-        if (playerId == 1)
-        {
-            RunAiTurn();
-        }
     }
 
-    public IEnumerator EndTurn()
+    public IEnumerator EndTurnServer()
     {
         var allCards = FindObjectsOfType<Card>();
 
@@ -536,18 +520,8 @@ public class GameManager : MonoBehaviour
             }
 
             BattleLogManager.Instance.ClearLog();
-            
+
         }
-
-
-        int nextPlayer = 0;
-
-        if (activePlayer == 0)
-        {
-            nextPlayer = 1;
-        }
-
-        activePlayer = nextPlayer;
 
         foreach (var card in FindObjectsOfType<Card>())
         {
@@ -562,8 +536,21 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
 
         turnTransition = false;
+        
+        int nextPlayer = 0;
 
-        StartTurn(nextPlayer);
+        if (activePlayer.Value == 0)
+        {
+            nextPlayer = 1;
+        }
+
+        activePlayer.Value = nextPlayer;
+    }
+
+    [ServerRpc]
+    public void RequestEndTurnServerRpc()
+    {
+        StartCoroutine(EndTurnServer());
     }
 
     public void ForceEndTurn()
@@ -574,15 +561,30 @@ public class GameManager : MonoBehaviour
 
             memoryManager.SetMemory(currentMemory);
 
-            StartCoroutine(EndTurn());
+            if (IsServer)
+            {
+                StartCoroutine(EndTurnServer());
+            }
+            else
+            {
+                RequestEndTurnServerRpc();
+            }
         }
     }
 
     public void CheckTurnSwitch()
     {
-        if ((activePlayer == 0 && currentMemory < 0) || (activePlayer == 1 && currentMemory > 0))
+        if ((NetworkManager.Singleton.LocalClientId == 0 && currentMemory < 0) ||
+                (NetworkManager.Singleton.LocalClientId == 1 && currentMemory > 0))
         {
-            StartCoroutine(EndTurn());
+            if (IsServer)
+            {
+                StartCoroutine(EndTurnServer());
+            }
+            else
+            {
+                RequestEndTurnServerRpc();
+            }
         }
     }
 
