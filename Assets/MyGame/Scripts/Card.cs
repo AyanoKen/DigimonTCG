@@ -19,8 +19,6 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 {
     [SerializeField] private TMP_Text attackButton;
     [SerializeField] private Button blockerButton;
-
-    public int cardId;
     public int ownerId;
     public bool canAttack = false;
     public bool mainEffectUsed = false;
@@ -70,6 +68,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
     private RectTransform rectTransform;
 
     public NetworkVariable<Zone> currentZone = new NetworkVariable<Zone>(Zone.None);
+    public NetworkVariable<int> cardId = new(writePerm: NetworkVariableWritePermission.Server);
 
     private void Awake()
     {
@@ -81,6 +80,47 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
         base.OnNetworkSpawn();
 
         currentZone.OnValueChanged += OnZoneChanged;
+
+        if (!IsServer)
+        {
+            cardId.OnValueChanged += OnCardIdReceived;
+        }
+    }
+
+    private void OnCardIdReceived(int oldValue, int newValue)
+    {
+        if (GameManager.Instance.idToData.TryGetValue(newValue, out CardData data))
+        {
+            cardName = data.name;
+            cardType = data.card_type;
+            level = data.level;
+            color = data.color;
+            form = data.form;
+            attribute = data.attribute;
+            dp = data.dp;
+            playCost = data.play_cost ?? 0;
+            effects = data.effects ?? new List<EffectData>();
+            inheritedEffects = data.inheritedEffects ?? new List<EffectData>();
+            digivolveCost = data.digivolve_costs?.Select(dc => new DigivolveCostEntry
+            {
+                color = dc.color,
+                cost = dc.cost
+            }).ToList();
+
+            InitializeFlagsFromEffects();
+        }
+
+        if (GameManager.Instance.idToSprite.TryGetValue(newValue, out var spriteResult))
+        {
+            sprite = spriteResult;
+        }
+
+        if (IsOwner)
+        {
+            ownerId = GameManager.Instance.localPlayerId;
+            GetComponent<Image>().sprite = sprite;
+        }
+        
     }
 
     protected new void OnDestroy()

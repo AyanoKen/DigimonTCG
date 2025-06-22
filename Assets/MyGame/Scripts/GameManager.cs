@@ -73,8 +73,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] public Transform breedingZone_Top;
 
     private List<CardData> deckguide;
-    private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
-    private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
+    public Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
+    public Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
 
     private List<int> player1Eggs = new List<int>();
     private List<int> player1Deck = new List<int>();
@@ -113,10 +113,22 @@ public class GameManager : NetworkBehaviour
 
         if (IsServer)
         {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        }
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        if (NetworkManager.Singleton.ConnectedClients.Count == 2)
+        {
+            Debug.Log("Both players connected. Starting game.");
+
             InitializeDeck();
             DrawStartingHands(5);
             InitializeSecurityStacks();
             StartTurn();
+
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
         }
     }
 
@@ -133,12 +145,12 @@ public class GameManager : NetworkBehaviour
     {
         if ((ulong)current == NetworkManager.Singleton.LocalClientId)
         {
-            Debug.Log("🚀 It's my turn!");
+            Debug.Log("It's my turn!");
             StartTurn();
         }
         else
         {
-            Debug.Log("⏳ It's opponent's turn.");
+            Debug.Log("It's opponent's turn.");
         }
     }
 
@@ -191,34 +203,34 @@ public class GameManager : NetworkBehaviour
 
             // Parse main effects
             if (token["effect"] is JArray effectArray)
+            {
+                card.effects = new List<EffectData>();
+
+                foreach (var entry in effectArray)
                 {
-                    card.effects = new List<EffectData>();
+                    string outerType = entry["type"]?.ToString();
+                    string trigger = entry["trigger"]?.ToString();
+                    string phase = entry["phase"]?.ToString();
+                    string keyword = entry["keyword"]?.ToString();
 
-                    foreach (var entry in effectArray)
+                    // 🔧 Here is the critical fix you need to add:
+                    if (outerType == "passive" && string.IsNullOrEmpty(trigger))
                     {
-                        string outerType = entry["type"]?.ToString();
-                        string trigger = entry["trigger"]?.ToString();
-                        string phase = entry["phase"]?.ToString();
-                        string keyword = entry["keyword"]?.ToString();
-
-                        // 🔧 Here is the critical fix you need to add:
-                        if (outerType == "passive" && string.IsNullOrEmpty(trigger))
-                        {
-                            trigger = phase;
-                        }
-
-                        string innerType = entry["effect"]?["type"]?.ToString();
-                        int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
-                        int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
-
-                        card.effects.Add(new EffectData(
-                            ParseTrigger(trigger),
-                            ParseEffectType(innerType ?? outerType, keyword),
-                            value,
-                            conditionValue
-                        ));
+                        trigger = phase;
                     }
+
+                    string innerType = entry["effect"]?["type"]?.ToString();
+                    int value = entry["effect"]?["value"]?.Value<int>() ?? 0;
+                    int conditionValue = entry["effect"]?["conditionValue"]?.Value<int>() ?? 0;
+
+                    card.effects.Add(new EffectData(
+                        ParseTrigger(trigger),
+                        ParseEffectType(innerType ?? outerType, keyword),
+                        value,
+                        conditionValue
+                    ));
                 }
+            }
 
             // Parse inherited effects
             if (token["inherited_effect"] is JObject inh)
@@ -238,6 +250,8 @@ public class GameManager : NetworkBehaviour
                 };
             }
         }
+
+        Debug.Log($"[LoadDeckGuide] Loaded {deckguide.Count} cards");
     }
 
     private void InitializeDeck()
@@ -282,7 +296,7 @@ public class GameManager : NetworkBehaviour
         Image image = cardGO.GetComponent<Image>();
 
         Card card = cardGO.GetComponent<Card>();
-        card.cardId = cardId;
+        card.cardId.Value = cardId;
         card.ownerId = (int)clientId;
 
         if (idToSprite.TryGetValue(cardId, out Sprite sprite))
@@ -348,7 +362,7 @@ public class GameManager : NetworkBehaviour
         Image image = cardGO.GetComponent<Image>();
 
         Card card = cardGO.GetComponent<Card>();
-        card.cardId = cardId;
+        card.cardId.Value = cardId;
         card.ownerId = (int)clientId;
 
         if (idToSprite.TryGetValue(cardId, out Sprite sprite))
@@ -440,12 +454,12 @@ public class GameManager : NetworkBehaviour
     {
         GlowManager.Instance.HideGlow();
 
-        if (!idToData.ContainsKey(card.cardId))
+        if (!idToData.ContainsKey(card.cardId.Value))
         {
             Debug.LogError("Card ID Missing in database");
         }
 
-        CardData data = idToData[card.cardId];
+        CardData data = idToData[card.cardId.Value];
 
         int cost = 0;
 
@@ -509,9 +523,10 @@ public class GameManager : NetworkBehaviour
     {
         if (isGameOver) return;
 
-        DrawCardFromDeck(activePlayer.Value);
-
-        if (isGameOver) return;
+        if (IsServer)
+        {
+            DrawCardFromDeck(activePlayer.Value);
+        }
 
         player1SecurityBuff = 0;
 
@@ -693,11 +708,11 @@ public class GameManager : NetworkBehaviour
 
                     if (blocker.ownerId == 0)
                     {
-                        player1Trash.Add(blocker.cardId);
+                        player1Trash.Add(blocker.cardId.Value);
                     }
                     else
                     {
-                        player2Trash.Add(blocker.cardId);
+                        player2Trash.Add(blocker.cardId.Value);
                     }
                     DestroyDigimonStack(blocker);
                 }
@@ -713,11 +728,11 @@ public class GameManager : NetworkBehaviour
 
                     if (attacker.ownerId == 0)
                     {
-                        player1Trash.Add(attacker.cardId);
+                        player1Trash.Add(attacker.cardId.Value);
                     }
                     else
                     {
-                        player2Trash.Add(attacker.cardId);
+                        player2Trash.Add(attacker.cardId.Value);
                     }
                     DestroyDigimonStack(attacker);
                 }
@@ -773,7 +788,7 @@ public class GameManager : NetworkBehaviour
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 150);
                 rect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 220);
 
-                securityCard.cardId = securityCardData.id;
+                securityCard.cardId.Value = securityCardData.id;
                 securityCard.cardName = securityCardData.name;
                 securityCard.cardType = securityCardData.card_type;
                 securityCard.ownerId = opponentId;
@@ -834,11 +849,11 @@ public class GameManager : NetworkBehaviour
 
                 if (attacker.ownerId == 0)
                 {
-                    player1Trash.Add(attacker.cardId);
+                    player1Trash.Add(attacker.cardId.Value);
                 }
                 else
                 {
-                    player2Trash.Add(attacker.cardId);
+                    player2Trash.Add(attacker.cardId.Value);
                 }
 
                 DestroyDigimonStack(attacker);
@@ -998,11 +1013,11 @@ public class GameManager : NetworkBehaviour
     {
         if (card.ownerId == 0)
         {
-            player1Trash.Add(card.cardId);
+            player1Trash.Add(card.cardId.Value);
         }
         else
         {
-            player2Trash.Add(card.cardId);
+            player2Trash.Add(card.cardId.Value);
         }
 
         Destroy(card.gameObject);
@@ -1016,11 +1031,11 @@ public class GameManager : NetworkBehaviour
             {
                 if (inheritedCard.ownerId == 0)
                 {
-                    player1Trash.Add(inheritedCard.cardId);
+                    player1Trash.Add(inheritedCard.cardId.Value);
                 }
                 else
                 {
-                    player2Trash.Add(inheritedCard.cardId);
+                    player2Trash.Add(inheritedCard.cardId.Value);
                 }
                 Destroy(inheritedCard.gameObject);
             }
@@ -1028,11 +1043,11 @@ public class GameManager : NetworkBehaviour
 
         if (card.ownerId == 0)
         {
-            player1Trash.Add(card.cardId);
+            player1Trash.Add(card.cardId.Value);
         }
         else
         {
-            player2Trash.Add(card.cardId);
+            player2Trash.Add(card.cardId.Value);
         }
 
         Destroy(card.gameObject);

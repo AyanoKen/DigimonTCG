@@ -12,7 +12,7 @@ public class DropZone : MonoBehaviour, IDropHandler
         {
             Card card = droppedCard.GetComponent<Card>();
 
-            if (card == null || card.ownerId != 0 || GameManager.Instance.GetActivePlayer() != 0)
+            if (card == null || card.ownerId != GameManager.Instance.localPlayerId || GameManager.Instance.GetActivePlayer() != GameManager.Instance.localPlayerId)
             {
                 GlowManager.Instance.HideGlow();
                 return;
