@@ -889,6 +889,21 @@ public class GameManager : NetworkBehaviour
         return true;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestDigivolveServerRpc(ulong baseCardId, ulong newCardId)
+    {
+        RunDigivolveEverywhereClientRpc(baseCardId, newCardId);
+    }
+
+    [ClientRpc]
+    public void RunDigivolveEverywhereClientRpc(ulong baseCardId, ulong newCardId)
+    {
+        Card baseCard = NetworkManager.Singleton.SpawnManager.SpawnedObjects[baseCardId].GetComponent<Card>();
+        Card newCard = NetworkManager.Singleton.SpawnManager.SpawnedObjects[newCardId].GetComponent<Card>();
+
+        GameManager.Instance.TryDigivolve(baseCard, newCard);
+    }
+
     public void PromoteDigivolvedCardToBattle(Card stackBase)
     {
         if (stackBase.transform.childCount == 0)

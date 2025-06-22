@@ -7,7 +7,7 @@ public class MemoryGaugeManager : MonoBehaviour
     [SerializeField] private GameObject[] negativeMemorySlots;
     [SerializeField] private GameObject zeroMemorySlot;
 
-    private int currentMemory = 0;
+    private int currentMemory = 9; //TODO: Revert This
 
     public void SetMemory(int value)
     {
