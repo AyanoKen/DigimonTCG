@@ -59,7 +59,7 @@ public class DropZone : MonoBehaviour, IDropHandler
 
             if (card.currentZone.Value == Card.Zone.BreedingActiveSlot)
             {
-                GameManager.Instance.isHatchingSlotOccupied = false;
+                GameManager.Instance.ResetHatchingSlotServerRpc(GameManager.Instance.localPlayerId);
                 GameManager.Instance.PromoteDigivolvedCardToBattle(card);
                 return;
             }

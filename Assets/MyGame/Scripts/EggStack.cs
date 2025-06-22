@@ -13,16 +13,9 @@ public class EggStack : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left && GameManager.Instance.GetActivePlayer() == 0)
+        if (eventData.button == PointerEventData.InputButton.Left && GameManager.Instance.GetActivePlayer() == GameManager.Instance.localPlayerId)
         {
-            bool success = GameManager.Instance.DrawCardFromEggs();
-
-            if (!success)
-            {
-                Color tempColor = eggImage.color;
-                tempColor.a = 0f;
-                eggImage.color = tempColor;
-            }
+            GameManager.Instance.RequestHatchEggServerRpc(GameManager.Instance.localPlayerId);
         }
     }
 }

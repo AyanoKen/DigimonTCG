@@ -76,8 +76,8 @@ public class GameManager : NetworkBehaviour
     private Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
     private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
 
-    private List<int> digieggs = new List<int>();
-    private List<int> deck = new List<int>();
+    private List<int> player1Eggs = new List<int>();
+    private List<int> player1Deck = new List<int>();
     private List<int> player2Deck = new List<int>();
     private List<int> player2Hand = new List<int>();
     private List<int> player2Eggs = new List<int>();
@@ -89,6 +89,7 @@ public class GameManager : NetworkBehaviour
     private bool isGameOver = false;
 
     public bool isHatchingSlotOccupied = false;
+    public bool opponentHatchingOccupied = false;
     public int localPlayerId = 0;
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
@@ -110,10 +111,13 @@ public class GameManager : NetworkBehaviour
     {
         LoadDeckGuide();
 
-        InitializeDeck();
-        DrawStartingHand(5);
-
-        InitializeSecurityStacks();
+        if (IsServer)
+        {
+            InitializeDeck();
+            DrawStartingHands(5);
+            InitializeSecurityStacks();
+            StartTurn();
+        }
     }
 
     public override void OnNetworkSpawn()
@@ -123,11 +127,6 @@ public class GameManager : NetworkBehaviour
         localPlayerId = (int)NetworkManager.Singleton.LocalClientId;
 
         activePlayer.OnValueChanged += OnTurnChanged;
-
-        if (IsServer)
-        {
-            StartTurn();
-        }
     }
 
     private void OnTurnChanged(int previous, int current)
@@ -168,9 +167,15 @@ public class GameManager : NetworkBehaviour
             idToData[card.id] = card;
 
             if (card.card_type == "Digi-Egg")
-                digieggs.Add(card.id);
+            {
+                player1Eggs.Add(card.id);
+                player2Eggs.Add(card.id);
+            }
             else
-                deck.Add(card.id);
+            {
+                player1Deck.Add(card.id);
+                player2Deck.Add(card.id);
+            }
 
             // Load and cache image
             string path = card.image_path.Replace("./", "Cards/Agumon-Deck/").Replace(".jpg", "").Replace(".png", "");
@@ -237,17 +242,33 @@ public class GameManager : NetworkBehaviour
 
     private void InitializeDeck()
     {
-        deck = deck.OrderBy(x => Random.value).ToList();
+        player1Deck = player1Deck.OrderBy(x => Random.value).ToList();
+        player2Deck = player2Deck.OrderBy(x => Random.value).ToList();
     }
 
-    private void DrawStartingHand(int count)
+    private void DrawStartingHands(int count)
     {
-        for (int i = 0; i < count && deck.Count > 0; i++)
+        for (int i = 0; i < 5; i++)
         {
-            int cardId = deck[0];
-            deck.RemoveAt(0);
-            SpawnCardToHand(cardId, NetworkManager.Singleton.LocalClientId);
+            DrawCardFromDeck(0); // Player 1
+            DrawCardFromDeck(1); // Player 2
         }
+    }
+
+    public void DrawCardFromDeck(int playerId)
+    {
+        var deck = playerId == 0 ? player1Deck : player2Deck;
+
+        if (deck.Count == 0)
+        {
+            Debug.Log($"Player {playerId + 1}'s deck is empty! They lose.");
+            return;
+        }
+
+        int cardId = deck[0];
+        deck.RemoveAt(0);
+
+        SpawnCardToHand(cardId, (ulong)playerId);
     }
 
     private void SpawnCardToHand(int cardId, ulong clientId)
@@ -301,11 +322,18 @@ public class GameManager : NetworkBehaviour
 
     private void InitializeSecurityStacks()
     {
-        for (int i = 0; i < 5 && deck.Count > 0; i++)
+        for (int i = 0; i < 5 && player1Deck.Count > 0; i++)
         {
-            int cardId = deck[0];
-            deck.RemoveAt(0);
+            int cardId = player1Deck[0];
+            player1Deck.RemoveAt(0);
             player1SecurityStack.Add(cardId);
+        }
+
+        for (int i = 0; i < 5 && player2Deck.Count > 0; i++)
+        {
+            int cardId = player2Deck[0];
+            player2Deck.RemoveAt(0);
+            player2SecurityStack.Add(cardId);
         }
     }
 
@@ -350,47 +378,62 @@ public class GameManager : NetworkBehaviour
         card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
     }
 
-    public void DrawCardFromDeck()
+    public bool DrawCardFromEggs(int playerId)
     {
 
-        if (deck.Count > 0)
-        {
-            int cardId = deck[0];
-            deck.RemoveAt(0);
+        if (playerId == 0 && isHatchingSlotOccupied) return false;
+        if (playerId == 1 && opponentHatchingOccupied) return false;
 
-            SpawnCardToHand(cardId, NetworkManager.Singleton.LocalClientId);
-        }
-        else
+        var eggDeck = (playerId == 0) ? player1Eggs : player2Eggs;
+
+        if (eggDeck.Count == 0)
         {
-            Debug.Log("Deck is empty.");
-            // TODO: trigger game over for this player
+            Debug.Log("No more eggs to hatch");
+            return false;
         }
 
-    }
+        int cardId = eggDeck[0];
+        eggDeck.RemoveAt(0);
 
-    public bool DrawCardFromEggs()
-    {
-        if (!isHatchingSlotOccupied)
-        {
-            if (digieggs.Count > 0)
-            {
-                int cardId = digieggs[0];
-                digieggs.RemoveAt(0);
-                HatchDigiegg(cardId, NetworkManager.Singleton.LocalClientId);
-                isHatchingSlotOccupied = true;
-            }
-            else
-            {
-                Debug.Log("No more eggs to hatch");
-                return false;
-            }
-        }
-        else
-        {
-            Debug.Log("Breeding Active area is not available");
-        }
+        HatchDigiegg(cardId, (ulong)playerId);
+
+        if (playerId == 0) isHatchingSlotOccupied = true;
+        else opponentHatchingOccupied = true;
 
         return true;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestHatchEggServerRpc(int playerId)
+    {
+        bool success = DrawCardFromEggs(playerId);
+
+        if (!success)
+        {
+            HideEggImageClientRpc(playerId);
+        }
+    }
+
+    [ClientRpc]
+    private void HideEggImageClientRpc(int playerId)
+    {
+        if (playerId == 0)
+        {
+            Debug.Log("Hiding player Egg stack"); //TODO
+        }
+        else
+        {
+            Debug.Log("Hiding player 2 Egg stack");
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetHatchingSlotServerRpc(int playerId)
+    {
+        if (playerId == 0)
+            isHatchingSlotOccupied = false;
+        else
+            opponentHatchingOccupied = false;
     }
 
     public void PlayCardToBattleArea(Card card)
@@ -466,7 +509,7 @@ public class GameManager : NetworkBehaviour
     {
         if (isGameOver) return;
 
-        DrawCardFromDeck();
+        DrawCardFromDeck(activePlayer.Value);
 
         if (isGameOver) return;
 
