@@ -120,6 +120,11 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
             ownerId = GameManager.Instance.localPlayerId;
             GetComponent<Image>().sprite = sprite;
         }
+
+        if (currentZone.Value == Zone.BreedingActiveSlot)
+        {
+            GetComponent<Image>().sprite = sprite;
+        }
         
     }
 

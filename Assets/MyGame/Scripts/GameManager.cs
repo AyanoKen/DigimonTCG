@@ -285,6 +285,12 @@ public class GameManager : NetworkBehaviour
         SpawnCardToHand(cardId, (ulong)playerId);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestCardDrawServerRpc(int playerId)
+    {
+        DrawCardFromDeck(playerId);
+    }
+
     private void SpawnCardToHand(int cardId, ulong clientId)
     {
         GameObject cardGO = Instantiate(cardPrefab);
@@ -526,6 +532,10 @@ public class GameManager : NetworkBehaviour
         if (IsServer)
         {
             DrawCardFromDeck(activePlayer.Value);
+        }
+        else
+        {
+            RequestCardDrawServerRpc(localPlayerId);
         }
 
         player1SecurityBuff = 0;
@@ -917,7 +927,10 @@ public class GameManager : NetworkBehaviour
 
         newCard.inheritedStack.AddRange(baseCard.inheritedStack);
         newCard.inheritedStack.Add(baseCard);
-        newCard.currentZone.Value = Card.Zone.BattleArea;
+        if (IsServer)
+        {
+            newCard.currentZone.Value = Card.Zone.BattleArea;
+        }
         newCard.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
 
         Destroy(newCard.GetComponent<CardDropHandler>());
