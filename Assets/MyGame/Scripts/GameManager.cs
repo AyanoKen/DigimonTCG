@@ -550,34 +550,36 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public IEnumerator EndTurnServer()
+    public IEnumerator EndTurnServer(int prevPlayerId)
     {
+        yield return new WaitForSeconds(0.2f);
+
         var allCards = FindObjectsOfType<Card>();
 
         foreach (var card in allCards)
         {
             if (card.currentZone.Value == Card.Zone.BattleArea)
-            {
-                if (card.ownerId == localPlayerId)
                 {
-                    card.canAttack = true;
-                    card.GetComponent<Image>().color = Color.white;
-
-                    if (card.isSuspended)
+                    if (card.ownerId == prevPlayerId)
                     {
-                        card.isSuspended = false;
-                        card.transform.rotation = Quaternion.identity;
+                        card.canAttack = true;
+                        card.GetComponent<Image>().color = Color.white;
+
+                        if (card.isSuspended)
+                        {
+                            card.isSuspended = false;
+                            card.transform.rotation = Quaternion.identity;
+                        }
+
+                        card.ResetStats();
                     }
-
-                    card.ResetStats();
+                    else
+                    {
+                        card.isBlocking = false;
+                    }
                 }
-                else
-                {
-                    card.isBlocking = false;
-                }
-            }
 
-            if (card.currentZone.Value == Card.Zone.TamerArea && card.ownerId == localPlayerId)
+            if (card.currentZone.Value == Card.Zone.TamerArea && card.ownerId == prevPlayerId)
             {
                 card.mainEffectUsed = false;
             }
@@ -599,7 +601,7 @@ public class GameManager : NetworkBehaviour
         yield return new WaitForSeconds(2.5f);
 
         turnTransition = false;
-        
+
         int nextPlayer = 0;
 
         if (activePlayer.Value == 0)
@@ -607,14 +609,24 @@ public class GameManager : NetworkBehaviour
             nextPlayer = 1;
         }
 
-        activePlayer.Value = nextPlayer;
+        if (IsServer)
+        {
+            activePlayer.Value = nextPlayer;
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void RequestEndTurnServerRpc()
     {
-        StartCoroutine(EndTurnServer());
+        RunEndTurnClientRpc(activePlayer.Value);
     }
+
+    [ClientRpc]
+    public void RunEndTurnClientRpc(int prevPlayer)
+    {
+        StartCoroutine(EndTurnServer(prevPlayer));
+    }
+
 
     public void ForceEndTurn()
     {
@@ -624,14 +636,7 @@ public class GameManager : NetworkBehaviour
 
             memoryManager.SetMemory(currentMemory);
 
-            if (IsServer)
-            {
-                StartCoroutine(EndTurnServer());
-            }
-            else
-            {
-                RequestEndTurnServerRpc();
-            }
+            RequestEndTurnServerRpc();
         }
     }
 
@@ -640,14 +645,7 @@ public class GameManager : NetworkBehaviour
         if ((NetworkManager.Singleton.LocalClientId == 0 && currentMemory < 0) ||
                 (NetworkManager.Singleton.LocalClientId == 1 && currentMemory > 0))
         {
-            if (IsServer)
-            {
-                StartCoroutine(EndTurnServer());
-            }
-            else
-            {
-                RequestEndTurnServerRpc();
-            }
+            RequestEndTurnServerRpc();
         }
     }
 
