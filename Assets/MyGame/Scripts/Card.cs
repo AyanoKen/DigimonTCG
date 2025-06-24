@@ -184,7 +184,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void NotifyZoneChange(Card.Zone newZone)
     {
-        if (IsOwner || IsServer)
+        if (IsServer)
         {
             currentZone.Value = newZone;
         }

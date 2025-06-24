@@ -610,7 +610,7 @@ public class GameManager : NetworkBehaviour
         activePlayer.Value = nextPlayer;
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void RequestEndTurnServerRpc()
     {
         StartCoroutine(EndTurnServer());
@@ -999,7 +999,10 @@ public class GameManager : NetworkBehaviour
         var baseGroup = stackBase.GetComponent<CanvasGroup>();
         if (baseGroup != null) baseGroup.blocksRaycasts = true;
 
+        stackBase.transform.parent = null;
         topCard.currentZone.Value = Card.Zone.BattleArea;
+
+        stackBase.NotifyZoneChange(Card.Zone.BattleArea);
 
         Debug.Log("Promoted top card in digivolution stack to active.");
 
