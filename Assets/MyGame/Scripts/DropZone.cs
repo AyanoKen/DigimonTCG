@@ -48,7 +48,7 @@ public class DropZone : MonoBehaviour, IDropHandler
                 EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, card);
                 Debug.Log($"Played Option card: {card.cardName}, cost: {card.playCost}");
 
-                GameManager.Instance.ModifyMemory(-card.playCost);
+                GameManager.Instance.ModifyMemoryServerRpc(card.playCost);
 
                 Destroy(card.gameObject);
                 GlowManager.Instance.HideGlow();

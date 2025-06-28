@@ -131,7 +131,7 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.GainMemory:
                 {
-                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? effect.value : -effect.value);
+                    GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? -effect.value : effect.value);
 
                     BattleLogManager.Instance.AddLog(
                             $"[Effect] {source.cardName}, player gains {effect.value} memory.",
@@ -144,7 +144,7 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.LoseMemory:
                 {
-                    GameManager.Instance.ModifyMemory(source.ownerId == 0 ? -effect.value : effect.value);
+                    GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? effect.value : -effect.value);
 
                     BattleLogManager.Instance.AddLog(
                             $"[Effect] {source.cardName}, player loses {effect.value} memory.",

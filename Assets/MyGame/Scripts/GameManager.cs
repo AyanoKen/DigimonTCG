@@ -85,7 +85,6 @@ public class GameManager : NetworkBehaviour
     private List<int> player2SecurityStack = new List<int>();
     private List<int> player1Trash = new List<int>();
     private List<int> player2Trash = new List<int>();
-    private int currentMemory = 0;
     private bool isGameOver = false;
 
     public bool isHatchingSlotOccupied = false;
@@ -94,9 +93,11 @@ public class GameManager : NetworkBehaviour
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
     public bool turnTransition = false;
+    
+    private NetworkVariable<int> currentMemory = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> activePlayer = new NetworkVariable<int>(
-        0, 
+        0,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
@@ -104,7 +105,7 @@ public class GameManager : NetworkBehaviour
     private void Awake()
     {
         Instance = this;
-        currentMemory = memoryManager.GetCurrentMemory();
+        currentMemory.Value = memoryManager.GetCurrentMemory();
     }
 
     private void Start()
@@ -474,25 +475,12 @@ public class GameManager : NetworkBehaviour
             cost = data.play_cost.Value;
         }
 
-        if (NetworkManager.Singleton.LocalClientId == 0)
-        {
-            currentMemory -= cost;
-        }
-        else
-        {
-            currentMemory += cost;
-        }
+        ModifyMemoryServerRpc(cost);
 
         if (card.cardType == "Digimon")
         {
             card.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
         }
-
-        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
-
-        memoryManager.SetMemory(currentMemory);
-
-        CheckTurnSwitch();
     }
 
     public int RevealTopSecurityCard(int playerId)
@@ -628,13 +616,13 @@ public class GameManager : NetworkBehaviour
     }
 
 
-    public void ForceEndTurn()
+    public void ForceEndTurn() //TODO
     {
         if (activePlayer.Value == localPlayerId)
         {
-            currentMemory = 0;
+            currentMemory.Value = 0;
 
-            memoryManager.SetMemory(currentMemory);
+            memoryManager.SetMemory(currentMemory.Value);
 
             RequestEndTurnServerRpc();
         }
@@ -642,8 +630,8 @@ public class GameManager : NetworkBehaviour
 
     public void CheckTurnSwitch()
     {
-        if ((NetworkManager.Singleton.LocalClientId == 0 && currentMemory < 0) ||
-                (NetworkManager.Singleton.LocalClientId == 1 && currentMemory > 0))
+        if ((activePlayer.Value == 0 && currentMemory.Value < 0) ||
+                (activePlayer.Value == 1 && currentMemory.Value > 0))
         {
             RequestEndTurnServerRpc();
         }
@@ -906,17 +894,6 @@ public class GameManager : NetworkBehaviour
             return false;
         }
 
-        if (localPlayerId == 0)
-        {
-            currentMemory -= cost;
-        }
-        else
-        {
-            currentMemory += cost;
-        }
-
-        memoryManager.SetMemory(currentMemory);
-
         newCard.transform.SetParent(baseCard.transform);
         newCard.transform.localPosition = new Vector3(0, 30f, 0);
         baseCard.isDigivolved = true;
@@ -953,7 +930,7 @@ public class GameManager : NetworkBehaviour
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenDigivolving, newCard);
 
-        CheckTurnSwitch();
+        ModifyMemoryServerRpc(cost);
 
         return true;
     }
@@ -1007,20 +984,28 @@ public class GameManager : NetworkBehaviour
         PlayCardToBattleArea(topCard);
     }
 
-    public void ModifyMemory(int delta)
+    [ServerRpc(RequireOwnership = false)]
+    public void ModifyMemoryServerRpc(int cost)
     {
-        if (localPlayerId == 0)
+        if (activePlayer.Value == 0)
         {
-            currentMemory += delta;
+            currentMemory.Value -= cost;
         }
         else
         {
-            currentMemory -= delta;
+            currentMemory.Value += cost;
         }
 
-        currentMemory = Mathf.Clamp(currentMemory, -10, 10);
-        memoryManager.SetMemory(currentMemory);
+        currentMemory.Value = Mathf.Clamp(currentMemory.Value, -10, 10);
+        SetMemoryClientRpc(currentMemory.Value);
+
         CheckTurnSwitch();
+    }
+
+    [ClientRpc]
+    private void SetMemoryClientRpc(int newValue)
+    {
+        memoryManager.SetMemory(newValue);
     }
 
     public void SendToTrash(Card card)
