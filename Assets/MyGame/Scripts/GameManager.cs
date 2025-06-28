@@ -94,7 +94,7 @@ public class GameManager : NetworkBehaviour
     public int player2SecurityBuff = 0;
     public bool turnTransition = false;
     
-    private NetworkVariable<int> currentMemory = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> currentMemory = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> activePlayer = new NetworkVariable<int>(
         0,
@@ -606,6 +606,8 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RequestEndTurnServerRpc()
     {
+        Debug.Log($"[TurnRPC] Server received RequestEndTurnServerRpc from player {activePlayer.Value}");
+
         RunEndTurnClientRpc(activePlayer.Value);
     }
 
@@ -630,6 +632,8 @@ public class GameManager : NetworkBehaviour
 
     public void CheckTurnSwitch()
     {
+        Debug.Log($"[TurnCheck] activePlayer = {activePlayer.Value}, memory = {currentMemory.Value}");
+
         if ((activePlayer.Value == 0 && currentMemory.Value < 0) ||
                 (activePlayer.Value == 1 && currentMemory.Value > 0))
         {
@@ -930,7 +934,10 @@ public class GameManager : NetworkBehaviour
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenDigivolving, newCard);
 
-        ModifyMemoryServerRpc(cost);
+        if (IsServer)
+        {
+            ModifyMemoryServerRpc(cost);
+        }
 
         return true;
     }
@@ -987,6 +994,8 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void ModifyMemoryServerRpc(int cost)
     {
+        Debug.Log($"Player: {activePlayer.Value} triggered Memory modify, with cost {cost}");
+
         if (activePlayer.Value == 0)
         {
             currentMemory.Value -= cost;
