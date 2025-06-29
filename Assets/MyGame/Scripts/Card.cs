@@ -170,7 +170,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
             if (newParent != null)
             {
-                transform.SetParent(newParent);
+                transform.SetParent(newParent, false);
                 transform.localScale = Vector3.one;
             }
             else

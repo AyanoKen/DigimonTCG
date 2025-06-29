@@ -26,7 +26,7 @@ public class DropZone : MonoBehaviour, IDropHandler
                     return;
                 }
 
-                droppedCard.transform.SetParent(transform);
+                droppedCard.transform.SetParent(transform, false);
                 card.NotifyZoneChange(zoneType);
 
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;
@@ -55,7 +55,8 @@ public class DropZone : MonoBehaviour, IDropHandler
                 return;
             }
 
-            droppedCard.transform.SetParent(transform);
+            //droppedCard.transform.SetParent(transform, false);
+            droppedCard.transform.parent = null;
 
             if (card.currentZone.Value == Card.Zone.BreedingActiveSlot)
             {

@@ -547,25 +547,25 @@ public class GameManager : NetworkBehaviour
         foreach (var card in allCards)
         {
             if (card.currentZone.Value == Card.Zone.BattleArea)
+            {
+                if (card.ownerId == prevPlayerId)
                 {
-                    if (card.ownerId == prevPlayerId)
-                    {
-                        card.canAttack = true;
-                        card.GetComponent<Image>().color = Color.white;
+                    card.canAttack = true;
+                    card.GetComponent<Image>().color = Color.white;
 
-                        if (card.isSuspended)
-                        {
-                            card.isSuspended = false;
-                            card.transform.rotation = Quaternion.identity;
-                        }
-
-                        card.ResetStats();
-                    }
-                    else
+                    if (card.isSuspended)
                     {
-                        card.isBlocking = false;
+                        card.isSuspended = false;
+                        card.transform.rotation = Quaternion.identity;
                     }
+
+                    card.ResetStats();
                 }
+                else
+                {
+                    card.isBlocking = false;
+                }
+            }
 
             if (card.currentZone.Value == Card.Zone.TamerArea && card.ownerId == prevPlayerId)
             {
@@ -898,7 +898,7 @@ public class GameManager : NetworkBehaviour
             return false;
         }
 
-        newCard.transform.SetParent(baseCard.transform);
+        newCard.transform.SetParent(baseCard.transform, false);
         newCard.transform.localPosition = new Vector3(0, 30f, 0);
         baseCard.isDigivolved = true;
         baseCard.GetComponent<CanvasGroup>().blocksRaycasts = true;
