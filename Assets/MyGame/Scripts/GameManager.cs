@@ -93,6 +93,17 @@ public class GameManager : NetworkBehaviour
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
     public bool turnTransition = false;
+
+    public struct SecurityAttackResult
+    {
+        public int attackerId;
+        public int blockerId;
+        public int revealedCardId;
+        public bool attackerDeleted;
+        public bool blockerDeleted;
+        public bool wasBlocked;
+        public bool isOptionOrTamer;
+    }
     
     public NetworkVariable<int> currentMemory = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
@@ -649,29 +660,112 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void RequestSecurityAttackServerRpc(ulong attackerId, int attackCount, int dpBuff)
     {
-        TriggerSecurityAttackClientRpc(attackerId, attackCount, dpBuff);
+        Card attacker = NetworkManager.Singleton.SpawnManager.SpawnedObjects[attackerId].GetComponent<Card>();
+        if (attacker == null) return;
+
+        var results = ResolveSecurityAttack(attacker, attackCount, dpBuff);
+
+        foreach (var r in results)
+        {
+            PropagateSecurityResultClientRpc(
+                r.attackerId,
+                r.blockerId,
+                r.revealedCardId,
+                r.attackerDeleted,
+                r.blockerDeleted,
+                r.wasBlocked,
+                r.isOptionOrTamer
+            );
+        }
     }
 
     [ClientRpc]
-    private void TriggerSecurityAttackClientRpc(ulong attackerId, int attackCount, int dpBuff)
+    public void PropagateSecurityResultClientRpc(
+        int attackerId,
+        int blockerId,
+        int revealedCardId,
+        bool attackerDeleted,
+        bool blockerDeleted,
+        bool wasBlocked,
+        bool isOptionOrTamer)
     {
-        var allCards = FindObjectsOfType<Card>();
-
-        foreach (var card in allCards)
+        if (revealedCardId == -1)
         {
-            if (card.NetworkObjectId == attackerId)
-            {
-                StartCoroutine(ResolveSecurityAttack(card, attackCount, dpBuff));
-                return;
-            }
+            // Debug.Log("Opponent has no security left, you win!");
+            // GameOver();
         }
 
-        Debug.LogWarning("TriggerSecurityAttackClientRpc: Attacker card not found.");
+        Sprite revealedSprite = null;
+        Sprite attackerSprite = null;
+
+        idToSprite.TryGetValue(attackerId, out attackerSprite);
+
+        if (wasBlocked)
+        {
+            idToSprite.TryGetValue(blockerId, out revealedSprite);
+
+            //Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
+            // blocker.isBlocking = false;
+
+            // blocker.canAttack = false;
+            // blocker.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
+            // blocker.isSuspended = true;
+            // blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+
+            // Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
+
+            // BattleLogManager.Instance.AddLog(
+            //             $"[Security Attack] {attacker.cardName}'s attack [{attackerDP_b} DP] is blocked by {blocker.cardName} [{blockerDP_b} DP]",
+            //             BattleLogManager.LogType.System,
+            //             attacker.ownerId);
+                
+        }
+        else
+        {
+            idToSprite.TryGetValue(revealedCardId, out revealedSprite);
+        }
+
+        if (attackerDeleted)
+        {
+            // Debug.Log($"{attacker.cardName} is deleted!");
+
+            // BattleLogManager.Instance.AddLog(
+            //         $"{attacker.cardName} is deleted!",
+            //         BattleLogManager.LogType.System,
+            //         attacker.ownerId);
+            
+            // DestroyDigimonStack(attacker);
+        }
+        else
+        {
+            // Debug.Log($"{blocker.cardName} is deleted!");
+
+            // BattleLogManager.Instance.AddLog(
+            //         $"{blocker.cardName} is deleted!",
+            //         BattleLogManager.LogType.System,
+            //         attacker.ownerId);   
+        }
+
+        if (blockerDeleted)
+        {
+            // DestroyDigimonStack(blocker);
+        }
+
+        battlePreviewPanel.ShowPreview(attackerSprite, revealedSprite);
+
+        StartCoroutine(HidePreviewAfterDelay());
+    }
+
+    private IEnumerator HidePreviewAfterDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        battlePreviewPanel.HidePreview();
     }
 
 
-    public IEnumerator ResolveSecurityAttack(Card attacker, int count, int dpBuff)
+    private List<SecurityAttackResult> ResolveSecurityAttack(Card attacker, int count, int dpBuff)
     {
+        List<SecurityAttackResult> results = new List<SecurityAttackResult>();
 
         int opponentId = 0;
 
@@ -682,24 +776,27 @@ public class GameManager : NetworkBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            turnTransition = true;
-            if (attacker == null)
+            SecurityAttackResult result = new SecurityAttackResult
             {
-                turnTransition = false;
-                yield break;
-            }
+                attackerId = attacker.cardId.Value,
+                blockerId = -1,
+                revealedCardId = -1,
+                attackerDeleted = false,
+                blockerDeleted = false,
+                wasBlocked = false,
+                isOptionOrTamer = false
+            };
+
+            //turnTransition = true;
 
             Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone.Value == Card.Zone.BattleArea);
 
             if (blocker != null)
             {
-                Debug.Log($"Blocker {blocker.cardName} intercepts the attack!");
-                blocker.isBlocking = false;
+                result.wasBlocked = true;
+                result.blockerId = blocker.cardId.Value;
 
-                blocker.canAttack = false;
-                blocker.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
-                blocker.isSuspended = true;
-                blocker.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+                blocker.isBlocking = false;
 
                 attacker.dpBuff = 0;
                 EffectManager.Instance.TriggerEffects(EffectTrigger.WhenBlocked, attacker);
@@ -710,25 +807,8 @@ public class GameManager : NetworkBehaviour
                 attackerDP_b += dpBuff;
                 attackerDP_b += attacker.dpBuff;
 
-                Debug.Log($"Battle: Attacker DP {attackerDP_b} vs Blocker DP {blockerDP_b}");
-
-                BattleLogManager.Instance.AddLog(
-                            $"[Security Attack] {attacker.cardName}'s attack [{attackerDP_b} DP] is blocked by {blocker.cardName} [{blockerDP_b} DP]",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
-
-                battlePreviewPanel.ShowPreview(attacker.sprite, blocker.sprite);
-
-                yield return new WaitForSeconds(2f);
-
                 if (attackerDP_b >= blockerDP_b)
                 {
-                    Debug.Log($"{blocker.cardName} is deleted!");
-
-                    BattleLogManager.Instance.AddLog(
-                            $"{blocker.cardName} is deleted!",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
 
                     if (blocker.ownerId == 0)
                     {
@@ -738,17 +818,11 @@ public class GameManager : NetworkBehaviour
                     {
                         player2Trash.Add(blocker.cardId.Value);
                     }
-                    DestroyDigimonStack(blocker);
+                    result.blockerDeleted = true;
                 }
 
                 if (blockerDP_b >= attackerDP_b)
                 {
-                    Debug.Log($"{attacker.cardName} is deleted!");
-
-                    BattleLogManager.Instance.AddLog(
-                            $"{attacker.cardName} is deleted!",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
 
                     if (attacker.ownerId == 0)
                     {
@@ -758,47 +832,41 @@ public class GameManager : NetworkBehaviour
                     {
                         player2Trash.Add(attacker.cardId.Value);
                     }
-                    DestroyDigimonStack(attacker);
+                    result.attackerDeleted = true;
+                    
+                    results.Add(result);
+                    return results;
                 }
 
-                battlePreviewPanel.HidePreview();
-                turnTransition = false;
-                yield break;
+                // turnTransition = false;
+                results.Add(result);
+                continue;
             }
 
             int securitycardId = RevealTopSecurityCard(opponentId);
+            result.revealedCardId = securitycardId;
 
             if (securitycardId == -1)
             {
-                Debug.Log("Opponent has no security left, you win!");
-                GameOver();
-                yield break;
+                results.Add(result);
+                return results;
             }
 
-            Debug.Log($"Revealed security card ID: {securitycardId}");
-
-            if (idToSprite.TryGetValue(securitycardId, out Sprite sprite))
-            {
-                battlePreviewPanel.ShowPreview(attacker.sprite, sprite);
-                yield return new WaitForSeconds(2f);
-            }
-            else
+            if (!idToSprite.TryGetValue(securitycardId, out Sprite sprite))
             {
                 Debug.LogWarning("Sprite not found for Security card");
-                turnTransition = false;
-                yield break;
+                continue;
             }
 
             if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
             {
                 Debug.LogWarning("Unable to fetch card data for revealed security card");
-                turnTransition = false;
-                yield break;
+                // turnTransition = false;
+                continue;
             }
 
             if (securityCardData.card_type == "Option" || securityCardData.card_type == "Tamer")
             {
-                Debug.Log("Resolving Security Option effect.");
 
                 GameObject cardGO = Instantiate(cardPrefab);
                 var netObj = cardGO.GetComponent<NetworkObject>();
@@ -836,9 +904,10 @@ public class GameManager : NetworkBehaviour
                         player2Trash.Add(securitycardId);
                     }
                 }
-                battlePreviewPanel.HidePreview();
-                turnTransition = false;
-                yield break;
+                // turnTransition = false;
+
+                results.Add(result);
+                continue;
             }
 
             int attackerDP = attacker.dp ?? 0;
@@ -855,21 +924,8 @@ public class GameManager : NetworkBehaviour
                 securityDP += player2SecurityBuff;
             }
 
-            Debug.Log($"Attacker DP: {attackerDP} vs Security DP: {securityDP}");
-
-            BattleLogManager.Instance.AddLog(
-                            $"[Security Attack] {attacker.cardName} [{attackerDP} DP] is attacking {securityCardData.name} [{securityDP}]]",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
-
             if (securityDP >= attackerDP)
             {
-                Debug.Log("Attacker is deleted.");
-
-                BattleLogManager.Instance.AddLog(
-                            $"{attacker.cardName} is deleted!",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
 
                 if (attacker.ownerId == 0)
                 {
@@ -880,17 +936,12 @@ public class GameManager : NetworkBehaviour
                     player2Trash.Add(attacker.cardId.Value);
                 }
 
-                DestroyDigimonStack(attacker);
+                result.attackerDeleted = true;
+                results.Add(result);
+                return results;
             }
             else
             {
-                Debug.Log("Attacker won, not deleted from play.");
-
-                BattleLogManager.Instance.AddLog(
-                            $"{attacker.cardName} won!",
-                            BattleLogManager.LogType.System,
-                            attacker.ownerId);
-
                 if (opponentId == 0)
                 {
                     player1Trash.Add(securitycardId);
@@ -900,10 +951,10 @@ public class GameManager : NetworkBehaviour
                     player2Trash.Add(securitycardId);
                 }
             }
-
-            battlePreviewPanel.HidePreview();
-            turnTransition = false;
+            // turnTransition = false;
         }
+
+        return results;
     }
 
     public bool TryDigivolve(Card baseCard, Card newCard)

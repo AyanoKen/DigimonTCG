@@ -332,7 +332,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
         EffectManager.Instance.TriggerEffects(EffectTrigger.WhenAttacking, this);
 
-         GameManager.Instance.RequestSecurityAttackServerRpc(NetworkObjectId, securityAttackCount, dpBuff);
+        GameManager.Instance.RequestSecurityAttackServerRpc(NetworkObjectId, securityAttackCount, dpBuff);
 
         securityAttackCount = 1;
         dpBuff = 0;
