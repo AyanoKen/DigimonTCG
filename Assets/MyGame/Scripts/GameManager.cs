@@ -503,10 +503,7 @@ public class GameManager : NetworkBehaviour
             int topCard = player1SecurityStack[0];
             player1SecurityStack.RemoveAt(0);
 
-            if (playerSecurityStackVisual.childCount > 0)
-            {
-                DestroyImmediate(playerSecurityStackVisual.GetChild(0).gameObject);
-            }
+            UpdateSecurityStackClientRpc(playerId);
 
             return topCard;
         }
@@ -515,15 +512,31 @@ public class GameManager : NetworkBehaviour
             int topCard = player2SecurityStack[0];
             player2SecurityStack.RemoveAt(0);
 
-            if (opponentSecurityStackVisual.childCount > 0)
-            {
-                DestroyImmediate(opponentSecurityStackVisual.GetChild(0).gameObject);
-            }
+            UpdateSecurityStackClientRpc(playerId);
 
             return topCard;
         }
 
         return -1; // Invalid or empty
+    }
+
+    [ClientRpc]
+    public void UpdateSecurityStackClientRpc(int playerId)
+    {
+        if (playerId == localPlayerId)
+        {
+            if (playerSecurityStackVisual.childCount > 0)
+            {
+                DestroyImmediate(playerSecurityStackVisual.GetChild(0).gameObject);
+            }
+        }
+        else
+        {
+            if (opponentSecurityStackVisual.childCount > 0)
+            {
+                DestroyImmediate(opponentSecurityStackVisual.GetChild(0).gameObject);
+            }
+        }
     }
 
     public void StartTurn()
@@ -1133,32 +1146,35 @@ public class GameManager : NetworkBehaviour
 
     public void DestroyDigimonStack(Card card)
     {
-        foreach (var inheritedCard in card.inheritedStack)
+        if (IsServer)
         {
-            if (inheritedCard != null)
+            foreach (var inheritedCard in card.inheritedStack)
             {
-                if (inheritedCard.ownerId == 0)
+                if (inheritedCard != null)
                 {
-                    player1Trash.Add(inheritedCard.cardId.Value);
+                    if (inheritedCard.ownerId == 0)
+                    {
+                        player1Trash.Add(inheritedCard.cardId.Value);
+                    }
+                    else
+                    {
+                        player2Trash.Add(inheritedCard.cardId.Value);
+                    }
+                    Destroy(inheritedCard.gameObject);
                 }
-                else
-                {
-                    player2Trash.Add(inheritedCard.cardId.Value);
-                }
-                Destroy(inheritedCard.gameObject);
             }
-        }
 
-        if (card.ownerId == 0)
-        {
-            player1Trash.Add(card.cardId.Value);
-        }
-        else
-        {
-            player2Trash.Add(card.cardId.Value);
-        }
+            if (card.ownerId == 0)
+            {
+                player1Trash.Add(card.cardId.Value);
+            }
+            else
+            {
+                player2Trash.Add(card.cardId.Value);
+            }
 
-        Destroy(card.gameObject);
+            Destroy(card.gameObject);
+        } 
     }
 
     public void HideSecurityPreview()
