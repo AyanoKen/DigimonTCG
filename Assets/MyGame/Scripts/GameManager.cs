@@ -680,6 +680,8 @@ public class GameManager : NetworkBehaviour
 
         var results = ResolveSecurityAttack(attacker, attackCount, dpBuff);
 
+        Debug.Log($"Length of results is {results.Count}");
+
         foreach (var r in results)
         {
             PropagateSecurityResultClientRpc(
@@ -881,6 +883,8 @@ public class GameManager : NetworkBehaviour
             int securitycardId = RevealTopSecurityCard(opponentId);
             result.revealedCardId = securitycardId;
 
+            Debug.Log($"Found card {securitycardId}");
+
             if (securitycardId == -1)
             {
                 results.Add(result);
@@ -990,6 +994,8 @@ public class GameManager : NetworkBehaviour
                 }
             }
             // turnTransition = false;
+
+            results.Add(result);
         }
 
         return results;
