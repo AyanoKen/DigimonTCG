@@ -26,7 +26,9 @@ public class DropZone : MonoBehaviour, IDropHandler
                     return;
                 }
 
-                droppedCard.transform.SetParent(transform, false);
+                // droppedCard.transform.SetParent(transform, false);
+                
+                droppedCard.transform.parent = null;
                 card.NotifyZoneChange(zoneType);
 
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;
