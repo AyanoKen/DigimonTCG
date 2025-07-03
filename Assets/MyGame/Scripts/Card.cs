@@ -144,10 +144,9 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
                             BattleLogManager.LogType.System,
                             ownerId);
 
-            EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, this);
-
             if (IsServer)
             {
+                EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, this);
                 GameManager.Instance.ModifyMemoryServerRpc(playCost);
                 Destroy(this.gameObject);
             }

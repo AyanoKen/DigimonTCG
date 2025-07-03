@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Linq;
 using Unity.Netcode;
 
-public class EffectManager : NetworkBehaviour
+public class EffectManager : MonoBehaviour
 {
     public static EffectManager Instance;
 
@@ -139,7 +139,7 @@ public class EffectManager : NetworkBehaviour
 
             case EffectType.GainMemory:
                 {
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? -effect.value : effect.value);
                     }
@@ -155,7 +155,7 @@ public class EffectManager : NetworkBehaviour
 
             case EffectType.LoseMemory:
                 {
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? effect.value : -effect.value);
                     }
@@ -198,10 +198,10 @@ public class EffectManager : NetworkBehaviour
 
             case EffectType.DeleteTargetOpponent:
                 {
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         var opponents = FindObjectsOfType<Card>()
-                            .Where(c => c.ownerId != source.ownerId 
+                            .Where(c => c.ownerId != source.ownerId
                                         && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
                             .ToList();
 
@@ -222,14 +222,14 @@ public class EffectManager : NetworkBehaviour
                                 $"[Effect] {source.cardName} triggered delete opponent card.",
                                 BattleLogManager.LogType.Destroy,
                                 source.ownerId);
-                    
+
                     break;
                 }
-            
+
 
             case EffectType.DeleteOpponentDPBelowThreshold:
                 {
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         var targets = FindObjectsOfType<Card>()
                             .Where(c => c.ownerId != source.ownerId
@@ -264,7 +264,7 @@ public class EffectManager : NetworkBehaviour
                             BattleLogManager.LogType.System,
                             source.ownerId);
 
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         if (source.cardType == "Tamer")
                         {
@@ -327,13 +327,13 @@ public class EffectManager : NetworkBehaviour
                             $"[Security Effect] {source.cardName}, Activating card's main effect",
                             source.ownerId);
 
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         TriggerEffects(EffectTrigger.MainPhase, source);
                     }
                     break;
                 }
-            
+
 
             case EffectType.BuffSecurityDP:
                 {
@@ -344,7 +344,7 @@ public class EffectManager : NetworkBehaviour
                             BattleLogManager.LogType.Buff,
                             source.ownerId);
 
-                    if (IsServer)
+                    if (NetworkManager.Singleton.IsServer)
                     {
                         if (source.ownerId == GameManager.Instance.localPlayerId)
                         {
@@ -355,10 +355,10 @@ public class EffectManager : NetworkBehaviour
                             GameManager.Instance.player2SecurityBuff += effect.value;
                         }
                     }
-                    
+
                     break;
                 }
-                
+
 
             default:
                 {

@@ -668,8 +668,6 @@ public class GameManager : NetworkBehaviour
 
     public void CheckTurnSwitch()
     {
-        Debug.Log($"[TurnCheck] activePlayer = {activePlayer.Value}, memory = {currentMemory.Value}");
-
         if ((activePlayer.Value == 0 && currentMemory.Value < 0) ||
                 (activePlayer.Value == 1 && currentMemory.Value > 0))
         {
@@ -689,8 +687,6 @@ public class GameManager : NetworkBehaviour
         if (attacker == null) return;
 
         var results = ResolveSecurityAttack(attacker, attackCount, dpBuff);
-
-        Debug.Log($"Length of results is {results.Count}");
 
         foreach (var r in results)
         {
@@ -893,8 +889,6 @@ public class GameManager : NetworkBehaviour
             int securitycardId = RevealTopSecurityCard(opponentId);
             result.revealedCardId = securitycardId;
 
-            Debug.Log($"Found card {securitycardId}");
-
             if (securitycardId == -1)
             {
                 results.Add(result);
@@ -1015,7 +1009,6 @@ public class GameManager : NetworkBehaviour
     {
         if (!newCard.CanDigivolveFrom(baseCard))
         {
-            Debug.Log("Cannot Digivolve from card");
             return false;
         }
 
@@ -1023,7 +1016,6 @@ public class GameManager : NetworkBehaviour
 
         if (cost < 0)
         {
-            Debug.Log("No Valid Digivolution cost entry found");
             return false;
         }
 
@@ -1115,16 +1107,12 @@ public class GameManager : NetworkBehaviour
 
         stackBase.NotifyZoneChange(Card.Zone.BattleArea);
 
-        Debug.Log("Promoted top card in digivolution stack to active.");
-
         PlayCardToBattleArea(topCard);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void ModifyMemoryServerRpc(int cost)
     {
-        Debug.Log($"Player: {activePlayer.Value} triggered Memory modify, with cost {cost}");
-
         if (activePlayer.Value == 0)
         {
             currentMemory.Value -= cost;
@@ -1195,7 +1183,6 @@ public class GameManager : NetworkBehaviour
 
     public void HideSecurityPreview()
     {
-        Debug.Log("Triggering Hide Preview");
         battlePreviewPanel.HidePreview();
     }
 

@@ -17,7 +17,6 @@ public class SecurityBattlePreview : MonoBehaviour
 
     public void HidePreview()
     {
-        Debug.Log("Triggered Hide Preview");
         gameObject.SetActive(false);
     }
 }
