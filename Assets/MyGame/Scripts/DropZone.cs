@@ -47,12 +47,9 @@ public class DropZone : MonoBehaviour, IDropHandler
 
             if (card.cardType == "Option")
             {
-                EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, card);
-                Debug.Log($"Played Option card: {card.cardName}, cost: {card.playCost}");
 
-                GameManager.Instance.ModifyMemoryServerRpc(card.playCost);
+                card.NotifyZoneChange(Card.Zone.Option);
 
-                Destroy(card.gameObject);
                 GlowManager.Instance.HideGlow();
                 return;
             }

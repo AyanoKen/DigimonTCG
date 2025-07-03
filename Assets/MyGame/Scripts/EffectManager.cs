@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.Netcode;
 
-public class EffectManager : MonoBehaviour
+public class EffectManager : NetworkBehaviour
 {
     public static EffectManager Instance;
 
@@ -81,12 +82,19 @@ public class EffectManager : MonoBehaviour
                             $"[Effect] {target.cardName} gains {effect.value} DP (ModifyAllyDP).",
                             BattleLogManager.LogType.Buff,
                             source.ownerId);
-                        
+
                         Debug.Log($"[Effect] {target.cardName} gains {effect.value} DP (ModifyAllyDP).");
                     }
                     else
                     {
                         Debug.Log("No valid allies found for ModifyAllyDP.");
+
+                        source.dpBuff += effect.value;
+
+                        BattleLogManager.Instance.AddLog(
+                            $"[Effect] {source.cardName} gains {effect.value} DP (ModifyAllyDP).",
+                            BattleLogManager.LogType.Buff,
+                            source.ownerId);
                     }
 
                     break;
@@ -131,7 +139,10 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.GainMemory:
                 {
-                    GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? -effect.value : effect.value);
+                    if (IsServer)
+                    {
+                        GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? -effect.value : effect.value);
+                    }
 
                     BattleLogManager.Instance.AddLog(
                             $"[Effect] {source.cardName}, player gains {effect.value} memory.",
@@ -144,7 +155,10 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.LoseMemory:
                 {
-                    GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? effect.value : -effect.value);
+                    if (IsServer)
+                    {
+                        GameManager.Instance.ModifyMemoryServerRpc(source.ownerId == 0 ? effect.value : -effect.value);
+                    }
 
                     BattleLogManager.Instance.AddLog(
                             $"[Effect] {source.cardName}, player loses {effect.value} memory.",
@@ -184,53 +198,60 @@ public class EffectManager : MonoBehaviour
 
             case EffectType.DeleteTargetOpponent:
                 {
-                    var opponents = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId != source.ownerId 
-                                    && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
-                        .ToList();
-
-                    if (opponents.Count > 0)
+                    if (IsServer)
                     {
-                        Card target = opponents[UnityEngine.Random.Range(0, opponents.Count)];
-                        GameManager.Instance.DestroyDigimonStack(target);
+                        var opponents = FindObjectsOfType<Card>()
+                            .Where(c => c.ownerId != source.ownerId 
+                                        && c.currentZone.Value == Card.Zone.BattleArea && !c.isDigivolved)
+                            .ToList();
 
-                        BattleLogManager.Instance.AddLog(
-                            $"[Effect] {source.cardName}, Deleted {target.cardName}.",
-                            BattleLogManager.LogType.Destroy,
-                            source.ownerId);
+                        if (opponents.Count > 0)
+                        {
+                            Card target = opponents[UnityEngine.Random.Range(0, opponents.Count)];
+                            GameManager.Instance.DestroyDigimonStack(target);
 
-                        Debug.Log($"[Effect] Deleted {target.cardName} (DeleteTargetOpponent).");
+                            Debug.Log($"[Effect] Deleted {target.cardName} (DeleteTargetOpponent).");
+                        }
+                        else
+                        {
+                            Debug.Log("No valid opponent Digimon to delete.");
+                        }
                     }
-                    else
-                    {
-                        Debug.Log("No valid opponent Digimon to delete.");
-                    }
+
+                    BattleLogManager.Instance.AddLog(
+                                $"[Effect] {source.cardName} triggered delete opponent card.",
+                                BattleLogManager.LogType.Destroy,
+                                source.ownerId);
+                    
                     break;
                 }
             
 
             case EffectType.DeleteOpponentDPBelowThreshold:
                 {
-                    var targets = FindObjectsOfType<Card>()
-                        .Where(c => c.ownerId != source.ownerId
-                                    && c.currentZone.Value == Card.Zone.BattleArea
-                                    && c.dp <= effect.value && !c.isDigivolved)
-                        .ToList();
-
-                    for (int i = 0; i < effect.conditionValue; i++)
+                    if (IsServer)
                     {
-                        if (i < targets.Count)
+                        var targets = FindObjectsOfType<Card>()
+                            .Where(c => c.ownerId != source.ownerId
+                                        && c.currentZone.Value == Card.Zone.BattleArea
+                                        && c.dp <= effect.value && !c.isDigivolved)
+                            .ToList();
+
+                        for (int i = 0; i < effect.conditionValue; i++)
                         {
-                            GameManager.Instance.DestroyDigimonStack(targets[i]);
+                            if (i < targets.Count)
+                            {
+                                GameManager.Instance.DestroyDigimonStack(targets[i]);
 
-                            BattleLogManager.Instance.AddLog(
-                                $"[Effect] {source.cardName}, Deleted {targets[i].cardName} with DP ≤ {effect.value}.",
-                                BattleLogManager.LogType.Destroy,
-                                source.ownerId);
-
-                            Debug.Log($"[Effect] Deleted {targets[i].cardName} with DP ≤ {effect.value}.");
+                                Debug.Log($"[Effect] Deleted {targets[i].cardName} with DP ≤ {effect.value}.");
+                            }
                         }
                     }
+
+                    BattleLogManager.Instance.AddLog(
+                                    $"[Effect] {source.cardName}, Deleted upto {effect.conditionValue} digimon with DP ≤ {effect.value}.",
+                                    BattleLogManager.LogType.Destroy,
+                                    source.ownerId);
                     break;
                 }
 
@@ -243,17 +264,12 @@ public class EffectManager : MonoBehaviour
                             BattleLogManager.LogType.System,
                             source.ownerId);
 
-                    Transform targetZone = GameManager.Instance.opponentTamerZone;
-
-                    if (source.ownerId == 0)
+                    if (IsServer)
                     {
-                        targetZone = GameManager.Instance.playerTamerZone;
-                    }
-
-                    if (source.cardType == "Tamer")
-                    {
-                        source.transform.SetParent(targetZone);
-                        source.currentZone.Value = Card.Zone.TamerArea;
+                        if (source.cardType == "Tamer")
+                        {
+                            source.currentZone.Value = Card.Zone.TamerArea;
+                        }
 
                         CanvasGroup cg = source.GetComponent<CanvasGroup>();
                         if (cg != null)
@@ -269,9 +285,8 @@ public class EffectManager : MonoBehaviour
                 {
                     Debug.Log("[Security Effect] All Digimon get +Security Attack next turn.");
 
-                    BattleLogManager.Instance.AddLog(
-                            $"[Security Effect] {source.cardName}, All Digimon get +1 Security Attack next turn",
-                            BattleLogManager.LogType.Buff,
+                    GameManager.Instance.RequestAnnoucementServerRpc(
+                            $"[Security Effect] {source.cardName}, All {source.ownerId}'s Digimon get +1 Security Attack next turn",
                             source.ownerId);
 
                     var party = FindObjectsOfType<Card>()
@@ -289,12 +304,11 @@ public class EffectManager : MonoBehaviour
                 {
                     Debug.Log("[Security Effect] Security Digimon gain +" + effect.value + " DP for next turn.");
 
-                    BattleLogManager.Instance.AddLog(
-                            $"[Security Effect] {source.cardName}, Security Digimon gain +" + effect.value + " DP until end of turn.",
-                            BattleLogManager.LogType.Buff,
+                    GameManager.Instance.RequestAnnoucementServerRpc(
+                            $"[Security Effect] {source.cardName}, {source.ownerId}'s Security Digimon gain +" + effect.value + " DP until end of turn.",
                             source.ownerId);
 
-                    if (source.ownerId == 0)
+                    if (source.ownerId == GameManager.Instance.localPlayerId)
                     {
                         GameManager.Instance.player1SecurityBuff += effect.value;
                     }
@@ -305,16 +319,18 @@ public class EffectManager : MonoBehaviour
                     break;
                 }
 
-            case EffectType.ActivateMainEffect:
+            case EffectType.ActivateMainEffect: //TODO, Need to make this a ClientRpc
                 {
                     Debug.Log("[Security Effect] Activating card's main effect.");
 
-                    BattleLogManager.Instance.AddLog(
+                    GameManager.Instance.RequestAnnoucementServerRpc(
                             $"[Security Effect] {source.cardName}, Activating card's main effect",
-                            BattleLogManager.LogType.System,
                             source.ownerId);
 
-                    TriggerEffects(EffectTrigger.MainPhase, source);
+                    if (IsServer)
+                    {
+                        TriggerEffects(EffectTrigger.MainPhase, source);
+                    }
                     break;
                 }
             
@@ -327,15 +343,19 @@ public class EffectManager : MonoBehaviour
                             $"[Effect] {source.cardName}, Buffing security stack DP",
                             BattleLogManager.LogType.Buff,
                             source.ownerId);
+
+                    if (IsServer)
+                    {
+                        if (source.ownerId == GameManager.Instance.localPlayerId)
+                        {
+                            GameManager.Instance.player1SecurityBuff += effect.value;
+                        }
+                        else
+                        {
+                            GameManager.Instance.player2SecurityBuff += effect.value;
+                        }
+                    }
                     
-                    if (source.ownerId == 0)
-                    {
-                        GameManager.Instance.player1SecurityBuff += effect.value;
-                    }
-                    else
-                    {
-                        GameManager.Instance.player2SecurityBuff += effect.value;
-                    }
                     break;
                 }
                 

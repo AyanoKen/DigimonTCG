@@ -41,6 +41,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
         TamerArea,
         Trash,
         Security,
+        Option,
         None
     }
 
@@ -135,7 +136,27 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     private void OnZoneChanged(Zone previous, Zone current)
     {
-        UpdateView();
+        if (currentZone.Value == Zone.Option)
+        {
+
+            BattleLogManager.Instance.AddLog(
+                            $"Played Option card: {cardName}, cost: {playCost}",
+                            BattleLogManager.LogType.System,
+                            ownerId);
+
+            EffectManager.Instance.TriggerEffects(EffectTrigger.MainPhase, this);
+
+            if (IsServer)
+            {
+                GameManager.Instance.ModifyMemoryServerRpc(playCost);
+                Destroy(this.gameObject);
+            }
+
+        }
+        else
+        {
+            UpdateView();
+        }
     }
 
     public void UpdateView()

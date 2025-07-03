@@ -160,11 +160,30 @@ public class GameManager : NetworkBehaviour
         if ((ulong)current == NetworkManager.Singleton.LocalClientId)
         {
             Debug.Log("It's my turn!");
+
+            var allCards = FindObjectsOfType<Card>();
+            foreach (var card in allCards)
+            {
+                if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                {
+                    EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+                }
+            }
+
             StartTurn();
         }
         else
         {
             Debug.Log("It's opponent's turn.");
+
+            var allCards = FindObjectsOfType<Card>();
+            foreach (var card in allCards)
+            {
+                if (card.ownerId != localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                {
+                    EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+                }
+            }
         }
     }
 
@@ -553,15 +572,6 @@ public class GameManager : NetworkBehaviour
         }
 
         player1SecurityBuff = 0;
-
-        var allCards = FindObjectsOfType<Card>();
-        foreach (var card in allCards)
-        {
-            if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
-            {
-                EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
-            }
-        }
     }
 
     public IEnumerator EndTurnServer(int prevPlayerId)
@@ -1047,7 +1057,7 @@ public class GameManager : NetworkBehaviour
         Debug.Log($"Successfully digivolved {baseCard.cardName} into {newCard.cardName}");
 
         BattleLogManager.Instance.AddLog(
-                            $"Digivolved {baseCard.cardName} into {newCard.cardName}",
+                            $"Player {baseCard.ownerId} Digivolved {baseCard.cardName} into {newCard.cardName}",
                             BattleLogManager.LogType.System,
                             baseCard.ownerId);
 
@@ -1199,6 +1209,34 @@ public class GameManager : NetworkBehaviour
             }
         }
         return 0;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestAnnoucementServerRpc(string log, int playerId)
+    {
+        RunAnnouncementClientRpc(log, playerId);
+    }
+
+    [ClientRpc]
+    public void RunAnnouncementClientRpc(string log, int playerId)
+    {
+        BattleLogManager.Instance.AddLog(
+                            log,
+                            BattleLogManager.LogType.System,
+                            playerId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ModifySecurityBuffServerRpc(int buffValue, int playerId)
+    {
+        if (localPlayerId == playerId)
+        {
+            player1SecurityBuff += buffValue;
+        }
+        else
+        {
+            player2SecurityBuff += buffValue;
+        }
     }
 
     private EffectTrigger ParseTrigger(string trigger)
