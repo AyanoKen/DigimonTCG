@@ -7,6 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Unity.Netcode; 
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class CardData //Datatype for storing CardData parsed from the JSON
@@ -133,6 +134,15 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    void Update()
+    {
+        if (NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsConnectedClient)
+        {
+            Debug.Log("Host disconnected. Returning to lobby...");
+            SceneManager.LoadScene("Lobby");
+        }
+    }
+
     private void OnClientConnected(ulong clientId)
     {
         if (NetworkManager.Singleton.ConnectedClients.Count == 2)
@@ -213,12 +223,12 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton.IsHost)
         {
             NetworkManager.Singleton.Shutdown();
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+            SceneManager.LoadScene("Lobby");
         }
         else if (NetworkManager.Singleton.IsClient)
         {
             NetworkManager.Singleton.Shutdown();
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+            SceneManager.LoadScene("Lobby");
         }
     }
 
