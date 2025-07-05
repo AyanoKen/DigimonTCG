@@ -647,8 +647,6 @@ public class GameManager : NetworkBehaviour
                 card.mainEffectUsed = false;
             }
 
-            BattleLogManager.Instance.ClearLog();
-
         }
 
         foreach (var card in FindObjectsOfType<Card>())
@@ -676,6 +674,8 @@ public class GameManager : NetworkBehaviour
         {
             activePlayer.Value = nextPlayer;
         }
+
+        BattleLogManager.Instance.AddLog("--------------------X--End Of Turn--X--------------------", Color.cyan);
     }
 
     [ServerRpc(RequireOwnership = false)]
