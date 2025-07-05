@@ -658,12 +658,18 @@ public class GameManager : NetworkBehaviour
     {
         if (activePlayer.Value == localPlayerId)
         {
-            currentMemory.Value = 0;
-
-            memoryManager.SetMemory(currentMemory.Value);
-
-            RequestEndTurnServerRpc();
+            ResetMemoryServerRpc();
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetMemoryServerRpc()
+    {
+        currentMemory.Value = 0;
+
+        memoryManager.SetMemory(currentMemory.Value);
+
+        RequestEndTurnServerRpc();
     }
 
     public void CheckTurnSwitch()
