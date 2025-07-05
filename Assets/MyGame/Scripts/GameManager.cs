@@ -58,6 +58,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private Transform canvasTransform;
     [SerializeField] private GameObject endTurnBanner;
     [SerializeField] private SecurityBattlePreview battlePreviewPanel;
+    [SerializeField] private GameObject GameEndScreen;
+    [SerializeField] private TMPro.TMP_Text resultText;
 
 
     [Header("Bottom Zones (Local Player Layout)")]
@@ -187,10 +189,37 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    private void GameOver()
+    [ClientRpc]
+    public void GameOverClientRpc(int winner)
     {
-        Time.timeScale = 0;
         Debug.Log("Game Over — Freezing time.");
+
+        turnTransition = true;
+
+        if (winner == localPlayerId)
+        {
+            resultText.text = "You Won :)";
+        }
+        else
+        {
+            resultText.text = "You Lost :(";
+        }
+
+        GameEndScreen.SetActive(true);
+    }
+
+    public void ReturnToLobby()
+    {
+        if (NetworkManager.Singleton.IsHost)
+        {
+            NetworkManager.Singleton.Shutdown();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+        }
+        else if (NetworkManager.Singleton.IsClient)
+        {
+            NetworkManager.Singleton.Shutdown();
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby");
+        }
     }
 
     private void LoadDeckGuide()
@@ -722,14 +751,25 @@ public class GameManager : NetworkBehaviour
         bool wasBlocked,
         bool isOptionOrTamer)
     {
-        if (revealedCardId == -1)
-        {
-            // Debug.Log("Opponent has no security left, you win!");
-            // GameOver();
-        }
-
+        
         Card attacker = GetCard(attackerId);
         Card blocker = GetCard(blockerId);
+
+        if (revealedCardId == -1)
+        {
+            Debug.Log("Opponent has no security left, you win!");
+
+            if (IsServer)
+            {
+                GameOverClientRpc(attacker.ownerId);
+            }
+
+            turnTransition = true;
+
+            return;
+        }
+
+        
 
         Sprite revealedSprite = null;
 
