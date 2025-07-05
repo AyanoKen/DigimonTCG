@@ -876,7 +876,7 @@ public class GameManager : NetworkBehaviour
                 blockerNetId = 0,
                 attackerDP = 0,
                 opponentDP = 0,
-                revealedCardId = -1,
+                revealedCardId = -2,
                 attackerDeleted = false,
                 blockerDeleted = false,
                 wasBlocked = false,
@@ -890,6 +890,7 @@ public class GameManager : NetworkBehaviour
             if (blocker != null)
             {
                 result.wasBlocked = true;
+                result.revealedCardId = -2;
                 result.blockerNetId = blocker.NetworkObjectId;
 
                 blocker.isBlocking = false;
