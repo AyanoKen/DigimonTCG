@@ -5,15 +5,18 @@ using UnityEngine.SceneManagement;
 
 public class SceneChanger : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void LoadLobby()
     {
-        
+        SceneManager.LoadScene("Lobby");
     }
 
-    // Update is called once per frame
-    void Update()
+    public void ExitGame()
     {
-        
+        Application.Quit();
+    }
+
+    public void LoadCollection()
+    {
+        SceneManager.LoadScene("Collection");
     }
 }
