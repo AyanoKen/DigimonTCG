@@ -7,9 +7,10 @@ using System.IO;
 
 public class DeckManager : MonoBehaviour
 {
-    public GameObject cardPreviewPrefab; 
-    public Transform contentPanel; 
-    public string deckJsonPath = "Cards/Agumon-Deck/AgumonDeckJSON"; 
+    public GameObject cardPreviewPrefab;
+    public Transform contentPanel;
+    public string deckJsonPath = "Cards/Agumon-Deck/AgumonDeckJSON";
+    public Image zoomPreviewImage;
 
     private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
 
@@ -52,6 +53,15 @@ public class DeckManager : MonoBehaviour
             GameObject cardGO = Instantiate(cardPreviewPrefab, contentPanel);
             CardPreview viewer = cardGO.GetComponent<CardPreview>();
             viewer.Setup(id, sprite);
+            viewer.AssignManager(this); 
+        }
+    }
+    
+    public void SetZoomPreview(Sprite sprite)
+    {
+        if (zoomPreviewImage != null)
+        {
+            zoomPreviewImage.sprite = sprite;
         }
     }
 }

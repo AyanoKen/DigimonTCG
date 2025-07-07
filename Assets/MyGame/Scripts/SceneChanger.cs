@@ -19,4 +19,9 @@ public class SceneChanger : MonoBehaviour
     {
         SceneManager.LoadScene("Collection");
     }
+
+    public void LoadTitle()
+    {
+        SceneManager.LoadScene("MainScreen");
+    }
 }
