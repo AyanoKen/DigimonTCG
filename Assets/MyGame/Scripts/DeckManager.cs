@@ -9,7 +9,6 @@ public class DeckManager : MonoBehaviour
 {
     public GameObject cardPreviewPrefab;
     public Transform contentPanel;
-    public string deckJsonPath = "Cards/Agumon-Deck/AgumonDeckJSON";
     public Image zoomPreviewImage;
 
     private Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
@@ -21,11 +20,11 @@ public class DeckManager : MonoBehaviour
 
     private void LoadAndDisplayDeck()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>(deckJsonPath);
+        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/MasterDeckJSON");
 
         if (jsonFile == null)
         {
-            Debug.LogError("Deck JSON not found at path: " + deckJsonPath);
+            Debug.LogError("Deck JSON not found at path: ");
             return;
         }
 
@@ -39,7 +38,9 @@ public class DeckManager : MonoBehaviour
             if (string.IsNullOrEmpty(imagePath))
                 continue;
 
-            string path = imagePath.Replace("./", "Cards/Agumon-Deck/").Replace(".jpg", "").Replace(".png", "");
+
+            Debug.Log(imagePath);
+            string path = "Cards" + imagePath.Replace("./", "/").Replace(".jpg", "").Replace(".png", "");
 
             Sprite sprite = Resources.Load<Sprite>(path);
             if (sprite == null)

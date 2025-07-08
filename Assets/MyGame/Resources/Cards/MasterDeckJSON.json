@@ -1,0 +1,1179 @@
+[
+  {
+    "name": "Koromon",
+    "card_type": "Digi-Egg",
+    "level": 2,
+    "color": "Red",
+    "form": "In-Training",
+    "attribute": null,
+    "dp": null,
+    "play_cost": null,
+    "digivolve_costs": [],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp_child_count",
+        "value": 1000,
+        "conditionValue": 4
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_1.jpg",
+    "id": 1
+  },
+  {
+    "name": "Biyomon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 3000,
+    "play_cost": 2,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_2.jpg",
+    "id": 2
+  },
+  {
+    "name": "Biyomon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 3000,
+    "play_cost": 2,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_3.jpg",
+    "id": 3
+  },
+  {
+    "name": "Biyomon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 3000,
+    "play_cost": 2,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_4.jpg",
+    "id": 4
+  },
+  {
+    "name": "Biyomon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 3000,
+    "play_cost": 2,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_5.jpg",
+    "id": 5
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_6.jpg",
+    "id": 6
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_7.jpg",
+    "id": 7
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_8.jpg",
+    "id": 8
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_9.jpg",
+    "id": 9
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_10.jpg",
+    "id": 10
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_11.jpg",
+    "id": 11
+  },
+  {
+    "name": "Agumon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Vaccine",
+    "dp": 2000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "modify_dp",
+        "value": 1000
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_12.jpg",
+    "id": 12
+  },
+  {
+    "name": "Dracomon",
+    "card_type": "Digimon",
+    "level": 3,
+    "color": "Red",
+    "form": "Rookie",
+    "attribute": "Data",
+    "dp": 4000,
+    "play_cost": 3,
+    "digivolve_costs": [
+      {
+        "from_level": 2,
+        "cost": 0,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_13.jpg",
+    "id": 13
+  },
+  {
+    "name": "Birdramon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Vaccine",
+    "dp": 5000,
+    "play_cost": 4,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_14.jpg",
+    "id": 14
+  },
+  {
+    "name": "Coredramon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Virus",
+    "dp": 6000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "keyword",
+        "keyword": "Blocker"
+      },
+      {
+        "type": "triggered",
+        "trigger": "when_attacking",
+        "effect": {
+          "type": "lose_memory",
+          "value": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_15.jpg",
+    "id": 15
+  },
+  {
+    "name": "Coredramon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Virus",
+    "dp": 6000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "keyword",
+        "keyword": "Blocker"
+      },
+      {
+        "type": "triggered",
+        "trigger": "when_attacking",
+        "effect": {
+          "type": "lose_memory",
+          "value": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_16.jpg",
+    "id": 16
+  },
+  {
+    "name": "Greymon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Vaccine",
+    "dp": 4000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "extra_security_attack",
+        "value": 1
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_17.jpg",
+    "id": 17
+  },
+  {
+    "name": "Greymon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Vaccine",
+    "dp": 4000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "extra_security_attack",
+        "value": 1
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_18.jpg",
+    "id": 18
+  },
+  {
+    "name": "Greymon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Vaccine",
+    "dp": 4000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "extra_security_attack",
+        "value": 1
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_19.jpg",
+    "id": 19
+  },
+  {
+    "name": "Greymon",
+    "card_type": "Digimon",
+    "level": 4,
+    "color": "Red",
+    "form": "Champion",
+    "attribute": "Vaccine",
+    "dp": 4000,
+    "play_cost": 5,
+    "digivolve_costs": [
+      {
+        "from_level": 3,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "your_turn",
+      "effect": {
+        "type": "extra_security_attack",
+        "value": 1
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_20.jpg",
+    "id": 20
+  },
+  {
+    "name": "Garudamon",
+    "card_type": "Digimon",
+    "level": 5,
+    "color": "Red",
+    "form": "Ultimate",
+    "attribute": "Vaccine",
+    "dp": 7000,
+    "play_cost": 6,
+    "digivolve_costs": [
+      {
+        "from_level": 4,
+        "cost": 3,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "when_digivolving",
+        "effect": {
+          "type": "modify_ally_dp",
+          "value": 3000
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_21.jpg",
+    "id": 21
+  },
+  {
+    "name": "Garudamon",
+    "card_type": "Digimon",
+    "level": 5,
+    "color": "Red",
+    "form": "Ultimate",
+    "attribute": "Vaccine",
+    "dp": 7000,
+    "play_cost": 6,
+    "digivolve_costs": [
+      {
+        "from_level": 4,
+        "cost": 3,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "when_digivolving",
+        "effect": {
+          "type": "modify_ally_dp",
+          "value": 3000
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_22.jpg",
+    "id": 22
+  },
+  {
+    "name": "MetalGreymon",
+    "card_type": "Digimon",
+    "level": 5,
+    "color": "Red",
+    "form": "Ultimate",
+    "attribute": "Vaccine",
+    "dp": 7000,
+    "play_cost": 7,
+    "digivolve_costs": [
+      {
+        "from_level": 4,
+        "cost": 3,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "when_blocked",
+      "effect": {
+        "type": "gain_memory",
+        "value": 3
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_23.jpg",
+    "id": 23
+  },
+  {
+    "name": "MetalGreymon",
+    "card_type": "Digimon",
+    "level": 5,
+    "color": "Red",
+    "form": "Ultimate",
+    "attribute": "Vaccine",
+    "dp": 7000,
+    "play_cost": 7,
+    "digivolve_costs": [
+      {
+        "from_level": 4,
+        "cost": 3,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "when_blocked",
+      "effect": {
+        "type": "gain_memory",
+        "value": 3
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_24.jpg",
+    "id": 24
+  },
+  {
+    "name": "MetalGreymon",
+    "card_type": "Digimon",
+    "level": 5,
+    "color": "Red",
+    "form": "Ultimate",
+    "attribute": "Vaccine",
+    "dp": 7000,
+    "play_cost": 7,
+    "digivolve_costs": [
+      {
+        "from_level": 4,
+        "cost": 3,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": {
+      "type": "passive",
+      "phase": "when_blocked",
+      "effect": {
+        "type": "gain_memory",
+        "value": 3
+      }
+    },
+    "image_path": "./Agumon-Deck/images/image_25.jpg",
+    "id": 25
+  },
+  {
+    "name": "Phoenixmon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 10,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_26.jpg",
+    "id": 26
+  },
+  {
+    "name": "Phoenixmon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 10,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 2,
+        "color": "Red"
+      }
+    ],
+    "effect": null,
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_27.jpg",
+    "id": 27
+  },
+  {
+    "name": "WarGreymon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 12,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 4,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_28.jpg",
+    "id": 28
+  },
+  {
+    "name": "WarGreymon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 12,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 4,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_29.jpg",
+    "id": 29
+  },
+  {
+    "name": "WarGreymon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 12,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 4,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_30.jpg",
+    "id": 30
+  },
+  {
+    "name": "WarGreymon",
+    "card_type": "Digimon",
+    "level": 6,
+    "color": "Red",
+    "form": "Mega",
+    "attribute": "Vaccine",
+    "dp": 12000,
+    "play_cost": 12,
+    "digivolve_costs": [
+      {
+        "from_level": 5,
+        "cost": 4,
+        "color": "Red"
+      }
+    ],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "increment_security_based_on_children",
+          "value": 1,
+          "conditionValue": 2
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_31.jpg",
+    "id": 31
+  },
+  {
+    "name": "Tai Kamiya",
+    "card_type": "Tamer",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 2,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "modify_party_dp",
+          "value": 1000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "play_card_without_memory"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_32.jpg",
+    "id": 32
+  },
+  {
+    "name": "Tai Kamiya",
+    "card_type": "Tamer",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 2,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "your_turn",
+        "effect": {
+          "type": "modify_party_dp",
+          "value": 1000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "play_card_without_memory"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_33.jpg",
+    "id": 33
+  },
+  {
+    "name": "Shadow Wing",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 1,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "modify_ally_dp",
+          "value": 3000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "extra_security_attack_party_next_turn",
+          "value": 1
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_34.jpg",
+    "id": 34
+  },
+  {
+    "name": "Shadow Wing",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 1,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "modify_ally_dp",
+          "value": 3000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "extra_security_attack_party_next_turn",
+          "value": 1
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_35.jpg",
+    "id": 35
+  },
+  {
+    "name": "Shadow Wing",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 1,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "modify_ally_dp",
+          "value": 3000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "extra_security_attack_party_next_turn",
+          "value": 1
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_36.jpg",
+    "id": 36
+  },
+  {
+    "name": "Starlight Explosion",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 2,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "buff_security_dp",
+          "value": 7000
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "buff_security_next_turn",
+          "value": 7000
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_37.jpg",
+    "id": 37
+  },
+  {
+    "name": "Giga Destroyer",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 6,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "delete_opponent_dp_below_threshold",
+          "value": 4000,
+          "conditionValue": 2
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "activate_main_effect"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_38.jpg",
+    "id": 38
+  },
+  {
+    "name": "Gaia Force",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 8,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "delete_target_opponent"
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "activate_main_effect"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_39.jpg",
+    "id": 39
+  },
+  {
+    "name": "Gaia Force",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 8,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "delete_target_opponent"
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "activate_main_effect"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_40.jpg",
+    "id": 40
+  },
+  {
+    "name": "Gaia Force",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 8,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "delete_target_opponent"
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "activate_main_effect"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_41.jpg",
+    "id": 41
+  },
+  {
+    "name": "Gaia Force",
+    "card_type": "Option",
+    "level": null,
+    "color": "Red",
+    "form": null,
+    "attribute": null,
+    "dp": null,
+    "play_cost": 8,
+    "digivolve_costs": [],
+    "effect": [
+      {
+        "type": "triggered",
+        "trigger": "main",
+        "effect": {
+          "type": "delete_target_opponent"
+        }
+      },
+      {
+        "type": "triggered",
+        "trigger": "security",
+        "effect": {
+          "type": "activate_main_effect"
+        }
+      }
+    ],
+    "inherited_effect": null,
+    "image_path": "./Agumon-Deck/images/image_42.jpg",
+    "id": 42
+  }
+]

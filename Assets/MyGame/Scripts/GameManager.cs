@@ -234,7 +234,7 @@ public class GameManager : NetworkBehaviour
 
     private void LoadDeckGuide()
     {
-        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/Agumon-Deck/AgumonDeckJSON");
+        TextAsset jsonFile = Resources.Load<TextAsset>("Cards/MasterDeckJSON");
         if (jsonFile == null)
         {
             Debug.LogError("Deck JSON file not found.");
@@ -244,25 +244,17 @@ public class GameManager : NetworkBehaviour
         JArray jsonArray = JArray.Parse(jsonFile.text);
         deckguide = new List<CardData>();
 
+        List<int> allEggCardIds = new List<int>();
+        List<int> allPlayableCardIds = new List<int>();
+
         foreach (var token in jsonArray)
         {
             CardData card = token.ToObject<CardData>();
             deckguide.Add(card);
             idToData[card.id] = card;
 
-            if (card.card_type == "Digi-Egg")
-            {
-                player1Eggs.Add(card.id);
-                player2Eggs.Add(card.id);
-            }
-            else
-            {
-                player1Deck.Add(card.id);
-                player2Deck.Add(card.id);
-            }
-
             // Load and cache image
-            string path = card.image_path.Replace("./", "Cards/Agumon-Deck/").Replace(".jpg", "").Replace(".png", "");
+            string path = "Cards" + card.image_path.Replace("./", "/").Replace(".jpg", "").Replace(".png", "");
             Sprite sprite = Resources.Load<Sprite>(path);
             if (sprite != null)
             {
@@ -271,6 +263,15 @@ public class GameManager : NetworkBehaviour
             else
             {
                 Debug.LogWarning("Image not found for: " + path);
+            }
+
+            if (card.card_type == "Digi-Egg")
+            {
+                allEggCardIds.Add(card.id);
+            }
+            else
+            {
+                allPlayableCardIds.Add(card.id);
             }
 
             // Parse main effects
@@ -323,7 +324,39 @@ public class GameManager : NetworkBehaviour
             }
         }
 
+        player1Eggs = GetRandomCardsWithRepeat(allEggCardIds, 5);
+        player2Eggs = GetRandomCardsWithRepeat(allEggCardIds, 5);
+
+        player1Deck = GetRandomCardsWithRepeat(allPlayableCardIds, 45);
+        player2Deck = GetRandomCardsWithRepeat(allPlayableCardIds, 45);
+
         Debug.Log($"[LoadDeckGuide] Loaded {deckguide.Count} cards");
+        Debug.Log($"[Deck Split] Player1 Eggs: {player1Eggs.Count}, Player1 Deck: {player1Deck.Count}");
+        Debug.Log($"[Deck Split] Player2 Eggs: {player2Eggs.Count}, Player2 Deck: {player2Deck.Count}");
+    }
+
+    private List<int> GetRandomCardsWithRepeat(List<int> source, int count)
+    {
+        if (source == null || source.Count == 0)
+        {
+            Debug.LogError("Source list is empty. Cannot pick cards.");
+            return new List<int>();
+        }
+
+        List<int> result = new List<int>();
+
+        while (result.Count < count)
+        {
+            var shuffled = source.OrderBy(x => Random.value).ToList();
+            foreach (var id in shuffled)
+            {
+                result.Add(id);
+                if (result.Count == count)
+                    break;
+            }
+        }
+
+        return result;
     }
 
     private void InitializeDeck()
