@@ -20,7 +20,8 @@ public class CardDropHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (GameManager.Instance.GetActivePlayer() == GameManager.Instance.localPlayerId && card.ownerId == GameManager.Instance.localPlayerId &&
-            (card.currentZone.Value == Card.Zone.Hand || card.currentZone.Value == Card.Zone.BreedingActiveSlot))
+            (card.currentZone.Value == Card.Zone.Hand || card.currentZone.Value == Card.Zone.BreedingActiveSlot) && 
+            GameManager.Instance.turnTransition == false)
         {
             canDrag = true;
             originalParent = transform.parent;

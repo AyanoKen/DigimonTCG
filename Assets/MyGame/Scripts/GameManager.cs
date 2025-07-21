@@ -647,16 +647,19 @@ public class GameManager : NetworkBehaviour
     {
         if (isGameOver) return;
 
+        turnTransition = false;
+
         if (IsServer)
         {
             DrawCardFromDeck(activePlayer.Value);
+            player1SecurityBuff = 0;
         }
         else
         {
             RequestCardDrawServerRpc(localPlayerId);
+            player2SecurityBuff = 0;
         }
 
-        player1SecurityBuff = 0;
     }
 
     public IEnumerator EndTurnServer(int prevPlayerId)
@@ -700,14 +703,10 @@ public class GameManager : NetworkBehaviour
             card.HideActionPanel();
         }
 
-        turnTransition = true;
-
         endTurnBanner.SetActive(true);
         endTurnBanner.GetComponent<TurnTransitionBanner>().StartTransition();
 
         yield return new WaitForSeconds(2.5f);
-
-        turnTransition = false;
 
         int nextPlayer = 0;
 
@@ -741,8 +740,9 @@ public class GameManager : NetworkBehaviour
 
     public void ForceEndTurn() //TODO
     {
-        if (activePlayer.Value == localPlayerId)
+        if (activePlayer.Value == localPlayerId && turnTransition == false)
         {
+            turnTransition = true;
             ResetMemoryServerRpc();
         }
     }
@@ -762,6 +762,7 @@ public class GameManager : NetworkBehaviour
         if ((activePlayer.Value == 0 && currentMemory.Value < 0) ||
                 (activePlayer.Value == 1 && currentMemory.Value > 0))
         {
+            turnTransition = true;
             RequestEndTurnServerRpc();
         }
     }

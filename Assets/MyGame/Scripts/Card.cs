@@ -222,7 +222,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (eventData.button == PointerEventData.InputButton.Left && ownerId == GameManager.Instance.localPlayerId)
         {
             if (transform.childCount > 1)
             {
