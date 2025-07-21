@@ -61,6 +61,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private SecurityBattlePreview battlePreviewPanel;
     [SerializeField] private GameObject GameEndScreen;
     [SerializeField] private TMPro.TMP_Text resultText;
+    [SerializeField] private GameObject joinCodePanel;
+    [SerializeField] private TMPro.TMP_Text joinCodeText;
 
 
     [Header("Bottom Zones (Local Player Layout)")]
@@ -132,6 +134,12 @@ public class GameManager : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }
+
+        if (IsHost && joinCodePanel != null && joinCodeText != null)
+        {
+            joinCodePanel.SetActive(true);
+            joinCodeText.text = $"Join Code: {RelaySessionInfo.JoinCode}";
+        }
     }
 
     void Update()
@@ -148,6 +156,11 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton.ConnectedClients.Count == 2)
         {
             Debug.Log("Both players connected. Starting game.");
+
+            if (joinCodePanel != null)
+            {
+                Destroy(joinCodePanel);
+            }
 
             InitializeDeck();
             DrawStartingHands(5);
