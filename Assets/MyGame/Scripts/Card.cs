@@ -126,7 +126,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
         {
             GetComponent<Image>().sprite = sprite;
         }
-        
+
     }
 
     protected new void OnDestroy()
@@ -442,5 +442,15 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
     {
         dpBuff = 0;
         securityAttackCount = 1;
+    }
+    
+    [ClientRpc]
+    public void RemoveDropHandlerClientRpc()
+    {
+        var handler = GetComponent<CardDropHandler>();
+        if (handler != null)
+        {
+            Destroy(handler);
+        }
     }
 }

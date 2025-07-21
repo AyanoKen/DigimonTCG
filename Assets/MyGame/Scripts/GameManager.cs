@@ -499,8 +499,6 @@ public class GameManager : NetworkBehaviour
             card.sprite = sprite;
         }
 
-        Destroy(card.GetComponent<CardDropHandler>());
-
         if (idToData.TryGetValue(cardId, out CardData data))
         {
             card.cardName = data.name;
@@ -518,6 +516,7 @@ public class GameManager : NetworkBehaviour
             card.InitializeFlagsFromEffects();
         }
 
+        card.RemoveDropHandlerClientRpc();
         card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
     }
 
