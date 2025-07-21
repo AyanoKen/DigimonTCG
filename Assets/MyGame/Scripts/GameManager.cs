@@ -97,7 +97,7 @@ public class GameManager : NetworkBehaviour
     public int localPlayerId = 0;
     public int player1SecurityBuff = 0;
     public int player2SecurityBuff = 0;
-    public bool turnTransition = false;
+    
 
     public struct SecurityAttackResult
     {
@@ -113,6 +113,7 @@ public class GameManager : NetworkBehaviour
     }
     
     public NetworkVariable<int> currentMemory = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<bool> turnTransition = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public NetworkVariable<int> activePlayer = new NetworkVariable<int>(
         0,
@@ -182,42 +183,46 @@ public class GameManager : NetworkBehaviour
 
     private void OnTurnChanged(int previous, int current)
     {
+
+        if (IsServer)
+        {
+            turnTransition.Value = false;
+        }
+
         if ((ulong)current == NetworkManager.Singleton.LocalClientId)
-        {
-            Debug.Log("It's my turn!");
-
-            var allCards = FindObjectsOfType<Card>();
-            foreach (var card in allCards)
             {
-                if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                Debug.Log("It's my turn!");
+
+                var allCards = FindObjectsOfType<Card>();
+                foreach (var card in allCards)
                 {
-                    EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+                    if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                    {
+                        EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+                    }
+                }
+
+                StartTurn();
+            }
+            else
+            {
+                Debug.Log("It's opponent's turn.");
+
+                var allCards = FindObjectsOfType<Card>();
+                foreach (var card in allCards)
+                {
+                    if (card.ownerId != localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                    {
+                        EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
+                    }
                 }
             }
-
-            StartTurn();
-        }
-        else
-        {
-            Debug.Log("It's opponent's turn.");
-
-            var allCards = FindObjectsOfType<Card>();
-            foreach (var card in allCards)
-            {
-                if (card.ownerId != localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
-                {
-                    EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
-                }
-            }
-        }
     }
 
     [ClientRpc]
     public void GameOverClientRpc(int winner)
     {
         Debug.Log("Game Over — Freezing time.");
-
-        turnTransition = true;
 
         if (winner == localPlayerId)
         {
@@ -647,8 +652,6 @@ public class GameManager : NetworkBehaviour
     {
         if (isGameOver) return;
 
-        turnTransition = false;
-
         if (IsServer)
         {
             DrawCardFromDeck(activePlayer.Value);
@@ -728,6 +731,8 @@ public class GameManager : NetworkBehaviour
     {
         Debug.Log($"[TurnRPC] Server received RequestEndTurnServerRpc from player {activePlayer.Value}");
 
+        turnTransition.Value = true;
+
         RunEndTurnClientRpc(activePlayer.Value);
     }
 
@@ -738,11 +743,10 @@ public class GameManager : NetworkBehaviour
     }
 
 
-    public void ForceEndTurn() //TODO
+    public void ForceEndTurn()
     {
-        if (activePlayer.Value == localPlayerId && turnTransition == false)
+        if (activePlayer.Value == localPlayerId && turnTransition.Value == false)
         {
-            turnTransition = true;
             ResetMemoryServerRpc();
         }
     }
@@ -762,7 +766,6 @@ public class GameManager : NetworkBehaviour
         if ((activePlayer.Value == 0 && currentMemory.Value < 0) ||
                 (activePlayer.Value == 1 && currentMemory.Value > 0))
         {
-            turnTransition = true;
             RequestEndTurnServerRpc();
         }
     }
@@ -820,8 +823,6 @@ public class GameManager : NetworkBehaviour
             {
                 GameOverClientRpc(attacker.ownerId);
             }
-
-            turnTransition = true;
 
             return;
         }
@@ -930,8 +931,6 @@ public class GameManager : NetworkBehaviour
                 isOptionOrTamer = false
             };
 
-            //turnTransition = true;
-
             Card blocker = FindObjectsOfType<Card>().FirstOrDefault(card => card.ownerId == opponentId && card.isBlocking && card.currentZone.Value == Card.Zone.BattleArea);
 
             if (blocker != null)
@@ -985,7 +984,6 @@ public class GameManager : NetworkBehaviour
                     return results;
                 }
 
-                // turnTransition = false;
                 results.Add(result);
                 continue;
             }
@@ -1008,7 +1006,6 @@ public class GameManager : NetworkBehaviour
             if (!idToData.TryGetValue(securitycardId, out CardData securityCardData))
             {
                 Debug.LogWarning("Unable to fetch card data for revealed security card");
-                // turnTransition = false;
                 continue;
             }
 
@@ -1051,7 +1048,6 @@ public class GameManager : NetworkBehaviour
                         player2Trash.Add(securitycardId);
                     }
                 }
-                // turnTransition = false;
 
                 results.Add(result);
                 continue;
@@ -1101,7 +1097,6 @@ public class GameManager : NetworkBehaviour
                     player2Trash.Add(securitycardId);
                 }
             }
-            // turnTransition = false;
 
             results.Add(result);
         }
