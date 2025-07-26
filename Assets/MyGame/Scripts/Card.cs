@@ -222,7 +222,8 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left && ownerId == GameManager.Instance.localPlayerId)
+        if (eventData.button == PointerEventData.InputButton.Left && ownerId == GameManager.Instance.localPlayerId
+            && GameManager.Instance.turnTransition.Value == false)
         {
             if (transform.childCount > 1)
             {
@@ -319,7 +320,7 @@ public class Card : NetworkBehaviour, IPointerClickHandler, IPointerDownHandler,
 
     public void AttackSecurity()
     {
-        if (currentZone.Value == Zone.TamerArea)
+        if (currentZone.Value == Zone.TamerArea && GameManager.Instance.turnTransition.Value == false)
         {
             if (mainEffectUsed)
             {
