@@ -47,7 +47,6 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Transform playerSecurityStackVisual;
     [SerializeField] private Transform opponentSecurityStackVisual;
-    [SerializeField] private Transform breedingZone;
     [SerializeField] private MemoryGaugeManager memoryManager;
     [SerializeField] public Sprite cardBackSprite;
     [SerializeField] private GameObject securityRevealPrefab;
@@ -72,21 +71,21 @@ public class GameManager : NetworkBehaviour
     [SerializeField] public Transform tamerZone_Top;
     [SerializeField] public Transform breedingZone_Top;
 
+
     private List<CardData> deckguide;
     public Dictionary<int, CardData> idToData = new Dictionary<int, CardData>();
     public Dictionary<int, Sprite> idToSprite = new Dictionary<int, Sprite>();
 
     private List<int> player1Eggs = new List<int>();
+    private List<int> player2Eggs = new List<int>();
     private List<int> player1Deck = new List<int>();
     private List<int> player2Deck = new List<int>();
-    private List<int> player2Hand = new List<int>();
-    private List<int> player2Eggs = new List<int>();
     private List<int> player1SecurityStack = new List<int>();
     private List<int> player2SecurityStack = new List<int>();
     private List<int> player1Trash = new List<int>();
     private List<int> player2Trash = new List<int>();
-    private bool isGameOver = false;
 
+    private bool isGameOver = false;
     public bool isHatchingSlotOccupied = false;
     public bool opponentHatchingOccupied = false;
     public int localPlayerId = 0;
@@ -94,7 +93,7 @@ public class GameManager : NetworkBehaviour
     public int player2SecurityBuff = 0;
     
 
-    public struct SecurityAttackResult
+    public struct SecurityAttackResult // Datatype to interpret security attack details
     {
         public ulong attackerNetId;
         public ulong blockerNetId;
@@ -191,7 +190,9 @@ public class GameManager : NetworkBehaviour
                 var allCards = FindObjectsOfType<Card>();
                 foreach (var card in allCards)
                 {
-                    if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                    // Trigger start of the turn effects of active cards in the field
+                    if (card.ownerId == localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea ||
+                        card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
                     {
                         EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
                     }
@@ -206,7 +207,8 @@ public class GameManager : NetworkBehaviour
                 var allCards = FindObjectsOfType<Card>();
                 foreach (var card in allCards)
                 {
-                    if (card.ownerId != localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea || card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
+                    if (card.ownerId != localPlayerId && (card.currentZone.Value == Card.Zone.BattleArea ||
+                        card.currentZone.Value == Card.Zone.TamerArea) && !card.isDigivolved)
                     {
                         EffectManager.Instance.TriggerEffects(EffectTrigger.YourTurn, card);
                     }
@@ -215,9 +217,9 @@ public class GameManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void GameOverClientRpc(int winner)
+    public void GameOverClientRpc(int winner) //Runs after game ends, to announce results
     {
-        Debug.Log("Game Over — Freezing time.");
+        Debug.Log("Game Over");
 
         if (winner == localPlayerId)
         {
@@ -231,7 +233,7 @@ public class GameManager : NetworkBehaviour
         GameEndScreen.SetActive(true);
     }
 
-    public void ReturnToLobby()
+    public void ReturnToLobby() //TODO: Weird edge case bug with this function
     {
         if (NetworkManager.Singleton.IsHost)
         {
@@ -245,7 +247,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    private void LoadDeckGuide()
+    private void LoadDeckGuide() //Converts card json data to machine readable data structure
     {
         TextAsset jsonFile = Resources.Load<TextAsset>("Cards/MasterDeckJSON");
         if (jsonFile == null)
@@ -299,7 +301,6 @@ public class GameManager : NetworkBehaviour
                     string phase = entry["phase"]?.ToString();
                     string keyword = entry["keyword"]?.ToString();
 
-                    // 🔧 Here is the critical fix you need to add:
                     if (outerType == "passive" && string.IsNullOrEmpty(trigger))
                     {
                         trigger = phase;
@@ -337,6 +338,7 @@ public class GameManager : NetworkBehaviour
             }
         }
 
+        //The below makes sure that each deck contains exactly 5 egg cards and 45 regular cards
         player1Eggs = GetRandomCardsWithRepeat(allEggCardIds, 5);
         player2Eggs = GetRandomCardsWithRepeat(allEggCardIds, 5);
 
@@ -348,6 +350,7 @@ public class GameManager : NetworkBehaviour
         Debug.Log($"[Deck Split] Player2 Eggs: {player2Eggs.Count}, Player2 Deck: {player2Deck.Count}");
     }
 
+    //Helper function to create egg and regular decks
     private List<int> GetRandomCardsWithRepeat(List<int> source, int count)
     {
         if (source == null || source.Count == 0)
@@ -372,7 +375,7 @@ public class GameManager : NetworkBehaviour
         return result;
     }
 
-    private void InitializeDeck()
+    private void InitializeDeck() //Randomize the decks of each player
     {
         player1Deck = player1Deck.OrderBy(x => Random.value).ToList();
         player2Deck = player2Deck.OrderBy(x => Random.value).ToList();
@@ -387,6 +390,13 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestCardDrawServerRpc(int playerId)
+    {
+        DrawCardFromDeck(playerId);
+    }
+
+    //Draw card from Deck depending on player
     public void DrawCardFromDeck(int playerId)
     {
         var deck = playerId == 0 ? player1Deck : player2Deck;
@@ -401,12 +411,6 @@ public class GameManager : NetworkBehaviour
         deck.RemoveAt(0);
 
         SpawnCardToHand(cardId, (ulong)playerId);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestCardDrawServerRpc(int playerId)
-    {
-        DrawCardFromDeck(playerId);
     }
 
     private void SpawnCardToHand(int cardId, ulong clientId)
@@ -511,13 +515,12 @@ public class GameManager : NetworkBehaviour
             card.InitializeFlagsFromEffects();
         }
 
-        card.RemoveDropHandlerClientRpc();
+        card.RemoveDropHandlerClientRpc(); //Makes the egg card be non interactable until evolved
         card.NotifyZoneChange(Card.Zone.BreedingActiveSlot);
     }
 
     public bool DrawCardFromEggs(int playerId)
     {
-
         if (playerId == 0 && isHatchingSlotOccupied) return false;
         if (playerId == 1 && opponentHatchingOccupied) return false;
 
@@ -593,7 +596,7 @@ public class GameManager : NetworkBehaviour
 
         ModifyMemoryServerRpc(cost);
 
-        if (card.cardType == "Digimon")
+        if (card.cardType == "Digimon") //Card inactive visual cue
         {
             card.GetComponent<Image>().color = new Color32(0x7E, 0x7E, 0x7E, 0xFF);
         }
@@ -626,6 +629,7 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     public void UpdateSecurityStackClientRpc(int playerId)
     {
+        //Updates the visual stack of security cards in the game view
         if (playerId == localPlayerId)
         {
             if (playerSecurityStackVisual.childCount > 0)
@@ -659,7 +663,23 @@ public class GameManager : NetworkBehaviour
 
     }
 
-    public IEnumerator EndTurnServer(int prevPlayerId)
+    [ServerRpc(RequireOwnership = false)]
+    public void RequestEndTurnServerRpc()
+    {
+        Debug.Log($"[TurnRPC] Server received RequestEndTurnServerRpc from player {activePlayer.Value}");
+
+        turnTransition.Value = true;
+
+        RunEndTurnClientRpc(activePlayer.Value);
+    }
+
+    [ClientRpc]
+    public void RunEndTurnClientRpc(int prevPlayer)
+    {
+        StartCoroutine(EndTurn(prevPlayer));
+    }
+
+    public IEnumerator EndTurn(int prevPlayerId)
     {
         yield return new WaitForSeconds(0.2f);
 
@@ -720,24 +740,8 @@ public class GameManager : NetworkBehaviour
         BattleLogManager.Instance.AddLog("--------------------X--End Of Turn--X--------------------", Color.cyan);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestEndTurnServerRpc()
-    {
-        Debug.Log($"[TurnRPC] Server received RequestEndTurnServerRpc from player {activePlayer.Value}");
 
-        turnTransition.Value = true;
-
-        RunEndTurnClientRpc(activePlayer.Value);
-    }
-
-    [ClientRpc]
-    public void RunEndTurnClientRpc(int prevPlayer)
-    {
-        StartCoroutine(EndTurnServer(prevPlayer));
-    }
-
-
-    public void ForceEndTurn()
+    public void ForceEndTurn() //Trigger end turn on demand
     {
         if (activePlayer.Value == localPlayerId && turnTransition.Value == false)
         {
@@ -820,8 +824,6 @@ public class GameManager : NetworkBehaviour
 
             return;
         }
-
-        
 
         Sprite revealedSprite = null;
 
