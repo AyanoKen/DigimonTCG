@@ -1,3 +1,9 @@
+/*
+    GameManager.cs
+    
+
+*/
+
 using System.Collections.Generic;
 using System.Collections;
 using System.IO;
@@ -26,12 +32,6 @@ public class CardData //Datatype for storing CardData parsed from the JSON
     public List<EffectData> effects;
     public List<EffectData> inheritedEffects;
 
-    //Debug function to be able to log card data
-    public override string ToString()
-    {
-        return $"ID: {id}, Name: {name}, Type: {card_type}, Level: {level}, PlayCost: {play_cost}, Color: {color}, Form: {form}, DP: {dp}";
-    }
-
     [System.Serializable]
     public class DigivolveCost //Datatype for representing Digivolution conditions
     {
@@ -45,11 +45,6 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance;
 
     [SerializeField] private GameObject cardPrefab;
-    [SerializeField] private Transform handZone;
-    [SerializeField] private Transform opponentHandZone;
-    [SerializeField] private Transform opponentBattleZone;
-    [SerializeField] public Transform opponentTamerZone;
-    [SerializeField] public Transform playerTamerZone;
     [SerializeField] private Transform playerSecurityStackVisual;
     [SerializeField] private Transform opponentSecurityStackVisual;
     [SerializeField] private Transform breedingZone;
